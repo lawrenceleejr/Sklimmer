@@ -1,0 +1,2 @@
+rm -rf submitDir/
+root -l 'Sklimmer.cxx ("submitDir", true, "/imports/home/larryl/slim/D3PD")'
