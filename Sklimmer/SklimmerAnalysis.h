@@ -2,10 +2,11 @@
 #define Sklimmer_SklimmerAnalysis_H
 
 #include <EventLoop/Algorithm.h>
+
 #include <D3PDReader/Event.h>
 #include <EventLoopAlgs/NTupleSvc.h>
 
-#include "JetSelectorTools/TJetCleaningTool.h"
+//#include "JetSelectorTools/TJetCleaningTool.h"
 
 #include <RJigsaw/TRJigsaw.h>
 
@@ -61,7 +62,7 @@ public:
 
   // Root::TJetCleaningTool *my_JetCleaningTool;
 
-  Root::TRJigsaw* RJTool = new Root::TRJigsaw();
+  Root::TRJigsaw* RJTool = new Root::TRJigsaw(); //!
 
 
   // this is a standard constructor

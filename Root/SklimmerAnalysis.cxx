@@ -205,55 +205,55 @@ EL::StatusCode SklimmerAnalysis :: execute ()
   //   } // end if 
   // } // end for loop of jets
 
-  if( event->jet_AntiKt4LCTopo.n() < 2 ) passEvent=0;
-  if( event->mu.n() < 2 ) passEvent=0;
+if( event->jet_AntiKt4LCTopo.n() < 2 ) passEvent=0;
+if( event->mu.n() < 2 ) passEvent=0;
 
-  TLorentzVector Muon[3];
-  TLorentzVector Jet[3];
+TLorentzVector Muon[3];
+TLorentzVector Jet[3];
 
-  Muon[0].SetPtEtaPhiM( event->mu[0].pt(),
-                        event->mu[0].eta(),
-                        event->mu[0].phi(),
-                        event->mu[0].m() );
-  Muon[1].SetPtEtaPhiM( event->mu[1].pt(),
-                        event->mu[1].eta(),
-                        event->mu[1].phi(),
-                        event->mu[1].m() );
+Muon[0].SetPtEtaPhiM( event->mu[0].pt(),
+                      event->mu[0].eta(),
+                      event->mu[0].phi(),
+                      event->mu[0].m() );
+Muon[1].SetPtEtaPhiM( event->mu[1].pt(),
+                      event->mu[1].eta(),
+                      event->mu[1].phi(),
+                      event->mu[1].m() );
 
-  Jet[0].SetPtEtaPhiM(  event->jet_AntiKt4LCTopo[0].pt(),
-                        event->jet_AntiKt4LCTopo[0].eta(),
-                        event->jet_AntiKt4LCTopo[0].phi(),
-                        event->jet_AntiKt4LCTopo[0].m() );
-  Jet[1].SetPtEtaPhiM(  event->jet_AntiKt4LCTopo[1].pt(),
-                        event->jet_AntiKt4LCTopo[1].eta(),
-                        event->jet_AntiKt4LCTopo[1].phi(),
-                        event->jet_AntiKt4LCTopo[1].m() );
+Jet[0].SetPtEtaPhiM(  event->jet_AntiKt4LCTopo[0].pt(),
+                      event->jet_AntiKt4LCTopo[0].eta(),
+                      event->jet_AntiKt4LCTopo[0].phi(),
+                      event->jet_AntiKt4LCTopo[0].m() );
+Jet[1].SetPtEtaPhiM(  event->jet_AntiKt4LCTopo[1].pt(),
+                      event->jet_AntiKt4LCTopo[1].eta(),
+                      event->jet_AntiKt4LCTopo[1].phi(),
+                      event->jet_AntiKt4LCTopo[1].m() );
 
-  if( Muon[0].DeltaR(Jet[0]) > Muon[1].DeltaR(Jet[0])  ){
-    Muon[3] = Muon[0];
-    Muon[0] = Muon[1];
-    Muon[1] = Muon[3];
-  }
+if( Muon[0].DeltaR(Jet[0]) > Muon[1].DeltaR(Jet[0])  ){
+  Muon[3] = Muon[0];
+  Muon[0] = Muon[1];
+  Muon[1] = Muon[3];
+}
 
 
-  RJTool->newEvent();
+RJTool->newEvent();
 
-  RJTool->addVisParticle("b",Jet[0],1);
-  RJTool->addVisParticle("b",Jet[1],2);
+RJTool->addVisParticle("b",Jet[0],1);
+RJTool->addVisParticle("b",Jet[1],2);
 
-  RJTool->addVisParticle("l",Muon[0],1);
-  RJTool->addVisParticle("l",Muon[1],2);
+RJTool->addVisParticle("l",Muon[0],1);
+RJTool->addVisParticle("l",Muon[1],2);
 
-  TVector3 MET;
-  MET.SetXYZ(  event->MET_RefFinal_Egamma10NoTau.etx(),  event->MET_RefFinal_Egamma10NoTau.ety(), 0.0 );
-  RJTool->addMET( MET );
+TVector3 MET;
+MET.SetXYZ(  event->MET_RefFinal_Egamma10NoTau.etx(),  event->MET_RefFinal_Egamma10NoTau.ety(), 0.0 );
+RJTool->addMET( MET );
 
-  RJTool->setHemisphereMode(0); //top symmetry
-  RJTool->guessInvParticles();
-  RJTool->getObservables();
+RJTool->setHemisphereMode(0); //top symmetry
+RJTool->guessInvParticles();
+RJTool->getObservables();
 
-  // If you want access to the variables to do whatever with...
-  // std::map< TString, double > observables = RJTool->getObservablesMap();
+// If you want access to the variables to do whatever with...
+// std::map< TString, double > observables = RJTool->getObservablesMap();
 
   // Try again with other Hemisphere mode
 
@@ -304,7 +304,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
     output->setFilterPassed (); // You must have this line somewhere
   }
 
-  // output->setFilterPassed ();
+//  output->setFilterPassed ();
   
   return EL::StatusCode::SUCCESS;
 }
