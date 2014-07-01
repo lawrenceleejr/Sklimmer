@@ -6,7 +6,7 @@
 #include <D3PDReader/Event.h>
 #include <EventLoopAlgs/NTupleSvc.h>
 
-//#include "JetSelectorTools/TJetCleaningTool.h"
+#include "JetSelectorTools/TJetCleaningTool.h"
 
 #include <RJigsaw/TRJigsaw.h>
 
@@ -60,7 +60,7 @@ public:
   D3PDReader::Event *event;  //!
   EL::NTupleSvc *output; //!
 
-  // Root::TJetCleaningTool *my_JetCleaningTool;
+  Root::TJetCleaningTool *my_JetCleaningTool; 
 
   Root::TRJigsaw* RJTool = new Root::TRJigsaw(); //!
 

@@ -6,6 +6,8 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
+#include <cstdlib>
+#include <string>
 
 
 
@@ -27,7 +29,7 @@ SklimmerAnalysis :: SklimmerAnalysis ()
 
 
 
-// my_JetCleaningTool = 0;
+my_JetCleaningTool = 0;
 
 }
 
@@ -93,10 +95,10 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 
 
-  // if (!my_JetCleaningTool){
-  //   throw std::string ("No JetCleaningTool configured");
-  // }
-  // my_JetCleaningTool->initialize();
+  if (!my_JetCleaningTool){
+    throw std::string ("No JetCleaningTool configured");
+  }
+  my_JetCleaningTool->initialize();
 
 
 
@@ -106,7 +108,13 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 
 
-  RJTool->initialize("./RJigsawConfig/hemisphere1","./RJigsawConfig/hemisphere2");
+  std::cout << std::getenv("ROOTCOREBIN") << std::endl;
+
+  string rootcorebinpath(std::getenv("ROOTCOREBIN") ) ;
+
+  RJTool->initialize( rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere1",
+                      rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere2");
+  // RJTool->initialize("./RJigsawConfig/hemisphere1","./RJigsawConfig/hemisphere2");
   RJTool->resetHists();
 
 
