@@ -253,7 +253,6 @@ RJTool->guessInvParticles();
 RJTool->getObservables();
 
 // If you want access to the variables to do whatever with...
-// std::map< TString, double > observables = RJTool->getObservablesMap();
 
   // Try again with other Hemisphere mode
 
