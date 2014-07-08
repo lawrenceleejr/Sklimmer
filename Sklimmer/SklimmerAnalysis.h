@@ -6,9 +6,10 @@
 #include <D3PDReader/Event.h>
 #include <EventLoopAlgs/NTupleSvc.h>
 
-#include "JetSelectorTools/TJetCleaningTool.h"
 
 #include <RJigsaw/TRJigsaw.h>
+
+#include "SUSYTools/SUSYObjDef.h"
 
 
 class SklimmerAnalysis : public EL::Algorithm
@@ -49,6 +50,10 @@ public:
   Float_t RJVars_gamma_0_0_0; //!
   Float_t RJVars_gamma_0_0_1; //!
 
+  Int_t isEE; //!
+  Int_t isMuMu; //!
+  Int_t isEMu; //!
+
 
   // variables that don't get filled at submission time should be
   // protected from being send from the submission node to the worker
@@ -60,7 +65,7 @@ public:
   D3PDReader::Event *event;  //!
   EL::NTupleSvc *output; //!
 
-  Root::TJetCleaningTool *my_JetCleaningTool; 
+  SUSYObjDef* m_susy_obj = new SUSYObjDef(); //!
 
   Root::TRJigsaw* RJTool = new Root::TRJigsaw(); //!
 

@@ -10,7 +10,7 @@
 #include <string>
 
 
-
+//Still really need to implement a systematics framework
 
 // this is needed to distribute the algorithm to the workers
 ClassImp(SklimmerAnalysis)
@@ -19,17 +19,16 @@ ClassImp(SklimmerAnalysis)
 
 SklimmerAnalysis :: SklimmerAnalysis ()
 {
-  // Here you put any code for the base initialization of variables,
-  // e.g. initialize all pointers to 0.  Note that you should only put
-  // the most basic initialization here, since this method will be
-  // called on both the submission and the worker node.  Most of your
-  // initialization code will go into histInitialize() and
-  // initialize().
+	// Here you put any code for the base initialization of variables,
+	// e.g. initialize all pointers to 0.  Note that you should only put
+	// the most basic initialization here, since this method will be
+	// called on both the submission and the worker node.  Most of your
+	// initialization code will go into histInitialize() and
+	// initialize().
 
 
 
 
-my_JetCleaningTool = 0;
 
 }
 
@@ -37,324 +36,530 @@ my_JetCleaningTool = 0;
 
 EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 {
-  // Here you put code that sets up the job on the submission object
-  // so that it is ready to work with your algorithm, e.g. you can
-  // request the D3PDReader service or add output files.  Any code you
-  // put here could instead also go into the submission script.  The
-  // sole advantage of putting it here is that it gets automatically
-  // activated/deactivated when you add/remove the algorithm from your
-  // job, which may or may not be of value to you.
+	// Here you put code that sets up the job on the submission object
+	// so that it is ready to work with your algorithm, e.g. you can
+	// request the D3PDReader service or add output files.  Any code you
+	// put here could instead also go into the submission script.  The
+	// sole advantage of putting it here is that it gets automatically
+	// activated/deactivated when you add/remove the algorithm from your
+	// job, which may or may not be of value to you.
 
-  job.useD3PDReader ();
+	job.useD3PDReader ();
 
-  return EL::StatusCode::SUCCESS;
+	return EL::StatusCode::SUCCESS;
 }
 
 
 
 EL::StatusCode SklimmerAnalysis :: histInitialize ()
 {
-  // Here you do everything that needs to be done at the very
-  // beginning on each worker node, e.g. create histograms and output
-  // trees.  This method gets called before any input files are
-  // connected.
-  return EL::StatusCode::SUCCESS;
+	// Here you do everything that needs to be done at the very
+	// beginning on each worker node, e.g. create histograms and output
+	// trees.  This method gets called before any input files are
+	// connected.
+	return EL::StatusCode::SUCCESS;
 }
 
 
 
 EL::StatusCode SklimmerAnalysis :: fileExecute ()
 {
-  // Here you do everything that needs to be done exactly once for every
-  // single file, e.g. collect a list of all lumi-blocks processed
-  return EL::StatusCode::SUCCESS;
+	// Here you do everything that needs to be done exactly once for every
+	// single file, e.g. collect a list of all lumi-blocks processed
+	return EL::StatusCode::SUCCESS;
 }
 
 
 
 EL::StatusCode SklimmerAnalysis :: changeInput (bool firstFile)
 {
-  // Here you do everything you need to do when we change input files,
-  // e.g. resetting branch addresses on trees.  If you are using
-  // D3PDReader or a similar service this method is not needed.
-  return EL::StatusCode::SUCCESS;
+	// Here you do everything you need to do when we change input files,
+	// e.g. resetting branch addresses on trees.  If you are using
+	// D3PDReader or a similar service this method is not needed.
+	return EL::StatusCode::SUCCESS;
 }
 
 
 
 EL::StatusCode SklimmerAnalysis :: initialize ()
 {
-  // Here you do everything that you need to do after the first input
-  // file has been connected and before the first event is processed,
-  // e.g. create additional histograms based on which variables are
-  // available in the input files.  You can also create all of your
-  // histograms and trees in here, but be aware that this method
-  // doesn't get called if no events are processed.  So any objects
-  // you create here won't be available in the output if you have no
-  // input events.
+	// Here you do everything that you need to do after the first input
+	// file has been connected and before the first event is processed,
+	// e.g. create additional histograms based on which variables are
+	// available in the input files.  You can also create all of your
+	// histograms and trees in here, but be aware that this method
+	// doesn't get called if no events are processed.  So any objects
+	// you create here won't be available in the output if you have no
+	// input events.
 
 
 
-  if (!my_JetCleaningTool){
-    throw std::string ("No JetCleaningTool configured");
-  }
-  my_JetCleaningTool->initialize();
+	if (!RJTool){
+		throw std::string ("No RJTool configured");
+	}
 
 
 
-  if (!RJTool){
-    throw std::string ("No RJTool configured");
-  }
+	std::cout << std::getenv("ROOTCOREBIN") << std::endl;
+
+	string rootcorebinpath(std::getenv("ROOTCOREBIN") ) ;
+
+	bool isData = false;
+	bool isAtlfast = false;
+	bool isMC12b = true;
+	bool useLeptonTrigger = true;
+
+	m_susy_obj->initialize(isData, isAtlfast, isMC12b, useLeptonTrigger);
 
 
 
-  std::cout << std::getenv("ROOTCOREBIN") << std::endl;
-
-  string rootcorebinpath(std::getenv("ROOTCOREBIN") ) ;
-
-  RJTool->initialize( rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere1",
-                      rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere2");
-  // RJTool->initialize("./RJigsawConfig/hemisphere1","./RJigsawConfig/hemisphere2");
-  RJTool->resetHists();
+	RJTool->initialize( rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere1",
+						rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere2");
+	// RJTool->initialize("./RJigsawConfig/hemisphere1","./RJigsawConfig/hemisphere2");
+	RJTool->resetHists();
 
 
-  event = wk()->d3pdreader();
-  output = EL::getNTupleSvc (wk(), "output");
+	event = wk()->d3pdreader();
+	output = EL::getNTupleSvc (wk(), "output");
 
-  //-- connect to the input TTree
-  TTree *inputTree = wk()->tree(); // this is the input tree
+	//-- connect to the input TTree
+	TTree *inputTree = wk()->tree(); // this is the input tree
 
 
-  if (output){
+	if (output){
 
-    output->tree()->Branch( "RJVars_M_0_0_0", &RJVars_M_0_0_0      , "RJVars_M_0_0_0/F");   
-    output->tree()->Branch( "RJVars_M_0_0_1", &RJVars_M_0_0_1      , "RJVars_M_0_0_1/F");   
-    output->tree()->Branch( "RJVars_M_1_0_0", &RJVars_M_1_0_0      , "RJVars_M_1_0_0/F");   
-    output->tree()->Branch( "RJVars_M_1_0_1", &RJVars_M_1_0_1      , "RJVars_M_1_0_1/F");   
-    output->tree()->Branch( "RJVars_M_1_1_0", &RJVars_M_1_1_0      , "RJVars_M_1_1_0/F");   
-    output->tree()->Branch( "RJVars_M_1_1_1", &RJVars_M_1_1_1      , "RJVars_M_1_1_1/F");   
-    output->tree()->Branch( "RJVars_M_2_0_0", &RJVars_M_2_0_0      , "RJVars_M_2_0_0/F");   
-    output->tree()->Branch( "RJVars_M_2_0_1", &RJVars_M_2_0_1      , "RJVars_M_2_0_1/F");   
-    output->tree()->Branch( "RJVars_M_2_1_0", &RJVars_M_2_1_0      , "RJVars_M_2_1_0/F");   
-    output->tree()->Branch( "RJVars_M_2_1_1", &RJVars_M_2_1_1      , "RJVars_M_2_1_1/F");   
-    output->tree()->Branch( "RJVars_dPhi_0_0_0", &RJVars_dPhi_0_0_0   , "RJVars_dPhi_0_0_0/F");    
-    output->tree()->Branch( "RJVars_dPhi_0_0_1", &RJVars_dPhi_0_0_1   , "RJVars_dPhi_0_0_1/F");    
-    output->tree()->Branch( "RJVars_dPhi_1_0_0", &RJVars_dPhi_1_0_0   , "RJVars_dPhi_1_0_0/F");    
-    output->tree()->Branch( "RJVars_dPhi_1_0_1", &RJVars_dPhi_1_0_1   , "RJVars_dPhi_1_0_1/F");    
-    output->tree()->Branch( "RJVars_dPhi_2_0_0", &RJVars_dPhi_2_0_0   , "RJVars_dPhi_2_0_0/F");    
-    output->tree()->Branch( "RJVars_dPhi_2_0_1", &RJVars_dPhi_2_0_1   , "RJVars_dPhi_2_0_1/F");    
-    output->tree()->Branch( "RJVars_dPhiVis_0_0_0", &RJVars_dPhiVis_0_0_0, "RJVars_dPhiVis_0_0_0/F");
-    output->tree()->Branch( "RJVars_dPhiVis_0_0_1", &RJVars_dPhiVis_0_0_1, "RJVars_dPhiVis_0_0_1/F");
-    output->tree()->Branch( "RJVars_dPhiVis_1_0_0", &RJVars_dPhiVis_1_0_0, "RJVars_dPhiVis_1_0_0/F");
-    output->tree()->Branch( "RJVars_dPhiVis_1_0_1", &RJVars_dPhiVis_1_0_1, "RJVars_dPhiVis_1_0_1/F");
-    output->tree()->Branch( "RJVars_dPhiVis_2_0_0", &RJVars_dPhiVis_2_0_0, "RJVars_dPhiVis_2_0_0/F");
-    output->tree()->Branch( "RJVars_dPhiVis_2_0_1", &RJVars_dPhiVis_2_0_1, "RJVars_dPhiVis_2_0_1/F");
-    output->tree()->Branch( "RJVars_gamma_0_0_0", &RJVars_gamma_0_0_0  , "RJVars_gamma_0_0_0/F");       
-    output->tree()->Branch( "RJVars_gamma_0_0_1", &RJVars_gamma_0_0_1  , "RJVars_gamma_0_0_1/F");       
+		output->tree()->Branch( "RJVars_M_0_0_0", &RJVars_M_0_0_0      , "RJVars_M_0_0_0/F");   
+		output->tree()->Branch( "RJVars_M_0_0_1", &RJVars_M_0_0_1      , "RJVars_M_0_0_1/F");   
+		output->tree()->Branch( "RJVars_M_1_0_0", &RJVars_M_1_0_0      , "RJVars_M_1_0_0/F");   
+		output->tree()->Branch( "RJVars_M_1_0_1", &RJVars_M_1_0_1      , "RJVars_M_1_0_1/F");   
+		output->tree()->Branch( "RJVars_M_1_1_0", &RJVars_M_1_1_0      , "RJVars_M_1_1_0/F");   
+		output->tree()->Branch( "RJVars_M_1_1_1", &RJVars_M_1_1_1      , "RJVars_M_1_1_1/F");   
+		output->tree()->Branch( "RJVars_M_2_0_0", &RJVars_M_2_0_0      , "RJVars_M_2_0_0/F");   
+		output->tree()->Branch( "RJVars_M_2_0_1", &RJVars_M_2_0_1      , "RJVars_M_2_0_1/F");   
+		output->tree()->Branch( "RJVars_M_2_1_0", &RJVars_M_2_1_0      , "RJVars_M_2_1_0/F");   
+		output->tree()->Branch( "RJVars_M_2_1_1", &RJVars_M_2_1_1      , "RJVars_M_2_1_1/F");   
+		output->tree()->Branch( "RJVars_dPhi_0_0_0", &RJVars_dPhi_0_0_0   , "RJVars_dPhi_0_0_0/F");    
+		output->tree()->Branch( "RJVars_dPhi_0_0_1", &RJVars_dPhi_0_0_1   , "RJVars_dPhi_0_0_1/F");    
+		output->tree()->Branch( "RJVars_dPhi_1_0_0", &RJVars_dPhi_1_0_0   , "RJVars_dPhi_1_0_0/F");    
+		output->tree()->Branch( "RJVars_dPhi_1_0_1", &RJVars_dPhi_1_0_1   , "RJVars_dPhi_1_0_1/F");    
+		output->tree()->Branch( "RJVars_dPhi_2_0_0", &RJVars_dPhi_2_0_0   , "RJVars_dPhi_2_0_0/F");    
+		output->tree()->Branch( "RJVars_dPhi_2_0_1", &RJVars_dPhi_2_0_1   , "RJVars_dPhi_2_0_1/F");    
+		output->tree()->Branch( "RJVars_dPhiVis_0_0_0", &RJVars_dPhiVis_0_0_0, "RJVars_dPhiVis_0_0_0/F");
+		output->tree()->Branch( "RJVars_dPhiVis_0_0_1", &RJVars_dPhiVis_0_0_1, "RJVars_dPhiVis_0_0_1/F");
+		output->tree()->Branch( "RJVars_dPhiVis_1_0_0", &RJVars_dPhiVis_1_0_0, "RJVars_dPhiVis_1_0_0/F");
+		output->tree()->Branch( "RJVars_dPhiVis_1_0_1", &RJVars_dPhiVis_1_0_1, "RJVars_dPhiVis_1_0_1/F");
+		output->tree()->Branch( "RJVars_dPhiVis_2_0_0", &RJVars_dPhiVis_2_0_0, "RJVars_dPhiVis_2_0_0/F");
+		output->tree()->Branch( "RJVars_dPhiVis_2_0_1", &RJVars_dPhiVis_2_0_1, "RJVars_dPhiVis_2_0_1/F");
+		output->tree()->Branch( "RJVars_gamma_0_0_0", &RJVars_gamma_0_0_0  , "RJVars_gamma_0_0_0/F");       
+		output->tree()->Branch( "RJVars_gamma_0_0_1", &RJVars_gamma_0_0_1  , "RJVars_gamma_0_0_1/F");       
 
-  }
+		output->tree()->Branch( "isEE", &isEE  , "isEE/I");       
+		output->tree()->Branch( "isMuMu", &isMuMu  , "isMuMu/I");       
+		output->tree()->Branch( "isEMu", &isEMu  , "isEMu/I");       
 
-  //-- d3pd reader read branches from input tree
-  event->ReadFrom( inputTree ); 
+	}
 
-  // decide which branches to activate, and write to the output skimmed D3PD
-  event->SetActive( kTRUE, "RunNumber");
-  event->SetActive( kTRUE, "EventNumber");
-  event->SetActive( kTRUE, "lbn");
-  event->SetActive( kTRUE, "isSimulation");
-  event->SetActive( kTRUE, "^el_n$");  // notation if you want the exact branch name
-  event->SetActive( kTRUE, "^el_pt$");
-  event->SetActive( kTRUE, "^el_eta$");
-  event->SetActive( kTRUE, "^el_phi$");
-  event->SetActive( kTRUE, "^mu_muid_n$"); 
+	//-- d3pd reader read branches from input tree
+	event->ReadFrom( inputTree ); 
 
-  // turn on all jet branches first, then turn off some specific jet branches
-  event->SetActive( kTRUE, "jet_AntiKt4LCTopo_.*");
-  event->SetActive( kFALSE, "jet_AntiKt4LCTopo_MET.*");
-  event->SetActive( kFALSE, "jet_AntiKt4LCTopo_flavor.*");
+	// decide which branches to activate, and write to the output skimmed D3PD
+	event->SetActive( kTRUE, "RunNumber");
+	event->SetActive( kTRUE, "EventNumber");
+	event->SetActive( kTRUE, "lbn");
+	event->SetActive( kTRUE, "isSimulation");
+	event->SetActive( kTRUE, "^el_n$");  // notation if you want the exact branch name
+	event->SetActive( kTRUE, "^el_pt$");
+	event->SetActive( kTRUE, "^el_eta$");
+	event->SetActive( kTRUE, "^el_phi$");
+	event->SetActive( kTRUE, "^mu_muid_n$"); 
 
-  event->SetActive( kTRUE, "MET_RefFinal_Egamma10NoTau_.*");
+	// turn on all jet branches first, then turn off some specific jet branches
+	event->SetActive( kTRUE, "jet_AntiKt4LCTopo_.*");
+	event->SetActive( kFALSE, "jet_AntiKt4LCTopo_MET.*");
+	event->SetActive( kFALSE, "jet_AntiKt4LCTopo_flavor.*");
 
-  // Make sure that all variables that we want to copy to the output are read into memory
-  event->ReadAllActive(); 
+	event->SetActive( kTRUE, "MET_RefFinal_Egamma10NoTau_.*");
 
-  event->WriteTo(output->tree());
+	// Make sure that all variables that we want to copy to the output are read into memory
+	event->ReadAllActive(); 
 
-  return EL::StatusCode::SUCCESS;
+	event->WriteTo(output->tree());
+
+	return EL::StatusCode::SUCCESS;
 }
 
 
 
 EL::StatusCode SklimmerAnalysis :: execute ()
 {
-  // Here you do everything that needs to be done on every single
-  // events, e.g. read input variables, apply cuts, and fill
-  // histograms and trees.  This is where most of your actual analysis
-  // code will go.
+	// Here you do everything that needs to be done on every single
+	// events, e.g. read input variables, apply cuts, and fill
+	// histograms and trees.  This is where most of your actual analysis
+	// code will go.
 
-  int passEvent = 1;
-
-
+	int passEvent = 1;
 
 
-  // unsigned njets = 0;
-  // for( Int_t i = 0; i < event->jet_AntiKt4LCTopo.n(); ++i ) {
-  //   if (my_JetCleaningTool->accept(event->jet_AntiKt4LCTopo[i].eta(),
-  //                                  event->jet_AntiKt4LCTopo[i].NegativeE(),
-  //                                  event->jet_AntiKt4LCTopo[i].hecf(),
-  //                                  event->jet_AntiKt4LCTopo[i].HECQuality(),
-  //                                  event->jet_AntiKt4LCTopo[i].emfrac(),
-  //                                  event->jet_AntiKt4LCTopo[i].sumPtTrk(),
-  //                                  event->jet_AntiKt4LCTopo[i].LArQuality(),
-  //                                  event->jet_AntiKt4LCTopo[i].Timing(),
-  //                                  event->jet_AntiKt4LCTopo[i].fracSamplingMax(),
-  //                                  event->jet_AntiKt4LCTopo[i].AverageLArQF() )){
-  //     ++ njets;
-  //   } // end if 
-  // } // end for loop of jets
+	// Important tools
+	// GRL Reader
+	// Pileup Reweighting Stuff
+	// Event Weight
 
-if( event->jet_AntiKt4LCTopo.n() < 2 ) passEvent=0;
-if( event->mu.n() < 2 ) passEvent=0;
-
-TLorentzVector Muon[3];
-TLorentzVector Jet[3];
-
-Muon[0].SetPtEtaPhiM( event->mu[0].pt(),
-                      event->mu[0].eta(),
-                      event->mu[0].phi(),
-                      event->mu[0].m() );
-Muon[1].SetPtEtaPhiM( event->mu[1].pt(),
-                      event->mu[1].eta(),
-                      event->mu[1].phi(),
-                      event->mu[1].m() );
-
-Jet[0].SetPtEtaPhiM(  event->jet_AntiKt4LCTopo[0].pt(),
-                      event->jet_AntiKt4LCTopo[0].eta(),
-                      event->jet_AntiKt4LCTopo[0].phi(),
-                      event->jet_AntiKt4LCTopo[0].m() );
-Jet[1].SetPtEtaPhiM(  event->jet_AntiKt4LCTopo[1].pt(),
-                      event->jet_AntiKt4LCTopo[1].eta(),
-                      event->jet_AntiKt4LCTopo[1].phi(),
-                      event->jet_AntiKt4LCTopo[1].m() );
-
-if( Muon[0].DeltaR(Jet[0]) > Muon[1].DeltaR(Jet[0])  ){
-  Muon[3] = Muon[0];
-  Muon[0] = Muon[1];
-  Muon[1] = Muon[3];
-}
+	// Get the electrons
+	// containers - baseline and signal and trigmatch
 
 
-RJTool->newEvent();
+	std::vector<int > el_baseline;
+	std::vector<int > el_crack;
+	std::vector<int > el_signal;
 
-RJTool->addVisParticle("b",Jet[0],1);
-RJTool->addVisParticle("b",Jet[1],2);
+	std::vector<int > mu_baseline;
+	std::vector<int > mu_cosmic;
+	std::vector<int > mu_bad;
+	std::vector<int > mu_signal;
 
-RJTool->addVisParticle("l",Muon[0],1);
-RJTool->addVisParticle("l",Muon[1],2);
-
-TVector3 MET;
-MET.SetXYZ(  event->MET_RefFinal_Egamma10NoTau.etx(),  event->MET_RefFinal_Egamma10NoTau.ety(), 0.0 );
-RJTool->addMET( MET );
-
-RJTool->setHemisphereMode(0); //top symmetry
-RJTool->guessInvParticles();
-RJTool->getObservables();
-
-// If you want access to the variables to do whatever with...
-
-  // Try again with other Hemisphere mode
-
-  RJTool->setHemisphereMode(1); //W symmetry
-  RJTool->guessInvParticles();
-  RJTool->getObservables();
-
-  std::map< TString, double > RJVars = RJTool->getObservablesMap();
+	std::vector<int > jet_signal;
+	std::vector<int > jet_good;
+	std::vector<int > jet_bad;
+	std::vector<int > jet_LArHoleVeto;
+	std::vector<int > jet_btagged;
 
 
+	int iEl=0;
+	for( iEl = 0; iEl < event->el.n(); iEl++  ){
 
-  RJVars_M_0_0_0           = RJVars["M_0_0_0"];
-  RJVars_M_0_0_1           = RJVars["M_0_0_1"];
-  RJVars_M_1_0_0           = RJVars["M_1_0_0"];
-  RJVars_M_1_0_1           = RJVars["M_1_0_1"];
-  RJVars_M_1_1_0           = RJVars["M_1_1_0"];
-  RJVars_M_1_1_1           = RJVars["M_1_1_1"];
-  RJVars_M_2_0_0           = RJVars["M_2_0_0"];
-  RJVars_M_2_0_1           = RJVars["M_2_0_1"];
-  RJVars_M_2_1_0           = RJVars["M_2_1_0"];
-  RJVars_M_2_1_1           = RJVars["M_2_1_1"];
-  RJVars_dPhi_0_0_0        = RJVars["dPhi_0_0_0"];
-  RJVars_dPhi_0_0_1        = RJVars["dPhi_0_0_1"];
-  RJVars_dPhi_1_0_0        = RJVars["dPhi_1_0_0"];
-  RJVars_dPhi_1_0_1        = RJVars["dPhi_1_0_1"];
-  RJVars_dPhi_2_0_0        = RJVars["dPhi_2_0_0"];
-  RJVars_dPhi_2_0_1        = RJVars["dPhi_2_0_1"];
-  RJVars_dPhiVis_0_0_0     = RJVars["dPhiVis_0_0_0"];
-  RJVars_dPhiVis_0_0_1     = RJVars["dPhiVis_0_0_1"];
-  RJVars_dPhiVis_1_0_0     = RJVars["dPhiVis_1_0_0"];
-  RJVars_dPhiVis_1_0_1     = RJVars["dPhiVis_1_0_1"];
-  RJVars_dPhiVis_2_0_0     = RJVars["dPhiVis_2_0_0"];
-  RJVars_dPhiVis_2_0_1     = RJVars["dPhiVis_2_0_1"];
-  RJVars_gamma_0_0_0       = RJVars["gamma_0_0_0"];
-  RJVars_gamma_0_0_1       = RJVars["gamma_0_0_1"];
+		if( m_susy_obj->FillElectron(iEl,
+									event->el[iEl].eta(),
+									event->el[iEl].phi(),
+									event->el[iEl].cl_eta(),
+									event->el[iEl].cl_phi(),
+									event->el[iEl].cl_E(),
+									event->el[iEl].tracketa(),
+									event->el[iEl].trackphi(),
+									event->el[iEl].author(),
+									event->el[iEl].mediumPP(),
+									event->el[iEl].OQ(),
+									event->el[iEl].nPixHits(),
+									event->el[iEl].nSCTHits(),
+									event->el_MET_Egamma10NoTau[iEl].wet().at(0),
+									10000.,2.47,SystErr::NONE) ){
+			el_baseline.push_back(iEl);
+		}
+	}
+
+	for( int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
+		iEl = el_baseline.at(iEl_baseline);
+
+		if (m_susy_obj->IsInCrack( event->el[iEl].cl_eta() ))  {
+			el_crack.push_back(iEl);
+		}
+		if(m_susy_obj->IsSignalElectronExp(iEl, 
+											event->el[iEl].tightPP(), 
+											event->PV.nTracks(), 
+											event->el[iEl].ptcone30(), 
+											event->el[iEl].topoEtcone30_corrected(), 
+											event->el[iEl].trackIPEstimate_d0_unbiasedpvunbiased(), 
+											event->el[iEl].trackIPEstimate_z0_unbiasedpvunbiased(), 
+											event->el[iEl].trackIPEstimate_sigd0_unbiasedpvunbiased(), 
+											SignalIsoExp::TightIso) ){
+			el_signal.push_back(iEl);
+		}
+	}
 
 
 
 
-  // if( (event->triggerbits.EF_mu24_tight() != 1)    && 
-  //     (event->triggerbits.EF_e24vh_medium1() != 1) && 
-  //     (event->triggerbits.EF_xe80_tclcw() != 1) ){
-  //   passEvent = 0;
-  // }
+	int iMu=0;
+	for( iMu = 0; iMu < event->mu_staco.n(); iMu++  ){
 
-  if(passEvent){
-    // You can put some criteria here for the event to be selected.
-    output->setFilterPassed (); // You must have this line somewhere
-  }
+		if( m_susy_obj->FillMuon(iMu,
+							  event->mu_staco[iMu].pt(),
+							  event->mu_staco[iMu].eta(),
+							  event->mu_staco[iMu].phi(),
+							  event->mu_staco[iMu].me_qoverp_exPV(),
+							  event->mu_staco[iMu].id_qoverp_exPV(),
+							  event->mu_staco[iMu].me_theta_exPV(),
+							  event->mu_staco[iMu].id_theta_exPV(),
+							  event->mu_staco[iMu].id_theta(),
+							  event->mu_staco[iMu].charge(),
+							  event->mu_staco[iMu].isCombinedMuon(),
+							  event->mu_staco[iMu].isSegmentTaggedMuon(),
+							  event->mu_staco[iMu].loose(),
+							  event->mu_staco[iMu].nPixHits(),
+							  event->mu_staco[iMu].nPixelDeadSensors(),
+							  event->mu_staco[iMu].nPixHoles(),
+							  event->mu_staco[iMu].nSCTHits(),
+							  event->mu_staco[iMu].nSCTDeadSensors(),
+							  event->mu_staco[iMu].nSCTHoles(),
+							  event->mu_staco[iMu].nTRTHits(),
+							  event->mu_staco[iMu].nTRTOutliers(),
+							  10000.,2.5, SystErr::NONE) ){
+			mu_baseline.push_back(iMu);
+		}
+	}
+
+	for( int iMu_baseline = 0; iMu_baseline < mu_baseline.size(); iMu_baseline++){
+		iMu = mu_baseline.at(iMu_baseline);
+
+		if (m_susy_obj->IsSignalMuonExp(iMu,
+										event->PV.nTracks(),
+										event->mu_staco[iMu].ptcone30_trkelstyle(),
+										event->mu_staco[iMu].etcone30(),
+										event->mu_staco[iMu].trackIPEstimate_d0_unbiasedpvunbiased(),
+										event->mu_staco[iMu].trackIPEstimate_z0_unbiasedpvunbiased(),
+										event->mu_staco[iMu].trackIPEstimate_sigd0_unbiasedpvunbiased(),
+										SignalIsoExp::TightIso)){
+			mu_signal.push_back(iMu);
+		}
+		if(m_susy_obj->IsCosmicMuon(event->mu_staco[iMu].z0_exPV(),event->mu_staco[iMu].d0_exPV(),1.,0.2) ){
+			mu_cosmic.push_back(iMu);
+		}
+		if( m_susy_obj->IsBadMuon(event->mu_staco[iMu].qoverp_exPV(),event->mu_staco[iMu].cov_qoverp_exPV() ) ){
+			mu_bad.push_back(iMu);
+		}
+
+	}
+
+
+
+
+	int iJet=0;
+	for( iJet = 0; iJet < event->jet_AntiKt4LCTopo.n(); iJet++  ){
+
+		m_susy_obj->FillJet(iJet,
+								event->jet_AntiKt4LCTopo[iJet].pt(),
+								event->jet_AntiKt4LCTopo[iJet].eta(),
+								event->jet_AntiKt4LCTopo[iJet].phi(),
+								event->jet_AntiKt4LCTopo[iJet].E(),
+								event->jet_AntiKt4LCTopo[iJet].constscale_eta(),
+								event->jet_AntiKt4LCTopo[iJet].constscale_phi(),
+								event->jet_AntiKt4LCTopo[iJet].constscale_E(),
+								event->jet_AntiKt4LCTopo[iJet].constscale_m(),
+								event->jet_AntiKt4LCTopo[iJet].ActiveAreaPx(),
+								event->jet_AntiKt4LCTopo[iJet].ActiveAreaPy(),
+								event->jet_AntiKt4LCTopo[iJet].ActiveAreaPz(),
+								event->jet_AntiKt4LCTopo[iJet].ActiveAreaE(),
+								event->Eventshape.rhoKt4LC(),  
+								event->eventinfo.averageIntPerXing(),
+								event->PV.nTracks() );
+
+		if(m_susy_obj->GetJetTLV(iJet).Pt() <= 20000.) continue;
+		
+		bool isoverlap = false;
+		for( int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
+			iEl = el_baseline.at(iEl_baseline);
+			if( m_susy_obj->GetElecTLV(iEl).DeltaR(m_susy_obj.GetJetTLV(iJet)) > 0.2 ) continue;
+			isoverlap = true;
+			break;
+		}
+		if(isoverlap) continue;
+
+		bool isgoodjet = false;
+		if( m_susy_obj->IsGoodJet( iJet,
+									event->jet_AntiKt4LCTopo[iJet].constscale_eta(),
+                                    event->jet_AntiKt4LCTopo[iJet].emfrac(),
+                                    event->jet_AntiKt4LCTopo[iJet].hecf(),
+                                    event->jet_AntiKt4LCTopo[iJet].LArQuality(),
+                                    event->jet_AntiKt4LCTopo[iJet].HECQuality(),
+                                    event->jet_AntiKt4LCTopo[iJet].AverageLArQF(),
+                                    event->jet_AntiKt4LCTopo[iJet].Timing(),
+                                    event->jet_AntiKt4LCTopo[iJet].sumPtTrk(),
+                                    event->jet_AntiKt4LCTopo[iJet].fracSamplingMax(),
+                                    event->jet_AntiKt4LCTopo[iJet].SamplingMax(),
+                                    event->jet_AntiKt4LCTopo[iJet].NegativeE(),
+                                    event->eventinfo.RunNumber(),20000.,10.) ) isgoodjet = true;
+
+		if(m_susy_obj->GetJetTLV(iJet).Pt() <= 20000.) continue;
+
+		if(!isgoodjet) jet_bad.push_back(iJet);
+		else if(fabs(m_susy_obj->GetJetTLV(iJet).Eta() ) < 2.8 ){
+			jet_good.push_back(iJet);
+		}
+
+	}
+
+
+	// Now look at all the chosen leptons and make sure they're >0.4 away from any good jet
+
+
+	for( int iEl_signal = 0; iEl_signal < el_signal.size(); iEl_signal++){
+		iEl = el_signal.at(iEl_signal);
+
+		bool isoverlap = false;
+		for( int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
+			iJet = jet_good[iJet_good];
+			if( m_susy_obj->GetElecTLV(iEl).DeltaR(m_susy_obj.GetJetTLV(iJet)) < 0.4 ){
+				isoverlap = true;
+				break;
+			}
+		}
+		if(isoverlap){
+			el_signal.erase(iEl_signal);
+			iEl_signal--;
+		}
+	}
+
+
+	for( int iMu_signal = 0; iMu_signal < mu_signal.size(); iMu_signal++){
+		iMu = mu_signal.at(iMu_signal);
+
+		bool isoverlap = false;
+		for( int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
+			iJet = jet_good[iJet_good];
+			if( m_susy_obj->GetElecTLV(iMu).DeltaR(m_susy_obj.GetJetTLV(iJet)) < 0.4 ){
+				isoverlap = true;
+				break;
+			}
+		}
+		if(isoverlap){
+			mu_signal.erase(iMu_signal);
+			iMu_signal--;
+		}
+	}
+
+	isEE = 0;
+	isMuMu = 0;
+	isEMu = 0;
+
+
+	TLorentzVector Lepton[3];
+	TLorentzVector Jet[3];
+
+	if( jet_good.size() < 2 ) continue;
+
+	if( el_signal.size()==2 ){
+		isEE = 1;
+		Lepton[0] = m_susy_obj->GetElecTLV( el_signal[0] );
+		Lepton[1] = m_susy_obj->GetElecTLV( el_signal[1] );
+	} else if ( mu_signal.size()==2 ){
+		isMuMu = 1;
+		Lepton[0] = m_susy_obj->GetMuonTLV( mu_signal[0] );
+		Lepton[1] = m_susy_obj->GetMuonTLV( mu_signal[1] );
+	} else if ( mu_signal.size()==1 && el_signal.size()==1 ){
+		isEMu = 1;
+		Lepton[0] = m_susy_obj->GetElecTLV( el_signal[0] );
+		Lepton[1] = m_susy_obj->GetMuonTLV( mu_signal[1] );
+	}
+
+	if( Lepton[0].DeltaR(Jet[0]) > Lepton[1].DeltaR(Jet[0])  ){
+		Lepton[3] = Lepton[0];
+		Lepton[0] = Lepton[1];
+		Lepton[1] = Lepton[3];
+	}
+
+
+	RJTool->newEvent();
+
+	RJTool->addVisParticle("b",Jet[0],1);
+	RJTool->addVisParticle("b",Jet[1],2);
+
+	RJTool->addVisParticle("l",Lepton[0],1);
+	RJTool->addVisParticle("l",Lepton[1],2);
+
+	TVector3 MET;
+	MET.SetXYZ(  event->MET_RefFinal_Egamma10NoTau.etx(),
+	 event->MET_RefFinal_Egamma10NoTau.ety(), 0.0 );
+	RJTool->addMET( MET );
+
+	RJTool->setHemisphereMode(0); //top symmetry
+	RJTool->guessInvParticles();
+	RJTool->getObservables();
+
+	// If you want access to the variables to do whatever with...
+
+	// Try again with other Hemisphere mode
+
+	RJTool->setHemisphereMode(1); //W symmetry
+	RJTool->guessInvParticles();
+	RJTool->getObservables();
+
+	std::map< TString, double > RJVars = RJTool->getObservablesMap();
+
+
+
+	RJVars_M_0_0_0           = RJVars["M_0_0_0"];
+	RJVars_M_0_0_1           = RJVars["M_0_0_1"];
+	RJVars_M_1_0_0           = RJVars["M_1_0_0"];
+	RJVars_M_1_0_1           = RJVars["M_1_0_1"];
+	RJVars_M_1_1_0           = RJVars["M_1_1_0"];
+	RJVars_M_1_1_1           = RJVars["M_1_1_1"];
+	RJVars_M_2_0_0           = RJVars["M_2_0_0"];
+	RJVars_M_2_0_1           = RJVars["M_2_0_1"];
+	RJVars_M_2_1_0           = RJVars["M_2_1_0"];
+	RJVars_M_2_1_1           = RJVars["M_2_1_1"];
+	RJVars_dPhi_0_0_0        = RJVars["dPhi_0_0_0"];
+	RJVars_dPhi_0_0_1        = RJVars["dPhi_0_0_1"];
+	RJVars_dPhi_1_0_0        = RJVars["dPhi_1_0_0"];
+	RJVars_dPhi_1_0_1        = RJVars["dPhi_1_0_1"];
+	RJVars_dPhi_2_0_0        = RJVars["dPhi_2_0_0"];
+	RJVars_dPhi_2_0_1        = RJVars["dPhi_2_0_1"];
+	RJVars_dPhiVis_0_0_0     = RJVars["dPhiVis_0_0_0"];
+	RJVars_dPhiVis_0_0_1     = RJVars["dPhiVis_0_0_1"];
+	RJVars_dPhiVis_1_0_0     = RJVars["dPhiVis_1_0_0"];
+	RJVars_dPhiVis_1_0_1     = RJVars["dPhiVis_1_0_1"];
+	RJVars_dPhiVis_2_0_0     = RJVars["dPhiVis_2_0_0"];
+	RJVars_dPhiVis_2_0_1     = RJVars["dPhiVis_2_0_1"];
+	RJVars_gamma_0_0_0       = RJVars["gamma_0_0_0"];
+	RJVars_gamma_0_0_1       = RJVars["gamma_0_0_1"];
+
+
+
+
+	// if( (event->triggerbits.EF_mu24_tight() != 1)    && 
+	//     (event->triggerbits.EF_e24vh_medium1() != 1) && 
+	//     (event->triggerbits.EF_xe80_tclcw() != 1) ){
+	//   passEvent = 0;
+	// }
+
+	if(passEvent){
+		// You can put some criteria here for the event to be selected.
+		output->setFilterPassed (); // You must have this line somewhere
+	}
 
 //  output->setFilterPassed ();
-  
-  return EL::StatusCode::SUCCESS;
+	
+	return EL::StatusCode::SUCCESS;
 }
 
 
 
 EL::StatusCode SklimmerAnalysis :: postExecute ()
 {
-  // Here you do everything that needs to be done after the main event
-  // processing.  This is typically very rare, particularly in user
-  // code.  It is mainly used in implementing the NTupleSvc.
-  return EL::StatusCode::SUCCESS;
+	// Here you do everything that needs to be done after the main event
+	// processing.  This is typically very rare, particularly in user
+	// code.  It is mainly used in implementing the NTupleSvc.
+	return EL::StatusCode::SUCCESS;
 }
 
 
 
 EL::StatusCode SklimmerAnalysis :: finalize ()
 {
-  // This method is the mirror image of initialize(), meaning it gets
-  // called after the last event has been processed on the worker node
-  // and allows you to finish up any objects you created in
-  // initialize() before they are written to disk.  This is actually
-  // fairly rare, since this happens separately for each worker node.
-  // Most of the time you want to do your post-processing on the
-  // submission node after all your histogram outputs have been
-  // merged.  This is different from histFinalize() in that it only
-  // gets called on worker nodes that processed input events.
-  return EL::StatusCode::SUCCESS;
+	// This method is the mirror image of initialize(), meaning it gets
+	// called after the last event has been processed on the worker node
+	// and allows you to finish up any objects you created in
+	// initialize() before they are written to disk.  This is actually
+	// fairly rare, since this happens separately for each worker node.
+	// Most of the time you want to do your post-processing on the
+	// submission node after all your histogram outputs have been
+	// merged.  This is different from histFinalize() in that it only
+	// gets called on worker nodes that processed input events.
+	return EL::StatusCode::SUCCESS;
 }
 
 
 
 EL::StatusCode SklimmerAnalysis :: histFinalize ()
 {
-  // This method is the mirror image of histInitialize(), meaning it
-  // gets called after the last event has been processed on the worker
-  // node and allows you to finish up any objects you created in
-  // histInitialize() before they are written to disk.  This is
-  // actually fairly rare, since this happens separately for each
-  // worker node.  Most of the time you want to do your
-  // post-processing on the submission node after all your histogram
-  // outputs have been merged.  This is different from finalize() in
-  // that it gets called on all worker nodes regardless of whether
-  // they processed input events.
-  return EL::StatusCode::SUCCESS;
+	// This method is the mirror image of histInitialize(), meaning it
+	// gets called after the last event has been processed on the worker
+	// node and allows you to finish up any objects you created in
+	// histInitialize() before they are written to disk.  This is
+	// actually fairly rare, since this happens separately for each
+	// worker node.  Most of the time you want to do your
+	// post-processing on the submission node after all your histogram
+	// outputs have been merged.  This is different from finalize() in
+	// that it gets called on all worker nodes regardless of whether
+	// they processed input events.
+	return EL::StatusCode::SUCCESS;
 }

@@ -12,7 +12,8 @@ PACKAGE_OBJFLAGS =
 PACKAGE_LDFLAGS  = 
 PACKAGE_BINFLAGS = 
 PACKAGE_LIBFLAGS = 
-PACKAGE_DEP = EventLoop D3PDReader EventLoopAlgs RJigsaw JetSelectorTools
+PACKAGE_DEP = EventLoop D3PDReader EventLoopAlgs RJigsaw 
+#JetSelectorTools ApplyJetCalibration 
 PACKAGE_TRYDEP   = 
 PACKAGE_CLEAN    = 
 PACKAGE_NOGRID   = 
