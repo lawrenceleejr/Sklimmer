@@ -57,6 +57,11 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	// beginning on each worker node, e.g. create histograms and output
 	// trees.  This method gets called before any input files are
 	// connected.
+
+  AHist = new TH1F("AHist", "AHist", 100, 0, 1.e5);
+  wk()->addOutput (AHist);
+
+
 	return EL::StatusCode::SUCCESS;
 }
 
@@ -128,34 +133,78 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	if (output){
 
-		output->tree()->Branch( "RJVars_M_0_0_0", &RJVars_M_0_0_0      , "RJVars_M_0_0_0/F");   
-		output->tree()->Branch( "RJVars_M_0_0_1", &RJVars_M_0_0_1      , "RJVars_M_0_0_1/F");   
-		output->tree()->Branch( "RJVars_M_1_0_0", &RJVars_M_1_0_0      , "RJVars_M_1_0_0/F");   
-		output->tree()->Branch( "RJVars_M_1_0_1", &RJVars_M_1_0_1      , "RJVars_M_1_0_1/F");   
-		output->tree()->Branch( "RJVars_M_1_1_0", &RJVars_M_1_1_0      , "RJVars_M_1_1_0/F");   
-		output->tree()->Branch( "RJVars_M_1_1_1", &RJVars_M_1_1_1      , "RJVars_M_1_1_1/F");   
-		output->tree()->Branch( "RJVars_M_2_0_0", &RJVars_M_2_0_0      , "RJVars_M_2_0_0/F");   
-		output->tree()->Branch( "RJVars_M_2_0_1", &RJVars_M_2_0_1      , "RJVars_M_2_0_1/F");   
-		output->tree()->Branch( "RJVars_M_2_1_0", &RJVars_M_2_1_0      , "RJVars_M_2_1_0/F");   
-		output->tree()->Branch( "RJVars_M_2_1_1", &RJVars_M_2_1_1      , "RJVars_M_2_1_1/F");   
-		output->tree()->Branch( "RJVars_dPhi_0_0_0", &RJVars_dPhi_0_0_0   , "RJVars_dPhi_0_0_0/F");    
-		output->tree()->Branch( "RJVars_dPhi_0_0_1", &RJVars_dPhi_0_0_1   , "RJVars_dPhi_0_0_1/F");    
-		output->tree()->Branch( "RJVars_dPhi_1_0_0", &RJVars_dPhi_1_0_0   , "RJVars_dPhi_1_0_0/F");    
-		output->tree()->Branch( "RJVars_dPhi_1_0_1", &RJVars_dPhi_1_0_1   , "RJVars_dPhi_1_0_1/F");    
-		output->tree()->Branch( "RJVars_dPhi_2_0_0", &RJVars_dPhi_2_0_0   , "RJVars_dPhi_2_0_0/F");    
-		output->tree()->Branch( "RJVars_dPhi_2_0_1", &RJVars_dPhi_2_0_1   , "RJVars_dPhi_2_0_1/F");    
-		output->tree()->Branch( "RJVars_dPhiVis_0_0_0", &RJVars_dPhiVis_0_0_0, "RJVars_dPhiVis_0_0_0/F");
-		output->tree()->Branch( "RJVars_dPhiVis_0_0_1", &RJVars_dPhiVis_0_0_1, "RJVars_dPhiVis_0_0_1/F");
-		output->tree()->Branch( "RJVars_dPhiVis_1_0_0", &RJVars_dPhiVis_1_0_0, "RJVars_dPhiVis_1_0_0/F");
-		output->tree()->Branch( "RJVars_dPhiVis_1_0_1", &RJVars_dPhiVis_1_0_1, "RJVars_dPhiVis_1_0_1/F");
-		output->tree()->Branch( "RJVars_dPhiVis_2_0_0", &RJVars_dPhiVis_2_0_0, "RJVars_dPhiVis_2_0_0/F");
-		output->tree()->Branch( "RJVars_dPhiVis_2_0_1", &RJVars_dPhiVis_2_0_1, "RJVars_dPhiVis_2_0_1/F");
-		output->tree()->Branch( "RJVars_gamma_0_0_0", &RJVars_gamma_0_0_0  , "RJVars_gamma_0_0_0/F");       
-		output->tree()->Branch( "RJVars_gamma_0_0_1", &RJVars_gamma_0_0_1  , "RJVars_gamma_0_0_1/F");       
+		output->tree()->Branch( "RJVars_M_0_0_0", &RJVars_M_0_0_0             , "RJVars_M_0_0_0/F");               
+		output->tree()->Branch( "RJVars_M_0_0_1", &RJVars_M_0_0_1             , "RJVars_M_0_0_1/F");               
+		output->tree()->Branch( "RJVars_M_1_0_0", &RJVars_M_1_0_0             , "RJVars_M_1_0_0/F");               
+		output->tree()->Branch( "RJVars_M_1_0_1", &RJVars_M_1_0_1             , "RJVars_M_1_0_1/F");               
+		output->tree()->Branch( "RJVars_M_1_1_0", &RJVars_M_1_1_0             , "RJVars_M_1_1_0/F");               
+		output->tree()->Branch( "RJVars_M_1_1_1", &RJVars_M_1_1_1             , "RJVars_M_1_1_1/F");               
+		output->tree()->Branch( "RJVars_M_2_0_0", &RJVars_M_2_0_0             , "RJVars_M_2_0_0/F");               
+		output->tree()->Branch( "RJVars_M_2_0_1", &RJVars_M_2_0_1             , "RJVars_M_2_0_1/F");               
+		output->tree()->Branch( "RJVars_M_2_1_0", &RJVars_M_2_1_0             , "RJVars_M_2_1_0/F");               
+		output->tree()->Branch( "RJVars_M_2_1_1", &RJVars_M_2_1_1             , "RJVars_M_2_1_1/F");     
+		output->tree()->Branch( "RJVars_MDecay_1_1_0", &RJVars_MDecay_1_1_0             , "RJVars_MDecay_1_1_0/F");               
+		output->tree()->Branch( "RJVars_MDecay_1_1_1", &RJVars_MDecay_1_1_1             , "RJVars_MDecay_1_1_1/F");  
+		output->tree()->Branch( "RJVars_MDecay_2_1_0", &RJVars_MDecay_2_1_0             , "RJVars_MDecay_2_1_0/F");               
+		output->tree()->Branch( "RJVars_MDecay_2_1_1", &RJVars_MDecay_2_1_1             , "RJVars_MDecay_2_1_1/F");  
+		output->tree()->Branch( "RJVars_dPhi_0_0_0", &RJVars_dPhi_0_0_0          , "RJVars_dPhi_0_0_0/F");                  
+		output->tree()->Branch( "RJVars_dPhi_0_0_1", &RJVars_dPhi_0_0_1          , "RJVars_dPhi_0_0_1/F");                  
+		output->tree()->Branch( "RJVars_dPhi_1_0_0", &RJVars_dPhi_1_0_0          , "RJVars_dPhi_1_0_0/F");                  
+		output->tree()->Branch( "RJVars_dPhi_1_0_1", &RJVars_dPhi_1_0_1          , "RJVars_dPhi_1_0_1/F");                  
+		output->tree()->Branch( "RJVars_dPhi_2_0_0", &RJVars_dPhi_2_0_0          , "RJVars_dPhi_2_0_0/F");                  
+		output->tree()->Branch( "RJVars_dPhi_2_0_1", &RJVars_dPhi_2_0_1,           "RJVars_dPhi_2_0_1/F");                   
+		output->tree()->Branch( "RJVars_dPhi_1_1_0", &RJVars_dPhi_1_1_0          , "RJVars_dPhi_1_1_0/F");                  
+		output->tree()->Branch( "RJVars_dPhi_1_1_1", &RJVars_dPhi_1_1_1          , "RJVars_dPhi_1_1_1/F");                  
+		output->tree()->Branch( "RJVars_dPhi_2_1_0", &RJVars_dPhi_2_1_0          , "RJVars_dPhi_2_1_0/F");                  
+		output->tree()->Branch( "RJVars_dPhi_2_1_1", &RJVars_dPhi_2_1_1,           "RJVars_dPhi_2_1_1/F");       
+		output->tree()->Branch( "RJVars_dPhiVis_0_0_0", &RJVars_dPhiVis_0_0_0       , "RJVars_dPhiVis_0_0_0/F");                     
+		output->tree()->Branch( "RJVars_dPhiVis_0_0_1", &RJVars_dPhiVis_0_0_1       , "RJVars_dPhiVis_0_0_1/F");                     
+		output->tree()->Branch( "RJVars_dPhiVis_1_0_0", &RJVars_dPhiVis_1_0_0       , "RJVars_dPhiVis_1_0_0/F");                     
+		output->tree()->Branch( "RJVars_dPhiVis_1_0_1", &RJVars_dPhiVis_1_0_1       , "RJVars_dPhiVis_1_0_1/F");                     
+		output->tree()->Branch( "RJVars_dPhiVis_2_0_0", &RJVars_dPhiVis_2_0_0       , "RJVars_dPhiVis_2_0_0/F");                     
+		output->tree()->Branch( "RJVars_dPhiVis_2_0_1", &RJVars_dPhiVis_2_0_1,        "RJVars_dPhiVis_2_0_1/F");                         
+		output->tree()->Branch( "RJVars_dPhiVis_1_1_0", &RJVars_dPhiVis_1_1_0       , "RJVars_dPhiVis_1_1_0/F");                     
+		output->tree()->Branch( "RJVars_dPhiVis_1_1_1", &RJVars_dPhiVis_1_1_1       , "RJVars_dPhiVis_1_1_1/F");                     
+		output->tree()->Branch( "RJVars_dPhiVis_2_1_0", &RJVars_dPhiVis_2_1_0       , "RJVars_dPhiVis_2_1_0/F");                     
+		output->tree()->Branch( "RJVars_dPhiVis_2_1_1", &RJVars_dPhiVis_2_1_1,        "RJVars_dPhiVis_2_1_1/F");              
+		output->tree()->Branch( "RJVars_cosTheta_0_0_0", &RJVars_cosTheta_0_0_0      , "RJVars_cosTheta_0_0_0/F");                      
+		output->tree()->Branch( "RJVars_cosTheta_0_0_1", &RJVars_cosTheta_0_0_1      , "RJVars_cosTheta_0_0_1/F");                      
+		output->tree()->Branch( "RJVars_cosTheta_1_0_0", &RJVars_cosTheta_1_0_0      , "RJVars_cosTheta_1_0_0/F");                      
+		output->tree()->Branch( "RJVars_cosTheta_1_0_1", &RJVars_cosTheta_1_0_1      , "RJVars_cosTheta_1_0_1/F");                      
+		output->tree()->Branch( "RJVars_cosTheta_2_0_0", &RJVars_cosTheta_2_0_0      , "RJVars_cosTheta_2_0_0/F");                      
+		output->tree()->Branch( "RJVars_cosTheta_2_0_1", &RJVars_cosTheta_2_0_1      , "RJVars_cosTheta_2_0_1/F");                       
+		output->tree()->Branch( "RJVars_cosTheta_1_1_0", &RJVars_cosTheta_1_1_0      , "RJVars_cosTheta_1_1_0/F");                      
+		output->tree()->Branch( "RJVars_cosTheta_1_1_1", &RJVars_cosTheta_1_1_1      , "RJVars_cosTheta_1_1_1/F");                      
+		output->tree()->Branch( "RJVars_cosTheta_2_1_0", &RJVars_cosTheta_2_1_0      , "RJVars_cosTheta_2_1_0/F");                      
+		output->tree()->Branch( "RJVars_cosTheta_2_1_1", &RJVars_cosTheta_2_1_1      , "RJVars_cosTheta_2_1_1/F");                      
+		output->tree()->Branch( "RJVars_dPhiDecay_0_0_0", &RJVars_dPhiDecay_0_0_0     , "RJVars_dPhiDecay_0_0_0/F");                       
+		output->tree()->Branch( "RJVars_dPhiDecay_0_0_1", &RJVars_dPhiDecay_0_0_1     , "RJVars_dPhiDecay_0_0_1/F");                       
+		output->tree()->Branch( "RJVars_dPhiDecay_1_0_0", &RJVars_dPhiDecay_1_0_0     , "RJVars_dPhiDecay_1_0_0/F");                       
+		output->tree()->Branch( "RJVars_dPhiDecay_1_0_1", &RJVars_dPhiDecay_1_0_1     , "RJVars_dPhiDecay_1_0_1/F");                       
+		output->tree()->Branch( "RJVars_dPhiDecay_2_0_0", &RJVars_dPhiDecay_2_0_0     , "RJVars_dPhiDecay_2_0_0/F");                       
+		output->tree()->Branch( "RJVars_dPhiDecay_2_0_1", &RJVars_dPhiDecay_2_0_1     , "RJVars_dPhiDecay_2_0_1/F");                       
+		output->tree()->Branch( "RJVars_cosThetaDecay_0_0_0", &RJVars_cosThetaDecay_0_0_0 , "RJVars_cosThetaDecay_0_0_0 /F");                           
+		output->tree()->Branch( "RJVars_cosThetaDecay_0_0_1", &RJVars_cosThetaDecay_0_0_1 , "RJVars_cosThetaDecay_0_0_1 /F");                           
+		output->tree()->Branch( "RJVars_cosThetaDecay_1_0_0", &RJVars_cosThetaDecay_1_0_0 , "RJVars_cosThetaDecay_1_0_0 /F");                           
+		output->tree()->Branch( "RJVars_cosThetaDecay_1_0_1", &RJVars_cosThetaDecay_1_0_1 , "RJVars_cosThetaDecay_1_0_1 /F");                           
+		output->tree()->Branch( "RJVars_cosThetaDecay_2_0_0", &RJVars_cosThetaDecay_2_0_0 , "RJVars_cosThetaDecay_2_0_0 /F");                           
+		output->tree()->Branch( "RJVars_cosThetaDecay_2_0_1", &RJVars_cosThetaDecay_2_0_1 , "RJVars_cosThetaDecay_2_0_1 /F");                           
+		output->tree()->Branch( "RJVars_gamma_0_0_0", &RJVars_gamma_0_0_0         , "RJVars_gamma_0_0_0/F");                   
+		output->tree()->Branch( "RJVars_gamma_0_0_1", &RJVars_gamma_0_0_1         , "RJVars_gamma_0_0_1/F");                   
 
 		output->tree()->Branch( "isEE", &isEE  , "isEE/I");       
 		output->tree()->Branch( "isMuMu", &isMuMu  , "isMuMu/I");       
 		output->tree()->Branch( "isEMu", &isEMu  , "isEMu/I");       
+
+		output->tree()->Branch( "isEE", &isEE  , "isEE/I");       
+		output->tree()->Branch( "isMuMu", &isMuMu  , "isMuMu/I");       
+		output->tree()->Branch( "isEMu", &isEMu  , "isEMu/I");       
+
+		output->tree()->Branch("el_selected", &el_selected   );
+		output->tree()->Branch("mu_selected", &mu_selected   );
+		output->tree()->Branch("jet_selected", &jet_selected);
+
+		output->tree()->Branch("weight", &weight);
 
 	}
 
@@ -163,22 +212,39 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	event->ReadFrom( inputTree ); 
 
 	// decide which branches to activate, and write to the output skimmed D3PD
+	// event->SetActive( kFALSE, "*");
+
 	event->SetActive( kTRUE, "RunNumber");
 	event->SetActive( kTRUE, "EventNumber");
 	event->SetActive( kTRUE, "lbn");
 	event->SetActive( kTRUE, "isSimulation");
+	event->SetActive( kTRUE, "^mcevt_weight$");
+
+	event->SetActive( kTRUE, "^vx_n$"); 
+	event->SetActive( kTRUE, "^vx_nTracks$"); 
+
 	event->SetActive( kTRUE, "^el_n$");  // notation if you want the exact branch name
 	event->SetActive( kTRUE, "^el_pt$");
 	event->SetActive( kTRUE, "^el_eta$");
 	event->SetActive( kTRUE, "^el_phi$");
-	event->SetActive( kTRUE, "^mu_muid_n$"); 
+	event->SetActive( kTRUE, "^mu_staco_n$");  // notation if you want the exact branch name
+	event->SetActive( kTRUE, "^mu_staco_pt$");
+	event->SetActive( kTRUE, "^mu_staco_eta$");
+	event->SetActive( kTRUE, "^mu_staco_phi$");
+
 
 	// turn on all jet branches first, then turn off some specific jet branches
-	event->SetActive( kTRUE, "jet_AntiKt4LCTopo_.*");
-	event->SetActive( kFALSE, "jet_AntiKt4LCTopo_MET.*");
-	event->SetActive( kFALSE, "jet_AntiKt4LCTopo_flavor.*");
+	// event->SetActive( kFALSE, "jet*");
+	event->SetActive( kTRUE, "^jet_AntiKt4LCTopo_pt$");
+	event->SetActive( kTRUE, "^jet_AntiKt4LCTopo_eta$");
+	event->SetActive( kTRUE, "^jet_AntiKt4LCTopo_phi$");
+	event->SetActive( kTRUE, "^jet_AntiKt4LCTopo_E$");
+	// event->SetActive( kTRUE, "jet_AntiKt4LCTopo_.*");
+	// event->SetActive( kFALSE, "jet_AntiKt4LCTopo_MET.*");
+	// event->SetActive( kFALSE, "jet_AntiKt4LCTopo_flavor.*");
 
-	event->SetActive( kTRUE, "MET_RefFinal_Egamma10NoTau_.*");
+	event->SetActive( kTRUE, "^MET_RefFinal_Egamma10NoTau_phi$");
+	event->SetActive( kTRUE, "^MET_RefFinal_Egamma10NoTau_sumet$");
 
 	// Make sure that all variables that we want to copy to the output are read into memory
 	event->ReadAllActive(); 
@@ -200,6 +266,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	int passEvent = 1;
 
 
+
 	// Important tools
 	// GRL Reader
 	// Pileup Reweighting Stuff
@@ -211,11 +278,13 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	std::vector<int > el_baseline;
 	std::vector<int > el_crack;
+	std::vector<int > el_met;
 	std::vector<int > el_signal;
 
 	std::vector<int > mu_baseline;
 	std::vector<int > mu_cosmic;
 	std::vector<int > mu_bad;
+	std::vector<int > mu_met;
 	std::vector<int > mu_signal;
 
 	std::vector<int > jet_signal;
@@ -245,6 +314,11 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 									10000.,2.47,SystErr::NONE) ){
 			el_baseline.push_back(iEl);
 		}
+
+		if( event->el_MET_Egamma10NoTau[iEl].wet().at(0) != 0. ){
+			el_met.push_back(iEl);
+		}
+
 	}
 
 	for( int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
@@ -255,7 +329,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		}
 		if(m_susy_obj->IsSignalElectronExp(iEl, 
 											event->el[iEl].tightPP(), 
-											event->PV.nTracks(), 
+											event->vxp.nTracks(), 
 											event->el[iEl].ptcone30(), 
 											event->el[iEl].topoEtcone30_corrected(), 
 											event->el[iEl].trackIPEstimate_d0_unbiasedpvunbiased(), 
@@ -294,6 +368,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 							  event->mu_staco[iMu].nTRTHits(),
 							  event->mu_staco[iMu].nTRTOutliers(),
 							  10000.,2.5, SystErr::NONE) ){
+			mu_met.push_back(iMu);
 			mu_baseline.push_back(iMu);
 		}
 	}
@@ -302,7 +377,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		iMu = mu_baseline.at(iMu_baseline);
 
 		if (m_susy_obj->IsSignalMuonExp(iMu,
-										event->PV.nTracks(),
+										event->vxp.nTracks(),
 										event->mu_staco[iMu].ptcone30_trkelstyle(),
 										event->mu_staco[iMu].etcone30(),
 										event->mu_staco[iMu].trackIPEstimate_d0_unbiasedpvunbiased(),
@@ -341,14 +416,14 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 								event->jet_AntiKt4LCTopo[iJet].ActiveAreaE(),
 								event->Eventshape.rhoKt4LC(),  
 								event->eventinfo.averageIntPerXing(),
-								event->PV.nTracks() );
+								event->vxp.nTracks() );
 
 		if(m_susy_obj->GetJetTLV(iJet).Pt() <= 20000.) continue;
 		
 		bool isoverlap = false;
 		for( int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
 			iEl = el_baseline.at(iEl_baseline);
-			if( m_susy_obj->GetElecTLV(iEl).DeltaR(m_susy_obj.GetJetTLV(iJet)) > 0.2 ) continue;
+			if( m_susy_obj->GetElecTLV(iEl).DeltaR(m_susy_obj->GetJetTLV(iJet)) > 0.2 ) continue;
 			isoverlap = true;
 			break;
 		}
@@ -363,7 +438,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
                                     event->jet_AntiKt4LCTopo[iJet].HECQuality(),
                                     event->jet_AntiKt4LCTopo[iJet].AverageLArQF(),
                                     event->jet_AntiKt4LCTopo[iJet].Timing(),
-                                    event->jet_AntiKt4LCTopo[iJet].sumPtTrk(),
+                                    event->jet_AntiKt4LCTopo[iJet].sumPtTrk_pv0_500MeV(),
                                     event->jet_AntiKt4LCTopo[iJet].fracSamplingMax(),
                                     event->jet_AntiKt4LCTopo[iJet].SamplingMax(),
                                     event->jet_AntiKt4LCTopo[iJet].NegativeE(),
@@ -388,13 +463,13 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		bool isoverlap = false;
 		for( int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
 			iJet = jet_good[iJet_good];
-			if( m_susy_obj->GetElecTLV(iEl).DeltaR(m_susy_obj.GetJetTLV(iJet)) < 0.4 ){
+			if( m_susy_obj->GetElecTLV(iEl).DeltaR(m_susy_obj->GetJetTLV(iJet)) < 0.4 ){
 				isoverlap = true;
 				break;
 			}
 		}
 		if(isoverlap){
-			el_signal.erase(iEl_signal);
+			el_signal.erase(el_signal.begin() + iEl_signal);
 			iEl_signal--;
 		}
 	}
@@ -406,15 +481,21 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		bool isoverlap = false;
 		for( int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
 			iJet = jet_good[iJet_good];
-			if( m_susy_obj->GetElecTLV(iMu).DeltaR(m_susy_obj.GetJetTLV(iJet)) < 0.4 ){
+			if( m_susy_obj->GetElecTLV(iMu).DeltaR(m_susy_obj->GetJetTLV(iJet)) < 0.4 ){
 				isoverlap = true;
 				break;
 			}
 		}
 		if(isoverlap){
-			mu_signal.erase(iMu_signal);
+			mu_signal.erase(mu_signal.begin() + iMu_signal);
 			iMu_signal--;
 		}
+	}
+
+	if(event->mcevt.weight()[0].size() ){
+		weight = event->mcevt.weight()[0][0][0];
+	} else {
+		weight = 1.;
 	}
 
 	isEE = 0;
@@ -425,7 +506,9 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	TLorentzVector Lepton[3];
 	TLorentzVector Jet[3];
 
-	if( jet_good.size() < 2 ) continue;
+	if( jet_good.size() < 2 ) return EL::StatusCode::SUCCESS;;
+	Jet[0] = m_susy_obj->GetJetTLV( jet_good[0] );
+	Jet[1] = m_susy_obj->GetJetTLV( jet_good[1] );
 
 	if( el_signal.size()==2 ){
 		isEE = 1;
@@ -438,14 +521,44 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	} else if ( mu_signal.size()==1 && el_signal.size()==1 ){
 		isEMu = 1;
 		Lepton[0] = m_susy_obj->GetElecTLV( el_signal[0] );
-		Lepton[1] = m_susy_obj->GetMuonTLV( mu_signal[1] );
-	}
+		Lepton[1] = m_susy_obj->GetMuonTLV( mu_signal[0] );
+	} else return EL::StatusCode::SUCCESS;
 
-	if( Lepton[0].DeltaR(Jet[0]) > Lepton[1].DeltaR(Jet[0])  ){
+	if( (Lepton[0]+Jet[0]).M() + (Lepton[1]+Jet[1]).M()  >  (Lepton[1]+Jet[0]).M() + (Lepton[0]+Jet[1]).M()  ){
 		Lepton[3] = Lepton[0];
 		Lepton[0] = Lepton[1];
 		Lepton[1] = Lepton[3];
 	}
+
+	TVector2 met = m_susy_obj->GetMET(
+									event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wet(),
+	                                event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wpx(),
+	                                event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wpy(),
+	                                event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.statusWord(),
+	                                el_met,
+	                                event->el_MET_Egamma10NoTau.wet(),
+	                                event->el_MET_Egamma10NoTau.wpx(),
+	                                event->el_MET_Egamma10NoTau.wpy(),
+	                                event->el_MET_Egamma10NoTau.statusWord(),                             
+	                                event->MET_CellOut_Egamma10NoTau.etx(), 
+	                                event->MET_CellOut_Egamma10NoTau.ety(),
+	                                event->MET_CellOut_Egamma10NoTau.sumet(),
+	                                event->MET_CellOut_Eflow_STVF_Egamma10NoTau.etx(), 
+	                                event->MET_CellOut_Eflow_STVF_Egamma10NoTau.ety(),
+	                                event->MET_CellOut_Eflow_STVF_Egamma10NoTau.sumet(),                                
+	                                event->MET_RefGamma_Egamma10NoTau.etx(),
+	                                event->MET_RefGamma_Egamma10NoTau.ety(),
+	                                event->MET_RefGamma_Egamma10NoTau.sumet(),
+	                                mu_met,
+	                                event->mu_staco.ms_qoverp(), 
+	                                event->mu_staco.ms_theta(), 
+	                                event->mu_staco.ms_phi(), 
+	                                event->mu_staco.charge(),
+	                                event->mu_staco.energyLossPar(),
+	                                event->eventinfo.averageIntPerXing(),
+	                                SUSYMet::Default,
+	                                SystErr::NONE,
+	                                false);
 
 
 	RJTool->newEvent();
@@ -456,9 +569,9 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	RJTool->addVisParticle("l",Lepton[0],1);
 	RJTool->addVisParticle("l",Lepton[1],2);
 
+	if( met.X() == 0. && met.Y() == 0. ) return EL::StatusCode::SUCCESS;
 	TVector3 MET;
-	MET.SetXYZ(  event->MET_RefFinal_Egamma10NoTau.etx(),
-	 event->MET_RefFinal_Egamma10NoTau.ety(), 0.0 );
+	MET.SetXYZ(  met.X(), met.Y(), 0.0 );
 	RJTool->addMET( MET );
 
 	RJTool->setHemisphereMode(0); //top symmetry
@@ -474,8 +587,6 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	RJTool->getObservables();
 
 	std::map< TString, double > RJVars = RJTool->getObservablesMap();
-
-
 
 	RJVars_M_0_0_0           = RJVars["M_0_0_0"];
 	RJVars_M_0_0_1           = RJVars["M_0_0_1"];
@@ -503,6 +614,70 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	RJVars_gamma_0_0_1       = RJVars["gamma_0_0_1"];
 
 
+
+
+	RJVars_M_0_0_0              =  RJVars["M_0_0_0"];
+	RJVars_M_0_0_1              =  RJVars["M_0_0_1"];
+	RJVars_M_1_0_0              =  RJVars["M_1_0_0"];
+	RJVars_M_1_0_1              =  RJVars["M_1_0_1"];
+	RJVars_M_1_1_0              =  RJVars["M_1_1_0"];
+	RJVars_M_1_1_1              =  RJVars["M_1_1_1"];
+	RJVars_M_2_0_0              =  RJVars["M_2_0_0"];
+	RJVars_M_2_0_1              =  RJVars["M_2_0_1"];
+	RJVars_M_2_1_0              =  RJVars["M_2_1_0"];
+	RJVars_M_2_1_1              =  RJVars["M_2_1_1"];
+	RJVars_MDecay_1_1_0         =  RJVars["MDecay_1_1_0"];
+	RJVars_MDecay_1_1_1         =  RJVars["MDecay_1_1_1"];
+	RJVars_MDecay_2_1_0         =  RJVars["MDecay_2_1_0"];
+	RJVars_MDecay_2_1_1         =  RJVars["MDecay_2_1_1"];
+	RJVars_dPhi_0_0_0         =  RJVars["dPhi_0_0_0"];
+	RJVars_dPhi_0_0_1         =  RJVars["dPhi_0_0_1"];
+	RJVars_dPhi_1_0_0         =  RJVars["dPhi_1_0_0"];
+	RJVars_dPhi_1_0_1         =  RJVars["dPhi_1_0_1"];
+	RJVars_dPhi_2_0_0         =  RJVars["dPhi_2_0_0"];
+	RJVars_dPhi_2_0_1         =  RJVars["dPhi_2_0_1"];
+	RJVars_dPhi_1_1_0         =  RJVars["dPhi_1_1_0"];
+	RJVars_dPhi_1_1_1         =  RJVars["dPhi_1_1_1"];
+	RJVars_dPhi_2_1_0         =  RJVars["dPhi_2_1_0"];
+	RJVars_dPhi_2_1_1         =  RJVars["dPhi_2_1_1"];
+	RJVars_dPhiVis_0_0_0         =  RJVars["dPhiVis_0_0_0"];
+	RJVars_dPhiVis_0_0_1         =  RJVars["dPhiVis_0_0_1"];
+	RJVars_dPhiVis_1_0_0         =  RJVars["dPhiVis_1_0_0"];
+	RJVars_dPhiVis_1_0_1         =  RJVars["dPhiVis_1_0_1"];
+	RJVars_dPhiVis_2_0_0         =  RJVars["dPhiVis_2_0_0"];
+	RJVars_dPhiVis_2_0_1         =  RJVars["dPhiVis_2_0_1"];
+	RJVars_dPhiVis_1_1_0         =  RJVars["dPhiVis_1_1_0"];
+	RJVars_dPhiVis_1_1_1         =  RJVars["dPhiVis_1_1_1"];
+	RJVars_dPhiVis_2_1_0         =  RJVars["dPhiVis_2_1_0"];
+	RJVars_dPhiVis_2_1_1         =  RJVars["dPhiVis_2_1_1"];
+	RJVars_cosTheta_0_0_0         =  RJVars["cosTheta_0_0_0"];
+	RJVars_cosTheta_0_0_1         =  RJVars["cosTheta_0_0_1"];
+	RJVars_cosTheta_1_0_0         =  RJVars["cosTheta_1_0_0"];
+	RJVars_cosTheta_1_0_1         =  RJVars["cosTheta_1_0_1"];
+	RJVars_cosTheta_2_0_0         =  RJVars["cosTheta_2_0_0"];
+	RJVars_cosTheta_2_0_1         =  RJVars["cosTheta_2_0_1"];
+	RJVars_cosTheta_1_1_0         =  RJVars["cosTheta_1_1_0"];
+	RJVars_cosTheta_1_1_1         =  RJVars["cosTheta_1_1_1"];
+	RJVars_cosTheta_2_1_0         =  RJVars["cosTheta_2_1_0"];
+	RJVars_cosTheta_2_1_1         =  RJVars["cosTheta_2_1_1"];
+	RJVars_dPhiDecay_0_0_0         =  RJVars["dPhiDecay_0_0_0"];
+	RJVars_dPhiDecay_0_0_1         =  RJVars["dPhiDecay_0_0_1"];
+	RJVars_dPhiDecay_1_0_0         =  RJVars["dPhiDecay_1_0_0"];
+	RJVars_dPhiDecay_1_0_1         =  RJVars["dPhiDecay_1_0_1"];
+	RJVars_dPhiDecay_2_0_0         =  RJVars["dPhiDecay_2_0_0"];
+	RJVars_dPhiDecay_2_0_1         =  RJVars["dPhiDecay_2_0_1"];
+	RJVars_cosThetaDecay_0_0_0         =  RJVars["cosThetaDecay_0_0_0"];
+	RJVars_cosThetaDecay_0_0_1         =  RJVars["cosThetaDecay_0_0_1"];
+	RJVars_cosThetaDecay_1_0_0         =  RJVars["cosThetaDecay_1_0_0"];
+	RJVars_cosThetaDecay_1_0_1         =  RJVars["cosThetaDecay_1_0_1"];
+	RJVars_cosThetaDecay_2_0_0         =  RJVars["cosThetaDecay_2_0_0"];
+	RJVars_cosThetaDecay_2_0_1         =  RJVars["cosThetaDecay_2_0_1"];
+	RJVars_gamma_0_0_0         =  RJVars["gamma_0_0_0"];
+	RJVars_gamma_0_0_1         =  RJVars["gamma_0_0_1"];
+
+	el_selected  = new vector<int>(el_signal);
+	mu_selected  = new vector<int>(mu_signal);
+	jet_selected = new vector<int>(jet_good );
 
 
 	// if( (event->triggerbits.EF_mu24_tight() != 1)    && 
