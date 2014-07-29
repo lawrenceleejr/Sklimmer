@@ -21,7 +21,7 @@ class SklimmerAnalysis : public EL::Algorithm
 public:
   // float cutValue;
 
-  TH1 *AHist; //!
+  TH1 *h_nevents; //!
 
   // New Branches
 
@@ -84,6 +84,39 @@ public:
   Float_t RJVars_gamma_0_0_0;  //!
   Float_t RJVars_gamma_0_0_1;  //!
 
+
+  Float_t RJVars_M_Tot_Mean;  //!
+  Float_t RJVars_M_0_Mean;  //!
+  Float_t RJVars_M_1_Mean;  //!
+  Float_t RJVars_dPhi_Tot_Mean;  //!
+  Float_t RJVars_dPhi_0_Mean;  //!
+  Float_t RJVars_dPhi_1_Mean;  //!
+  Float_t RJVars_dPhiVis_Tot_Mean;  //!
+  Float_t RJVars_dPhiVis_0_Mean;  //!
+  Float_t RJVars_dPhiVis_1_Mean;  //!
+  Float_t RJVars_cosTheta_Tot_Mean;  //!
+  Float_t RJVars_cosTheta_0_Mean;  //!
+  Float_t RJVars_cosTheta_1_Mean;  //!
+  Float_t RJVars_dPhiDecay_Tot_Mean;  //!
+  Float_t RJVars_gamma_Tot_Mean;  //!
+
+  Float_t RJVars_M_Tot_Var;  //!
+  Float_t RJVars_M_0_Var;  //!
+  Float_t RJVars_M_1_Var;  //!
+  Float_t RJVars_dPhi_Tot_Var;  //!
+  Float_t RJVars_dPhi_0_Var;  //!
+  Float_t RJVars_dPhi_1_Var;  //!
+  Float_t RJVars_dPhiVis_Tot_Var;  //!
+  Float_t RJVars_dPhiVis_0_Var;  //!
+  Float_t RJVars_dPhiVis_1_Var;  //!
+  Float_t RJVars_cosTheta_Tot_Var;  //!
+  Float_t RJVars_cosTheta_0_Var;  //!
+  Float_t RJVars_cosTheta_1_Var;  //!
+  Float_t RJVars_dPhiDecay_Tot_Var;  //!
+  Float_t RJVars_gamma_Tot_Var;  //!
+
+
+
   Int_t isEE; //!
   Int_t isMuMu; //!
   Int_t isEMu; //!
@@ -97,6 +130,7 @@ public:
   TBranch        *b_jet_selected;   //!
 
   Float_t weight; //!
+  Int_t nEvents; //!
 
 
 
@@ -128,6 +162,11 @@ public:
   virtual EL::StatusCode postExecute ();
   virtual EL::StatusCode finalize ();
   virtual EL::StatusCode histFinalize ();
+
+  Float_t getMean(Float_t a, Float_t b, Float_t c, Float_t d);
+  Float_t getMean(Float_t a, Float_t b);
+  Float_t getVar(Float_t a, Float_t b, Float_t c, Float_t d);
+  Float_t getVar(Float_t a, Float_t b);
 
   // this is needed to distribute the algorithm to the workers
   ClassDef(SklimmerAnalysis, 1);

@@ -58,8 +58,8 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	// trees.  This method gets called before any input files are
 	// connected.
 
-  AHist = new TH1F("AHist", "AHist", 100, 0, 1.e5);
-  wk()->addOutput (AHist);
+  h_nevents = new TH1F("h_nevents", "h_nevents", 10, 0, 10);
+  wk()->addOutput (h_nevents);
 
 
 	return EL::StatusCode::SUCCESS;
@@ -192,6 +192,39 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		output->tree()->Branch( "RJVars_gamma_0_0_0", &RJVars_gamma_0_0_0         , "RJVars_gamma_0_0_0/F");                   
 		output->tree()->Branch( "RJVars_gamma_0_0_1", &RJVars_gamma_0_0_1         , "RJVars_gamma_0_0_1/F");                   
 
+
+		output->tree()->Branch( "RJVars_M_Tot_Mean" , &RJVars_M_Tot_Mean,"RJVars_M_Tot_Mean/F");            
+		output->tree()->Branch( "RJVars_M_0_Mean" , &RJVars_M_0_Mean,"RJVars_M_0_Mean/F");          
+		output->tree()->Branch( "RJVars_M_1_Mean" , &RJVars_M_1_Mean,"RJVars_M_1_Mean/F");          
+		output->tree()->Branch( "RJVars_dPhi_Tot_Mean" , &RJVars_dPhi_Tot_Mean,"RJVars_dPhi_Tot_Mean/F");               
+		output->tree()->Branch( "RJVars_dPhi_0_Mean" , &RJVars_dPhi_0_Mean,"RJVars_dPhi_0_Mean/F");             
+		output->tree()->Branch( "RJVars_dPhi_1_Mean" , &RJVars_dPhi_1_Mean,"RJVars_dPhi_1_Mean/F");             
+		output->tree()->Branch( "RJVars_dPhiVis_Tot_Mean" , &RJVars_dPhiVis_Tot_Mean  ,"RJVars_dPhiVis_Tot_Mean/F");                  
+		output->tree()->Branch( "RJVars_dPhiVis_0_Mean" , &RJVars_dPhiVis_0_Mean,"RJVars_dPhiVis_0_Mean/F");                
+		output->tree()->Branch( "RJVars_dPhiVis_1_Mean" , &RJVars_dPhiVis_1_Mean,"RJVars_dPhiVis_1_Mean/F");                
+		output->tree()->Branch( "RJVars_cosTheta_Tot_Mean" , &RJVars_cosTheta_Tot_Mean ,"RJVars_cosTheta_Tot_Mean/F");                   
+		output->tree()->Branch( "RJVars_cosTheta_0_Mean" , &RJVars_cosTheta_0_Mean,"RJVars_cosTheta_0_Mean/F");           
+		output->tree()->Branch( "RJVars_cosTheta_1_Mean" , &RJVars_cosTheta_1_Mean,"RJVars_cosTheta_1_Mean/F");                 
+		output->tree()->Branch( "RJVars_dPhiDecay_Tot_Mean" , &RJVars_dPhiDecay_Tot_Mean,"RJVars_dPhiDecay_Tot_Mean/F");                    
+		output->tree()->Branch( "RJVars_gamma_Tot_Mean" , &RJVars_gamma_Tot_Mean,"RJVars_gamma_Tot_Mean/F");                
+
+		output->tree()->Branch( "RJVars_M_Tot_Var" , &RJVars_M_Tot_Var,"RJVars_M_Tot_Var/F");           
+		output->tree()->Branch( "RJVars_M_0_Var" , &RJVars_M_0_Var,"RJVars_M_0_Var/F");         
+		output->tree()->Branch( "RJVars_M_1_Var" , &RJVars_M_1_Var,"RJVars_M_1_Var/F");         
+		output->tree()->Branch( "RJVars_dPhi_Tot_Var" , &RJVars_dPhi_Tot_Var,"RJVars_dPhi_Tot_Var/F");              
+		output->tree()->Branch( "RJVars_dPhi_0_Var" , &RJVars_dPhi_0_Var,"RJVars_dPhi_0_Var/F");            
+		output->tree()->Branch( "RJVars_dPhi_1_Var" , &RJVars_dPhi_1_Var,"RJVars_dPhi_1_Var/F");            
+		output->tree()->Branch( "RJVars_dPhiVis_Tot_Var" , &RJVars_dPhiVis_Tot_Var,"RJVars_dPhiVis_Tot_Var/F");                 
+		output->tree()->Branch( "RJVars_dPhiVis_0_Var" , &RJVars_dPhiVis_0_Var,"RJVars_dPhiVis_0_Var/F");               
+		output->tree()->Branch( "RJVars_dPhiVis_1_Var" , &RJVars_dPhiVis_1_Var,"RJVars_dPhiVis_1_Var/F");               
+		output->tree()->Branch( "RJVars_cosTheta_Tot_Var" , &RJVars_cosTheta_Tot_Var,"RJVars_cosTheta_Tot_Var/F");                  
+		output->tree()->Branch( "RJVars_cosTheta_0_Var" , &RJVars_cosTheta_0_Var,"RJVars_cosTheta_0_Var/F");                
+		output->tree()->Branch( "RJVars_cosTheta_1_Var" , &RJVars_cosTheta_1_Var,"RJVars_cosTheta_1_Var/F");                
+		output->tree()->Branch( "RJVars_dPhiDecay_Tot_Var" , &RJVars_dPhiDecay_Tot_Var ,"RJVars_dPhiDecay_Tot_Var/F");                   
+		output->tree()->Branch( "RJVars_gamma_Tot_Var" , &RJVars_gamma_Tot_Var     ,"RJVars_gamma_Tot_Var/F");                         
+
+
+
 		output->tree()->Branch( "isEE", &isEE  , "isEE/I");       
 		output->tree()->Branch( "isMuMu", &isMuMu  , "isMuMu/I");       
 		output->tree()->Branch( "isEMu", &isEMu  , "isEMu/I");       
@@ -205,6 +238,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		output->tree()->Branch("jet_selected", &jet_selected);
 
 		output->tree()->Branch("weight", &weight);
+		// output->tree()->Branch("nEvents", &nEvents);
 
 	}
 
@@ -265,6 +299,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	int passEvent = 1;
 
+	h_nevents->Fill(0);
 
 
 	// Important tools
@@ -293,6 +328,10 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	std::vector<int > jet_LArHoleVeto;
 	std::vector<int > jet_btagged;
 
+	float jetptcut = 10000.;
+	float elecptcut = 5000.;
+	float muonptcut = 5000.;
+
 
 	int iEl=0;
 	for( iEl = 0; iEl < event->el.n(); iEl++  ){
@@ -311,7 +350,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 									event->el[iEl].nPixHits(),
 									event->el[iEl].nSCTHits(),
 									event->el_MET_Egamma10NoTau[iEl].wet().at(0),
-									10000.,2.47,SystErr::NONE) ){
+									elecptcut,2.47,SystErr::NONE) ){
 			el_baseline.push_back(iEl);
 		}
 
@@ -367,7 +406,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 							  event->mu_staco[iMu].nSCTHoles(),
 							  event->mu_staco[iMu].nTRTHits(),
 							  event->mu_staco[iMu].nTRTOutliers(),
-							  10000.,2.5, SystErr::NONE) ){
+							  muonptcut,2.5, SystErr::NONE) ){
 			mu_met.push_back(iMu);
 			mu_baseline.push_back(iMu);
 		}
@@ -418,7 +457,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 								event->eventinfo.averageIntPerXing(),
 								event->vxp.nTracks() );
 
-		if(m_susy_obj->GetJetTLV(iJet).Pt() <= 20000.) continue;
+		if(m_susy_obj->GetJetTLV(iJet).Pt() <= jetptcut) continue;
 		
 		bool isoverlap = false;
 		for( int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
@@ -432,19 +471,19 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		bool isgoodjet = false;
 		if( m_susy_obj->IsGoodJet( iJet,
 									event->jet_AntiKt4LCTopo[iJet].constscale_eta(),
-                                    event->jet_AntiKt4LCTopo[iJet].emfrac(),
-                                    event->jet_AntiKt4LCTopo[iJet].hecf(),
-                                    event->jet_AntiKt4LCTopo[iJet].LArQuality(),
-                                    event->jet_AntiKt4LCTopo[iJet].HECQuality(),
-                                    event->jet_AntiKt4LCTopo[iJet].AverageLArQF(),
-                                    event->jet_AntiKt4LCTopo[iJet].Timing(),
-                                    event->jet_AntiKt4LCTopo[iJet].sumPtTrk_pv0_500MeV(),
-                                    event->jet_AntiKt4LCTopo[iJet].fracSamplingMax(),
-                                    event->jet_AntiKt4LCTopo[iJet].SamplingMax(),
-                                    event->jet_AntiKt4LCTopo[iJet].NegativeE(),
-                                    event->eventinfo.RunNumber(),20000.,10.) ) isgoodjet = true;
+									event->jet_AntiKt4LCTopo[iJet].emfrac(),
+									event->jet_AntiKt4LCTopo[iJet].hecf(),
+									event->jet_AntiKt4LCTopo[iJet].LArQuality(),
+									event->jet_AntiKt4LCTopo[iJet].HECQuality(),
+									event->jet_AntiKt4LCTopo[iJet].AverageLArQF(),
+									event->jet_AntiKt4LCTopo[iJet].Timing(),
+									event->jet_AntiKt4LCTopo[iJet].sumPtTrk_pv0_500MeV(),
+									event->jet_AntiKt4LCTopo[iJet].fracSamplingMax(),
+									event->jet_AntiKt4LCTopo[iJet].SamplingMax(),
+									event->jet_AntiKt4LCTopo[iJet].NegativeE(),
+									event->eventinfo.RunNumber(),20000.,10.) ) isgoodjet = true;
 
-		if(m_susy_obj->GetJetTLV(iJet).Pt() <= 20000.) continue;
+		if(m_susy_obj->GetJetTLV(iJet).Pt() <= jetptcut) continue;
 
 		if(!isgoodjet) jet_bad.push_back(iJet);
 		else if(fabs(m_susy_obj->GetJetTLV(iJet).Eta() ) < 2.8 ){
@@ -481,7 +520,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		bool isoverlap = false;
 		for( int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
 			iJet = jet_good[iJet_good];
-			if( m_susy_obj->GetElecTLV(iMu).DeltaR(m_susy_obj->GetJetTLV(iJet)) < 0.4 ){
+			if( m_susy_obj->GetMuonTLV(iMu).DeltaR(m_susy_obj->GetJetTLV(iJet)) < 0.4 ){
 				isoverlap = true;
 				break;
 			}
@@ -532,33 +571,33 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	TVector2 met = m_susy_obj->GetMET(
 									event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wet(),
-	                                event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wpx(),
-	                                event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wpy(),
-	                                event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.statusWord(),
-	                                el_met,
-	                                event->el_MET_Egamma10NoTau.wet(),
-	                                event->el_MET_Egamma10NoTau.wpx(),
-	                                event->el_MET_Egamma10NoTau.wpy(),
-	                                event->el_MET_Egamma10NoTau.statusWord(),                             
-	                                event->MET_CellOut_Egamma10NoTau.etx(), 
-	                                event->MET_CellOut_Egamma10NoTau.ety(),
-	                                event->MET_CellOut_Egamma10NoTau.sumet(),
-	                                event->MET_CellOut_Eflow_STVF_Egamma10NoTau.etx(), 
-	                                event->MET_CellOut_Eflow_STVF_Egamma10NoTau.ety(),
-	                                event->MET_CellOut_Eflow_STVF_Egamma10NoTau.sumet(),                                
-	                                event->MET_RefGamma_Egamma10NoTau.etx(),
-	                                event->MET_RefGamma_Egamma10NoTau.ety(),
-	                                event->MET_RefGamma_Egamma10NoTau.sumet(),
-	                                mu_met,
-	                                event->mu_staco.ms_qoverp(), 
-	                                event->mu_staco.ms_theta(), 
-	                                event->mu_staco.ms_phi(), 
-	                                event->mu_staco.charge(),
-	                                event->mu_staco.energyLossPar(),
-	                                event->eventinfo.averageIntPerXing(),
-	                                SUSYMet::Default,
-	                                SystErr::NONE,
-	                                false);
+									event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wpx(),
+									event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wpy(),
+									event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.statusWord(),
+									el_met,
+									event->el_MET_Egamma10NoTau.wet(),
+									event->el_MET_Egamma10NoTau.wpx(),
+									event->el_MET_Egamma10NoTau.wpy(),
+									event->el_MET_Egamma10NoTau.statusWord(),                             
+									event->MET_CellOut_Egamma10NoTau.etx(), 
+									event->MET_CellOut_Egamma10NoTau.ety(),
+									event->MET_CellOut_Egamma10NoTau.sumet(),
+									event->MET_CellOut_Eflow_STVF_Egamma10NoTau.etx(), 
+									event->MET_CellOut_Eflow_STVF_Egamma10NoTau.ety(),
+									event->MET_CellOut_Eflow_STVF_Egamma10NoTau.sumet(),                                
+									event->MET_RefGamma_Egamma10NoTau.etx(),
+									event->MET_RefGamma_Egamma10NoTau.ety(),
+									event->MET_RefGamma_Egamma10NoTau.sumet(),
+									mu_met,
+									event->mu_staco.ms_qoverp(), 
+									event->mu_staco.ms_theta(), 
+									event->mu_staco.ms_phi(), 
+									event->mu_staco.charge(),
+									event->mu_staco.energyLossPar(),
+									event->eventinfo.averageIntPerXing(),
+									SUSYMet::Default,
+									SystErr::NONE,
+									false);
 
 
 	RJTool->newEvent();
@@ -587,34 +626,6 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	RJTool->getObservables();
 
 	std::map< TString, double > RJVars = RJTool->getObservablesMap();
-
-	RJVars_M_0_0_0           = RJVars["M_0_0_0"];
-	RJVars_M_0_0_1           = RJVars["M_0_0_1"];
-	RJVars_M_1_0_0           = RJVars["M_1_0_0"];
-	RJVars_M_1_0_1           = RJVars["M_1_0_1"];
-	RJVars_M_1_1_0           = RJVars["M_1_1_0"];
-	RJVars_M_1_1_1           = RJVars["M_1_1_1"];
-	RJVars_M_2_0_0           = RJVars["M_2_0_0"];
-	RJVars_M_2_0_1           = RJVars["M_2_0_1"];
-	RJVars_M_2_1_0           = RJVars["M_2_1_0"];
-	RJVars_M_2_1_1           = RJVars["M_2_1_1"];
-	RJVars_dPhi_0_0_0        = RJVars["dPhi_0_0_0"];
-	RJVars_dPhi_0_0_1        = RJVars["dPhi_0_0_1"];
-	RJVars_dPhi_1_0_0        = RJVars["dPhi_1_0_0"];
-	RJVars_dPhi_1_0_1        = RJVars["dPhi_1_0_1"];
-	RJVars_dPhi_2_0_0        = RJVars["dPhi_2_0_0"];
-	RJVars_dPhi_2_0_1        = RJVars["dPhi_2_0_1"];
-	RJVars_dPhiVis_0_0_0     = RJVars["dPhiVis_0_0_0"];
-	RJVars_dPhiVis_0_0_1     = RJVars["dPhiVis_0_0_1"];
-	RJVars_dPhiVis_1_0_0     = RJVars["dPhiVis_1_0_0"];
-	RJVars_dPhiVis_1_0_1     = RJVars["dPhiVis_1_0_1"];
-	RJVars_dPhiVis_2_0_0     = RJVars["dPhiVis_2_0_0"];
-	RJVars_dPhiVis_2_0_1     = RJVars["dPhiVis_2_0_1"];
-	RJVars_gamma_0_0_0       = RJVars["gamma_0_0_0"];
-	RJVars_gamma_0_0_1       = RJVars["gamma_0_0_1"];
-
-
-
 
 	RJVars_M_0_0_0              =  RJVars["M_0_0_0"];
 	RJVars_M_0_0_1              =  RJVars["M_0_0_1"];
@@ -675,27 +686,92 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	RJVars_gamma_0_0_0         =  RJVars["gamma_0_0_0"];
 	RJVars_gamma_0_0_1         =  RJVars["gamma_0_0_1"];
 
+
+ 	RJVars_M_Tot_Mean = getMean(RJVars_M_0_0_0, RJVars_M_0_0_1);
+ 	RJVars_M_0_Mean = getMean(RJVars_M_1_0_0, RJVars_M_2_0_0, RJVars_M_1_0_1, RJVars_M_2_0_1);
+ 	RJVars_M_1_Mean = getMean(RJVars_M_1_1_0, RJVars_M_2_1_0, RJVars_M_1_1_1, RJVars_M_2_1_1);
+ 	RJVars_dPhi_Tot_Mean = getMean(RJVars_dPhi_0_0_0, RJVars_dPhi_0_0_1);
+ 	RJVars_dPhi_0_Mean = getMean(RJVars_dPhi_1_0_0, RJVars_dPhi_2_0_0, RJVars_dPhi_1_0_1, RJVars_dPhi_2_0_1);
+ 	RJVars_dPhi_1_Mean = getMean(RJVars_dPhi_1_1_0, RJVars_dPhi_2_1_0, RJVars_dPhi_1_1_1, RJVars_dPhi_2_1_1);
+ 	RJVars_dPhiVis_Tot_Mean = getMean(RJVars_dPhiVis_0_0_0, RJVars_dPhiVis_0_0_1);
+ 	RJVars_dPhiVis_0_Mean = getMean(RJVars_dPhiVis_1_0_0, RJVars_dPhiVis_2_0_0, RJVars_dPhiVis_1_0_1, RJVars_dPhiVis_2_0_1);
+ 	RJVars_dPhiVis_1_Mean = getMean(RJVars_dPhiVis_1_1_0, RJVars_dPhiVis_2_1_0, RJVars_dPhiVis_1_1_1, RJVars_dPhiVis_2_1_1);
+ 	RJVars_cosTheta_Tot_Mean = getMean(RJVars_cosTheta_0_0_0, RJVars_cosTheta_0_0_1);
+ 	RJVars_cosTheta_0_Mean = getMean(RJVars_cosTheta_1_0_0, RJVars_cosTheta_2_0_0, RJVars_cosTheta_1_0_1, RJVars_cosTheta_2_0_1);
+ 	RJVars_cosTheta_1_Mean = getMean(RJVars_cosTheta_1_1_0, RJVars_cosTheta_2_1_0, RJVars_cosTheta_1_1_1, RJVars_cosTheta_2_1_1);
+ 	RJVars_dPhiDecay_Tot_Mean = getMean(RJVars_dPhiDecay_0_0_0, RJVars_dPhiDecay_0_0_1);
+ 	RJVars_gamma_Tot_Mean = getMean(RJVars_gamma_0_0_0, RJVars_gamma_0_0_1);
+
+ 	RJVars_M_Tot_Var = getVar(RJVars_M_0_0_0, RJVars_M_0_0_1);
+ 	RJVars_M_0_Var = getVar(RJVars_M_1_0_0, RJVars_M_2_0_0, RJVars_M_1_0_1, RJVars_M_2_0_1);
+ 	RJVars_M_1_Var = getVar(RJVars_M_1_1_0, RJVars_M_2_1_0, RJVars_M_1_1_1, RJVars_M_2_1_1);
+ 	RJVars_dPhi_Tot_Var = getVar(RJVars_dPhi_0_0_0, RJVars_dPhi_0_0_1);
+ 	RJVars_dPhi_0_Var = getVar(RJVars_dPhi_1_0_0, RJVars_dPhi_2_0_0, RJVars_dPhi_1_0_1, RJVars_dPhi_2_0_1);
+ 	RJVars_dPhi_1_Var = getVar(RJVars_dPhi_1_1_0, RJVars_dPhi_2_1_0, RJVars_dPhi_1_1_1, RJVars_dPhi_2_1_1);
+ 	RJVars_dPhiVis_Tot_Var = getVar(RJVars_dPhiVis_0_0_0, RJVars_dPhiVis_0_0_1);
+ 	RJVars_dPhiVis_0_Var = getVar(RJVars_dPhiVis_1_0_0, RJVars_dPhiVis_2_0_0, RJVars_dPhiVis_1_0_1, RJVars_dPhiVis_2_0_1);
+ 	RJVars_dPhiVis_1_Var = getVar(RJVars_dPhiVis_1_1_0, RJVars_dPhiVis_2_1_0, RJVars_dPhiVis_1_1_1, RJVars_dPhiVis_2_1_1);
+ 	RJVars_cosTheta_Tot_Var = getVar(RJVars_cosTheta_0_0_0, RJVars_cosTheta_0_0_1);
+ 	RJVars_cosTheta_0_Var = getVar(RJVars_cosTheta_1_0_0, RJVars_cosTheta_2_0_0, RJVars_cosTheta_1_0_1, RJVars_cosTheta_2_0_1);
+ 	RJVars_cosTheta_1_Var = getVar(RJVars_cosTheta_1_1_0, RJVars_cosTheta_2_1_0, RJVars_cosTheta_1_1_1, RJVars_cosTheta_2_1_1);
+ 	RJVars_dPhiDecay_Tot_Var = getVar(RJVars_dPhiDecay_0_0_0, RJVars_dPhiDecay_0_0_1);
+ 	RJVars_gamma_Tot_Var = getVar(RJVars_gamma_0_0_0, RJVars_gamma_0_0_1);
+
+
 	el_selected  = new vector<int>(el_signal);
 	mu_selected  = new vector<int>(mu_signal);
 	jet_selected = new vector<int>(jet_good );
 
 
-	// if( (event->triggerbits.EF_mu24_tight() != 1)    && 
-	//     (event->triggerbits.EF_e24vh_medium1() != 1) && 
-	//     (event->triggerbits.EF_xe80_tclcw() != 1) ){
-	//   passEvent = 0;
-	// }
+// 	// if( (event->triggerbits.EF_mu24_tight() != 1)    && 
+// 	//     (event->triggerbits.EF_e24vh_medium1() != 1) && 
+// 	//     (event->triggerbits.EF_xe80_tclcw() != 1) ){
+// 	//   passEvent = 0;
+// 	// }
 
 	if(passEvent){
 		// You can put some criteria here for the event to be selected.
 		output->setFilterPassed (); // You must have this line somewhere
 	}
 
-//  output->setFilterPassed ();
+	 //  output->setFilterPassed ();
 	
 	return EL::StatusCode::SUCCESS;
 }
 
+Float_t SklimmerAnalysis :: getMean (Float_t a, Float_t b, Float_t c, Float_t d)
+{
+	Float_t n=4.;
+	Float_t sum=a+b+c+d;
+
+	return sum/n;
+}
+
+Float_t SklimmerAnalysis :: getMean (Float_t a, Float_t b)
+{
+	Float_t n=2.;
+	Float_t sum=a+b;
+
+	return sum/n;
+}
+
+Float_t SklimmerAnalysis :: getVar (Float_t a, Float_t b, Float_t c, Float_t d)
+{
+	Float_t n=4.;
+	Float_t mean=getMean(a,b,c,d);
+	Float_t sum = (a-mean)*(a-mean) + (b-mean)*(b-mean) + (c-mean)*(c-mean) + (d-mean)*(d-mean)   ;
+
+	return sum / (3.*mean);
+}
+
+Float_t SklimmerAnalysis :: getVar (Float_t a, Float_t b)
+{
+	Float_t n=2.;
+	Float_t mean=getMean(a,b);
+	Float_t sum=(a-mean)*(a-mean) + (b-mean)*(b-mean) ;
+
+	return sum/mean;
+}
 
 
 EL::StatusCode SklimmerAnalysis :: postExecute ()
