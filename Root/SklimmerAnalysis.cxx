@@ -17,7 +17,7 @@ ClassImp(SklimmerAnalysis)
 
 
 
-SklimmerAnalysis :: SklimmerAnalysis ()
+SklimmerAnalysis :: SklimmerAnalysis()
 {
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
@@ -25,10 +25,6 @@ SklimmerAnalysis :: SklimmerAnalysis ()
 	// called on both the submission and the worker node.  Most of your
 	// initialization code will go into histInitialize() and
 	// initialize().
-
-
-
-
 
 }
 
@@ -58,8 +54,9 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	// trees.  This method gets called before any input files are
 	// connected.
 
-  h_nevents = new TH1F("h_nevents", "h_nevents", 10, 0, 10);
-  wk()->addOutput (h_nevents);
+	h_nevents = new TH1F("h_nevents", "h_nevents", 10, 0, 10);
+	wk()->addOutput (h_nevents);
+
 
 
 	return EL::StatusCode::SUCCESS;
@@ -99,6 +96,185 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 
 
+
+	switch ( whichsyst ){
+
+		case SystErr::NONE:
+			whichsystname = "";
+			break;
+		case SystErr::JESDOWN:
+			whichsystname = "_JESDOWN";
+			break;
+		case SystErr::JESUP:
+			whichsystname = "_JESUP";
+			break;
+		case SystErr::EffectiveNP_1_Down:
+			whichsystname = "_EffectiveNP_1_Down";
+			break;
+		case SystErr::EffectiveNP_1_Up:
+			whichsystname = "_EffectiveNP_1_Up";
+			break;
+		case SystErr::EffectiveNP_2_Down:
+			whichsystname = "_EffectiveNP_2_Down";
+			break;
+		case SystErr::EffectiveNP_2_Up:
+			whichsystname = "_EffectiveNP_2_Up";
+			break;
+		case SystErr::EffectiveNP_3_Down:
+			whichsystname = "_EffectiveNP_3_Down";
+			break;
+		case SystErr::EffectiveNP_3_Up:
+			whichsystname = "_EffectiveNP_3_Up";
+			break;
+		case SystErr::EffectiveNP_4_Down:
+			whichsystname = "_EffectiveNP_4_Down";
+			break;
+		case SystErr::EffectiveNP_4_Up:
+			whichsystname = "_EffectiveNP_4_Up";
+			break;
+		case SystErr::EffectiveNP_5_Down:
+			whichsystname = "_EffectiveNP_5_Down";
+			break;
+		case SystErr::EffectiveNP_5_Up:
+			whichsystname = "_EffectiveNP_5_Up";
+			break;
+		case SystErr::EffectiveNP_6_Down:
+			whichsystname = "_EffectiveNP_6_Down";
+			break;
+		case SystErr::EffectiveNP_6_Up:
+			whichsystname = "_EffectiveNP_6_Up";
+			break;
+		case SystErr::EtaIntercalibration_Modelling_Down:
+			whichsystname = "_EtaIntercalibration_Modelling_Down";
+			break;
+		case SystErr::EtaIntercalibration_Modelling_Up:
+			whichsystname = "_EtaIntercalibration_Modelling_Up";
+			break;
+		case SystErr::EtaIntercalibration_StatAndMethod_Down:
+			whichsystname = "_EtaIntercalibration_StatAndMethod_Down";
+			break;
+		case SystErr::EtaIntercalibration_StatAndMethod_Up:
+			whichsystname = "_EtaIntercalibration_StatAndMethod_Up";
+			break;
+		case SystErr::SingleParticle_HighPt_Down:
+			whichsystname = "_SingleParticle_HighPt_Down";
+			break;
+		case SystErr::SingleParticle_HighPt_Up:
+			whichsystname = "_SingleParticle_HighPt_Up";
+			break;
+		case SystErr::RelativeNonClosure_Pythia8_Down:
+			whichsystname = "_RelativeNonClosure_Pythia8_Down";
+			break;
+		case SystErr::RelativeNonClosure_Pythia8_Up:
+			whichsystname = "_RelativeNonClosure_Pythia8_Up";
+			break;
+		case SystErr::PileupOffsetTermMuDown:
+			whichsystname = "_PileupOffsetTermMuDown";
+			break;
+		case SystErr::PileupOffsetTermMuUp:
+			whichsystname = "_PileupOffsetTermMuUp";
+			break;
+		case SystErr::PileupOffsetTermNPVDown:
+			whichsystname = "_PileupOffsetTermNPVDown";
+			break;
+		case SystErr::PileupOffsetTermNPVUp:
+			whichsystname = "_PileupOffsetTermNPVUp";
+			break;
+		case SystErr::PileupPtTermDown:
+			whichsystname = "_PileupPtTermDown";
+			break;
+		case SystErr::PileupPtTermUp:
+			whichsystname = "_PileupPtTermUp";
+			break;
+		case SystErr::PileupRhoTopologyDown:
+			whichsystname = "_PileupRhoTopologyDown";
+			break;
+		case SystErr::PileupRhoTopologyUp:
+			whichsystname = "_PileupRhoTopologyUp";
+			break;
+		case SystErr::CloseByDown:
+			whichsystname = "_CloseByDown";
+			break;
+		case SystErr::CloseByUp:
+			whichsystname = "_CloseByUp";
+			break;
+		case SystErr::FlavorCompUncertDown:
+			whichsystname = "_FlavorCompUncertDown";
+			break;
+		case SystErr::FlavorCompUncertUp:
+			whichsystname = "_FlavorCompUncertUp";
+			break;
+		case SystErr::FlavorResponseUncertDown:
+			whichsystname = "_FlavorResponseUncertDown";
+			break;
+		case SystErr::FlavorResponseUncertUp:
+			whichsystname = "_FlavorResponseUncertUp";
+			break;
+		case SystErr::BJesDown:
+			whichsystname = "_BJesDown";
+			break;
+		case SystErr::BJesUp:
+			whichsystname = "_BJesUp";
+			break;
+		case SystErr::JER:
+			whichsystname = "_JER";
+			break;
+		case SystErr::SCALESTUP:
+			whichsystname = "_SCALESTUP";
+			break;
+		case SystErr::SCALESTDOWN:
+			whichsystname = "_SCALESTDOWN";
+			break;
+		// case SystErr::RESOSTUP:
+		// 	whichsystname = "_RESOSTUP";
+		// 	break;
+		// case SystErr::RESOSTDOWN:
+		// 	whichsystname = "_RESOSTDOWN";
+		// 	break;
+		case SystErr::MMSLOW:
+			whichsystname = "_MMSLOW";
+			break;
+		case SystErr::MMSUP:
+			whichsystname = "_MMSUP";
+			break;
+		case SystErr::MIDLOW:
+			whichsystname = "_MIDLOW";
+			break;
+		case SystErr::MIDUP:
+			whichsystname = "_MIDUP";
+			break;
+		case SystErr::MSCALELOW:
+			whichsystname = "_MSCALELOW";
+			break;
+		case SystErr::MSCALEUP:
+			whichsystname = "_MSCALEUP";
+			break;
+		case SystErr::MEFFDOWN:
+			whichsystname = "_MEFFDOWN";
+			break;
+		case SystErr::MEFFUP:
+			whichsystname = "_MEFFUP";
+			break;
+		case SystErr::EEFFDOWN:
+			whichsystname = "_EEFFDOWN";
+			break;
+		case SystErr::EEFFUP:
+			whichsystname = "_EEFFUP";
+			break;
+		case SystErr::EGZEEDOWN:
+			whichsystname = "_EGZEEDOWN";
+			break;
+		case SystErr::EGZEEUP:
+			whichsystname = "_EGZEEUP";
+			break;
+		default:
+			whichsystname = "_ERROR_SOMETHINGS_FUCKED";
+
+	}
+
+
+
+
 	if (!RJTool){
 		throw std::string ("No RJTool configured");
 	}
@@ -109,10 +285,10 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	string rootcorebinpath(std::getenv("ROOTCOREBIN") ) ;
 
-	bool isData = false;
-	bool isAtlfast = false;
-	bool isMC12b = true;
-	bool useLeptonTrigger = true;
+	isData = false;
+	isAtlfast = false;
+	isMC12b = true;
+	useLeptonTrigger = true;
 
 	m_susy_obj->initialize(isData, isAtlfast, isMC12b, useLeptonTrigger);
 
@@ -125,7 +301,9 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 
 	event = wk()->d3pdreader();
-	output = EL::getNTupleSvc (wk(), "output");
+	output = EL::getNTupleSvc (wk(), "output", ("susy"+whichsystname).Data() );
+
+
 
 	//-- connect to the input TTree
 	TTree *inputTree = wk()->tree(); // this is the input tree
@@ -133,7 +311,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	if (output){
 
-		output->tree()->Branch( "RJVars_M_0_0_0", &RJVars_M_0_0_0             , "RJVars_M_0_0_0/F");               
+		output->tree()->Branch( "RJVars_M_0_0_0", &RJVars_M_0_0_0, "RJVars_M_0_0_0/F");               
 		output->tree()->Branch( "RJVars_M_0_0_1", &RJVars_M_0_0_1             , "RJVars_M_0_0_1/F");               
 		output->tree()->Branch( "RJVars_M_1_0_0", &RJVars_M_1_0_0             , "RJVars_M_1_0_0/F");               
 		output->tree()->Branch( "RJVars_M_1_0_1", &RJVars_M_1_0_1             , "RJVars_M_1_0_1/F");               
@@ -350,7 +528,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 									event->el[iEl].nPixHits(),
 									event->el[iEl].nSCTHits(),
 									event->el_MET_Egamma10NoTau[iEl].wet().at(0),
-									elecptcut,2.47,SystErr::NONE) ){
+									elecptcut,2.47,whichsyst) ){
 			el_baseline.push_back(iEl);
 		}
 
@@ -406,7 +584,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 							  event->mu_staco[iMu].nSCTHoles(),
 							  event->mu_staco[iMu].nTRTHits(),
 							  event->mu_staco[iMu].nTRTOutliers(),
-							  muonptcut,2.5, SystErr::NONE) ){
+							  muonptcut,2.5, whichsyst) ){
 			mu_met.push_back(iMu);
 			mu_baseline.push_back(iMu);
 		}
@@ -438,6 +616,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 	int iJet=0;
+	int local_truth_flavor=0;
 	for( iJet = 0; iJet < event->jet_AntiKt4LCTopo.n(); iJet++  ){
 
 		m_susy_obj->FillJet(iJet,
@@ -456,6 +635,12 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 								event->Eventshape.rhoKt4LC(),  
 								event->eventinfo.averageIntPerXing(),
 								event->vxp.nTracks() );
+
+		if(whichsyst!=SystErr::NONE && !isData){
+			local_truth_flavor=0;
+			local_truth_flavor = event->jet_AntiKt4LCTopo[iJet].flavor_truth_label();    
+			m_susy_obj->ApplyJetSystematics(iJet,event->jet_AntiKt4LCTopo[iJet].constscale_eta(),local_truth_flavor,event->eventinfo.averageIntPerXing(),event->vxp.nTracks(),whichsyst);
+		}
 
 		if(m_susy_obj->GetJetTLV(iJet).Pt() <= jetptcut) continue;
 		
@@ -596,7 +781,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 									event->mu_staco.energyLossPar(),
 									event->eventinfo.averageIntPerXing(),
 									SUSYMet::Default,
-									SystErr::NONE,
+									whichsyst,
 									false);
 
 
@@ -771,6 +956,12 @@ Float_t SklimmerAnalysis :: getVar (Float_t a, Float_t b)
 	Float_t sum=(a-mean)*(a-mean) + (b-mean)*(b-mean) ;
 
 	return sum/mean;
+}
+
+void SklimmerAnalysis :: SetSyst(SystErr::Syste syst)
+{
+	whichsyst = syst;
+	return;
 }
 
 
