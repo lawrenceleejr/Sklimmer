@@ -127,7 +127,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	m_susy_obj->initialize(isData, isAtlfast, isMC12b, useLeptonTrigger);
 	m_susy_obj->SetJetCalib(true);
 
-	bool useJVF = true;
+	//bool useJVF = true;
 
 	// BTagCalibTool = new ROOT::BTagCalib("MV1",\
 	// 	rootcorebinpath + "/../SUSYTools/data/BTagCalibration.env",\
@@ -472,7 +472,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 
-	for( int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
+	for( unsigned int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
 		iEl = el_baseline.at(iEl_baseline);
 
 		if (m_susy_obj->IsInCrack( event->el[iEl].cl_eta() ))  {
@@ -524,7 +524,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		}
 	}
 
-	for( int iMu_baseline = 0; iMu_baseline < mu_baseline.size(); iMu_baseline++){
+	for( unsigned int iMu_baseline = 0; iMu_baseline < mu_baseline.size(); iMu_baseline++){
 		iMu = mu_baseline.at(iMu_baseline);
 
 		if (m_susy_obj->IsSignalMuonExp(iMu,
@@ -579,7 +579,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		if(m_susy_obj->GetJetTLV(iJet).Pt() <= jetptcut) continue;
 		
 		bool isoverlap = false;
-		for( int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
+		for( unsigned int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
 			iEl = el_baseline.at(iEl_baseline);
 			if( m_susy_obj->GetElecTLV(iEl).DeltaR(m_susy_obj->GetJetTLV(iJet)) > 0.2 ) continue;
 			isoverlap = true;
@@ -622,11 +622,11 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// Now look at all the chosen leptons and make sure they're >0.4 away from any good jet
 
 
-	for( int iEl_signal = 0; iEl_signal < el_signal.size(); iEl_signal++){
+	for( unsigned int iEl_signal = 0; iEl_signal < el_signal.size(); iEl_signal++){
 		iEl = el_signal.at(iEl_signal);
 
 		bool isoverlap = false;
-		for( int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
+		for( unsigned int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
 			iJet = jet_good[iJet_good];
 			if( m_susy_obj->GetElecTLV(iEl).DeltaR(m_susy_obj->GetJetTLV(iJet)) < 0.4 ){
 				isoverlap = true;
@@ -640,11 +640,11 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	}
 
 
-	for( int iMu_signal = 0; iMu_signal < mu_signal.size(); iMu_signal++){
+	for( unsigned int iMu_signal = 0; iMu_signal < mu_signal.size(); iMu_signal++){
 		iMu = mu_signal.at(iMu_signal);
 
 		bool isoverlap = false;
-		for( int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
+		for( unsigned int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
 			iJet = jet_good[iJet_good];
 			if( m_susy_obj->GetMuonTLV(iMu).DeltaR(m_susy_obj->GetJetTLV(iJet)) < 0.4 ){
 				isoverlap = true;
@@ -821,7 +821,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	std::vector<float> tmpJET_pt ;
 
 	TLorentzVector tmpTLV;
-	for( int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
+	for( unsigned int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
 		iJet = jet_good[iJet_good];
 		tmpTLV = m_susy_obj->GetJetTLV(iJet);
 
@@ -903,7 +903,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	std::vector<float> tmpTRUTH_phi;
 	std::vector<float> tmpTRUTH_m;
 
-	for( int iMC_index = 0; iMC_index < truth_index.size(); iMC_index++){
+	for( unsigned int iMC_index = 0; iMC_index < truth_index.size(); iMC_index++){
 		iMC = truth_index[iMC_index];
 		tmpTRUTH_pdgId.push_back( event->mc[iMC].pdgId() );
 		tmpTRUTH_charge.push_back( event->mc[iMC].charge() );
@@ -1044,7 +1044,7 @@ Int_t SklimmerAnalysis :: getOriginBarcode( int iMC, int originPDGID ){
 	int pastAncestor = 0;
 
 	int iParentIndex=0;
-	for( int iParent=0; iParent < event->mc[iMC].parent_index().size(); iParent++){
+	for( unsigned int iParent=0; iParent < event->mc[iMC].parent_index().size(); iParent++){
 		iParentIndex = event->mc[iMC].parent_index()[iParent];
 		if( fabs(event->mc[iParentIndex].pdgId() ) == originPDGID ) return event->mc[iParentIndex].barcode();
 
@@ -1061,7 +1061,7 @@ Int_t SklimmerAnalysis :: getOriginBarcode( int iMC, int originPDGID ){
 // 	int pastAncestor = 0;
 
 // 	int iParentIndex=0;
-// 	for( int iParent=0; iParent < event->mc[iMC].parent_index().size(); iParent++){
+// 	for( unsigned int iParent=0; iParent < event->mc[iMC].parent_index().size(); iParent++){
 // 		iParentIndex = event->mc[iMC].parent_index()[iParent];
 // 		if( fabs(event->mc[iParentIndex].pdgId() ) == originPDGID ) return event->mc[iParentIndex].barcode();
 
@@ -1078,7 +1078,7 @@ Bool_t SklimmerAnalysis :: hasAncestor( int iMC, int ancestor ){
 	bool pastAncestor = 0;
 
 	int iParentIndex=0;
-	for( int iParent=0; iParent < event->mc[iMC].parent_index().size(); iParent++){
+	for( unsigned int iParent=0; iParent < event->mc[iMC].parent_index().size(); iParent++){
 		iParentIndex = event->mc[iMC].parent_index()[iParent];
 		if( fabs(event->mc[iParentIndex].pdgId() ) == ancestor ) return 1;
 
@@ -1108,7 +1108,7 @@ Float_t SklimmerAnalysis :: getMean (Float_t a, Float_t b)
 
 Float_t SklimmerAnalysis :: getVar (Float_t a, Float_t b, Float_t c, Float_t d)
 {
-	Float_t n=4.;
+  //Float_t n=4.;
 	Float_t mean=getMean(a,b,c,d);
 	Float_t sum = (a-mean)*(a-mean) + (b-mean)*(b-mean) + (c-mean)*(c-mean) + (d-mean)*(d-mean)   ;
 
@@ -1117,7 +1117,7 @@ Float_t SklimmerAnalysis :: getVar (Float_t a, Float_t b, Float_t c, Float_t d)
 
 Float_t SklimmerAnalysis :: getVar (Float_t a, Float_t b)
 {
-	Float_t n=2.;
+  //Float_t n=2.;
 	Float_t mean=getMean(a,b);
 	Float_t sum=(a-mean)*(a-mean) + (b-mean)*(b-mean) ;
 
