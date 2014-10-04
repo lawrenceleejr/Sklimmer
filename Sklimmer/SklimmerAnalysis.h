@@ -137,6 +137,7 @@ public:
 	Float_t RJVars_Eleg1_0_0_0;   //!
 	Float_t RJVars_Eleg2_0_0_0;   //!
 	Float_t RJVars_costhetaRp1_0_0_0;   //!
+	Float_t RJVars_costhetaR_0_0_0;   //!
 
 
 	Int_t isEE; //!

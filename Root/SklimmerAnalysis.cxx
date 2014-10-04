@@ -172,6 +172,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	output->tree()->Branch( "RJVars_Eleg1_0_0_0",                  &RJVars_Eleg1_0_0_0,   "RJVars_Eleg1_0_0_0/F");   
 	output->tree()->Branch( "RJVars_Eleg2_0_0_0",                  &RJVars_Eleg2_0_0_0,   "RJVars_Eleg2_0_0_0/F");   
 	output->tree()->Branch( "RJVars_costhetaRp1_0_0_0",            &RJVars_costhetaRp1_0_0_0,   "RJVars_costhetaRp1_0_0_0/F");   
+	output->tree()->Branch( "RJVars_costhetaR_0_0_0",            &RJVars_costhetaR_0_0_0,   "RJVars_costhetaR_0_0_0/F");   
 
 
 		// output->tree()->Branch( "RJVars_sqrtsHat_0_0_0", &RJVars_sqrtsHat_0_0_0, "RJVars_sqrtsHat_0_0_0/F");               
@@ -679,31 +680,31 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	int LeptonCharge0 = 0;
 	int LeptonCharge1 = 0;
 
-	if( el_signal.size()==2 ){
-		isEE = 1;
-		Lepton[0] = m_susy_obj->GetElecTLV( el_signal[0] );
-		Lepton[1] = m_susy_obj->GetElecTLV( el_signal[1] );
-		LeptonCharge0 = event->el[el_signal[0] ].charge();
-		LeptonCharge1 = event->el[el_signal[1] ].charge();
-	} else if ( mu_signal.size()==2 ){
-		isMuMu = 1;
-		Lepton[0] = m_susy_obj->GetMuonTLV( mu_signal[0] );
-		Lepton[1] = m_susy_obj->GetMuonTLV( mu_signal[1] );
-		LeptonCharge0 = event->mu_staco[mu_signal[0] ].charge();
-		LeptonCharge1 = event->mu_staco[mu_signal[1] ].charge();
-	} else if ( mu_signal.size()==1 && el_signal.size()==1 ){
-		isEMu = 1;
-		Lepton[0] = m_susy_obj->GetElecTLV( el_signal[0] );
-		Lepton[1] = m_susy_obj->GetMuonTLV( mu_signal[0] );
-		LeptonCharge0 = event->el[el_signal[0] ].charge();
-		LeptonCharge1 = event->mu_staco[mu_signal[0] ].charge();
-	} else return EL::StatusCode::SUCCESS;
+	// if( el_signal.size()==2 ){
+	// 	isEE = 1;
+	// 	Lepton[0] = m_susy_obj->GetElecTLV( el_signal[0] );
+	// 	Lepton[1] = m_susy_obj->GetElecTLV( el_signal[1] );
+	// 	LeptonCharge0 = event->el[el_signal[0] ].charge();
+	// 	LeptonCharge1 = event->el[el_signal[1] ].charge();
+	// } else if ( mu_signal.size()==2 ){
+	// 	isMuMu = 1;
+	// 	Lepton[0] = m_susy_obj->GetMuonTLV( mu_signal[0] );
+	// 	Lepton[1] = m_susy_obj->GetMuonTLV( mu_signal[1] );
+	// 	LeptonCharge0 = event->mu_staco[mu_signal[0] ].charge();
+	// 	LeptonCharge1 = event->mu_staco[mu_signal[1] ].charge();
+	// } else if ( mu_signal.size()==1 && el_signal.size()==1 ){
+	// 	isEMu = 1;
+	// 	Lepton[0] = m_susy_obj->GetElecTLV( el_signal[0] );
+	// 	Lepton[1] = m_susy_obj->GetMuonTLV( mu_signal[0] );
+	// 	LeptonCharge0 = event->el[el_signal[0] ].charge();
+	// 	LeptonCharge1 = event->mu_staco[mu_signal[0] ].charge();
+	// } else return EL::StatusCode::SUCCESS;
 
-	if( (Lepton[0]+Jet[0]).M() + (Lepton[1]+Jet[1]).M()  >  (Lepton[1]+Jet[0]).M() + (Lepton[0]+Jet[1]).M()  ){
-		Lepton[3] = Lepton[0];
-		Lepton[0] = Lepton[1];
-		Lepton[1] = Lepton[3];
-	}
+	// if( (Lepton[0]+Jet[0]).M() + (Lepton[1]+Jet[1]).M()  >  (Lepton[1]+Jet[0]).M() + (Lepton[0]+Jet[1]).M()  ){
+	// 	Lepton[3] = Lepton[0];
+	// 	Lepton[0] = Lepton[1];
+	// 	Lepton[1] = Lepton[3];
+	// }
 
 	TVector2 met = m_susy_obj->GetMET(
 									event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wet(),
@@ -741,8 +742,8 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	RJTool->addVisParticle("b",Jet[0],1);
 	RJTool->addVisParticle("b",Jet[1],2);
 
-	RJTool->addVisParticle("l",Lepton[0],1);
-	RJTool->addVisParticle("l",Lepton[1],2);
+	// RJTool->addVisParticle("l",Lepton[0],1);
+	// RJTool->addVisParticle("l",Lepton[1],2);
 
 	if( met.X() == 0. && met.Y() == 0. ) return EL::StatusCode::SUCCESS;
 	TVector3 METVector;
@@ -757,9 +758,9 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	// Try again with other Hemisphere mode
 
-	RJTool->setHemisphereMode(1); //W symmetry
-	RJTool->guessInvParticles();
-	RJTool->getObservables();
+	// RJTool->setHemisphereMode(1); //W symmetry
+	// RJTool->guessInvParticles();
+	// RJTool->getObservables();
 
 	std::map< TString, double > RJVars = RJTool->getObservablesMap();
 
@@ -779,6 +780,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	RJVars_Eleg1_0_0_0 = RJVars["Eleg1_0_0_0"];  
 	RJVars_Eleg2_0_0_0 = RJVars["Eleg2_0_0_0"];  
 	RJVars_costhetaRp1_0_0_0 = RJVars["costhetaRp1_0_0_0"];  
+	RJVars_costhetaR_0_0_0 = RJVars["costhetaR_0_0_0"];  
 
 	// Filling branches for slims for crogan/jack
 
