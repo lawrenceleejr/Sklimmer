@@ -3,6 +3,7 @@
 #include <EventLoop/Worker.h>
 #include <Sklimmer/SklimmerAnalysis.h>
 
+
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
@@ -10,6 +11,32 @@
 #include <string>
 
 #include "EventLoop/OutputStream.h"
+
+// EDM includes:
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthEvent.h"
+#include "xAODCore/ShallowCopy.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETAuxContainer.h"
+#include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
+//#include "xAODBTagging/BTagging.h"
+
+// GRL
+#include "GoodRunsLists/GoodRunsListSelectionTool.h"
+//PU Reweighting
+#include "PileupReweighting/PileupReweightingTool.h"
+
+#include "CPAnalysisExamples/errorcheck.h"
+#include "SUSYTools/SUSYObjDef_xAOD.h"
 
 
 //Still really need to implement a systematics framework
@@ -103,49 +130,82 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// you create here won't be available in the output if you have no
 	// input events.
 
+	const char* APP_NAME = "SklimmerAnalysis";
+
+
     m_event = wk()->xaodEvent();
 
 	// as a check, let's see the number of events in our xAOD
 	Info("initialize()", "Number of events = %lli", m_event->getEntries() ); // print long long int
 
-	// output xAOD
+	// Output xAOD ///////////////////////////////////////////////////////////////////
 	TFile *file = wk()->getOutputFile ("outputLabel");
 	CHECK(m_event->writeTo(file));
 
+	// SUSYTools ///////////////////////////////////////////////////////////////////
 
+	m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
 
+	CHECK( m_susy_obj->setProperty("IsData",isData) );
+	CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
+	CHECK( m_susy_obj->setProperty("EleId","Tight") );
 
-	m_susy_obj = new SUSYObjDef_xAOD("m_susy_obj");
+	if( m_susy_obj->SUSYToolsInit().isFailure() ) {
+	  Error( APP_NAME, "Failed to initialise tools in SUSYToolsInit()..." );
+	  Error( APP_NAME, "Exiting..." );
+	  return EL::StatusCode::FAILURE;   
+	}
+	else{ Info(APP_NAME,"SUSYToolsInit with success!!... " );}
+
+	if( m_susy_obj->initialize() != StatusCode::SUCCESS){
+	  Error(APP_NAME, "Cannot intialize SUSYObjDef_xAOD..." );
+	  Error(APP_NAME, "Exiting... " );
+	  return EL::StatusCode::FAILURE;
+	}else{
+	  Info(APP_NAME,"SUSYObjDef_xAOD initialized... " );
+	}
+
+	// GRL ///////////////////////////////////////////////////////////////////
+
+	m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
+	std::vector<std::string> vecStringGRL;
+	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/GRL/Summer2013/data12_8TeV.periodAllYear_DetStatus-v61-pro14-02_DQDefects-00-01-00_PHYS_StandardGRL_All_Good.xml"));
+	CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
+	CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
+	if (!m_grl->initialize().isSuccess()) { // check this isSuccess
+		Error(APP_NAME, "Failed to properly initialize the GRL. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+
+	// Pile Up Reweighting ///////////////////////////////////////////////////////////////////
+
+	m_pileupReweightingTool= new PileupReweightingTool("PileupReweightingTool");   
+	CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );
+	std::vector<std::string> prwFiles;   
+	prwFiles.push_back("PileupReweighting/mc14v1_defaults.prw.root");   
+	CHECK( m_pileupReweightingTool->setProperty("ConfigFiles",prwFiles) );   
+	std::vector<std::string> lumicalcFiles; 
+	lumicalcFiles.push_back("SUSYTools/susy_data12_avgintperbx.root");
+	CHECK( m_pileupReweightingTool->setProperty("LumiCalcFiles",lumicalcFiles) );
+	if(!m_pileupReweightingTool->initialize().isSuccess()){
+		Error(APP_NAME, "Failed to properly initialize the Pile Up Reweighting. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+
+	// RJigsaw Tool ///////////////////////////////////////////////////////////////////
 
 	RJTool = new Root::TRJigsaw();
 
-	// if (!RJTool){
-	// 	throw std::string ("No RJTool configured");
-	// }
+	if (!RJTool){
+		throw std::string ("No RJTool configured");
+	}
 
+	RJTool->initialize( gSystem->ExpandPathName("$ROOTCOREBIN/data/RJigsaw/RJigsawConfig/hemisphere1"),
+						gSystem->ExpandPathName("$ROOTCOREBIN/data/RJigsaw/RJigsawConfig/hemisphere2") )
 
-
-	std::cout << std::getenv("ROOTCOREBIN") << std::endl;
-
-	std::string rootcorebinpath(std::getenv("ROOTCOREBIN") ) ;
-
-	// isData = false;
-	// isAtlfast = false;
-	// isMC12b = true;
-	// useLeptonTrigger = true;
-
-	// m_susy_obj->initialize(isData, isAtlfast, isMC12b, useLeptonTrigger);
-	// m_susy_obj->SetJetCalib(true);
-
-
-	// RJTool->initialize( rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere1",
-	// 					rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere2");
-	// // RJTool->initialize("./RJigsawConfig/hemisphere1","./RJigsawConfig/hemisphere2");
-	// RJTool->resetHists();
-
+	RJTool->resetHists();
 
 	std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
-
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -158,6 +218,9 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// events, e.g. read input variables, apply cuts, and fill
 	// histograms and trees.  This is where most of your actual analysis
 	// code will go.
+
+	const char* APP_NAME = "SklimmerAnalysis";
+
 
 	int passEvent = 1;
 
@@ -828,6 +891,8 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 	// submission node after all your histogram outputs have been
 	// merged.  This is different from histFinalize() in that it only
 	// gets called on worker nodes that processed input events.
+
+	const char* APP_NAME = "SklimmerAnalysis";
 
 
 	// finalize and close our output xAOD file:

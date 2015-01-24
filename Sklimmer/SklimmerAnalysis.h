@@ -25,6 +25,13 @@
 
 
 
+// GRL
+class GoodRunsListSelectionTool;
+namespace CP{
+class PileupReweightingTool;}
+using namespace CP;
+class JetCleaningTool;
+
 namespace ST{
 class SUSYObjDef_xAOD;
 }
@@ -55,9 +62,9 @@ public:
 
 
 	#ifndef __CINT__
-	// GoodRunsListSelectionTool *m_grl; //!
-	// PileupReweightingTool *m_pileupReweightingTool; //! 
-	SUSYObjDef_xAOD *m_susy_obj; //!
+		GoodRunsListSelectionTool *m_grl; //!
+		PileupReweightingTool *m_pileupReweightingTool; //! 
+		SUSYObjDef_xAOD *m_susy_obj; //!
 	#endif // not __CINT__
 
 
@@ -80,15 +87,15 @@ public:
 	// void SetSyst(SystErr::Syste );
 	// Int_t GetSyst();
 
-	// bool isData; //!
-	// bool isAtlfast; //!
-	// bool isMC12b; //!
-	// bool useLeptonTrigger; //!
-
 	// Systematic Names
 	// TString whichsystname; //! 
 
 
+	int isData;
+	int isAtlfast;
+	int mc12b;
+	int useLeptonTrigger;
+	int doSyst;
 
 
 	// this is needed to distribute the algorithm to the workers
