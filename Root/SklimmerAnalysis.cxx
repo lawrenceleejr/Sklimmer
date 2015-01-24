@@ -201,7 +201,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	}
 
 	RJTool->initialize( gSystem->ExpandPathName("$ROOTCOREBIN/data/RJigsaw/RJigsawConfig/hemisphere1"),
-						gSystem->ExpandPathName("$ROOTCOREBIN/data/RJigsaw/RJigsawConfig/hemisphere2") )
+						gSystem->ExpandPathName("$ROOTCOREBIN/data/RJigsaw/RJigsawConfig/hemisphere2") );
 
 	RJTool->resetHists();
 
