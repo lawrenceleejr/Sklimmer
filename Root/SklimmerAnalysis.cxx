@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <string>
 
+#include "EventLoop/OutputStream.h"
+
 
 //Still really need to implement a systematics framework
 
@@ -41,9 +43,13 @@ EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 	// job, which may or may not be of value to you.
 
 
-        // let's initialize the algorithm to use the xAODRootAccess package
-        job.useXAOD ();
-        xAOD::Init( "SklimmerAnalysis" ).ignore(); // call before opening first file
+	// let's initialize the algorithm to use the xAODRootAccess package
+	job.useXAOD ();
+	xAOD::Init( "SklimmerAnalysis" ).ignore(); // call before opening first file
+
+	// tell EventLoop about our output xAOD:
+	EL::OutputStream out ("outputLabel");
+	job.outputAdd (out);
 	
 	return EL::StatusCode::SUCCESS;
 }
@@ -97,35 +103,45 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// you create here won't be available in the output if you have no
 	// input events.
 
-        m_event = wk()->xaodEvent();
+    m_event = wk()->xaodEvent();
 
 	// as a check, let's see the number of events in our xAOD
 	Info("initialize()", "Number of events = %lli", m_event->getEntries() ); // print long long int
 
+	// output xAOD
+	TFile *file = wk()->getOutputFile ("outputLabel");
+	CHECK(m_event->writeTo(file));
 
-	if (!RJTool){
-		throw std::string ("No RJTool configured");
-	}
+
+
+
+	m_susy_obj = new SUSYObjDef_xAOD("m_susy_obj");
+
+	RJTool = new Root::TRJigsaw();
+
+	// if (!RJTool){
+	// 	throw std::string ("No RJTool configured");
+	// }
 
 
 
 	std::cout << std::getenv("ROOTCOREBIN") << std::endl;
 
-	string rootcorebinpath(std::getenv("ROOTCOREBIN") ) ;
+	std::string rootcorebinpath(std::getenv("ROOTCOREBIN") ) ;
 
-	isData = false;
-	isAtlfast = false;
-	isMC12b = true;
-	useLeptonTrigger = true;
+	// isData = false;
+	// isAtlfast = false;
+	// isMC12b = true;
+	// useLeptonTrigger = true;
 
-	m_susy_obj->initialize(isData, isAtlfast, isMC12b, useLeptonTrigger);
-	m_susy_obj->SetJetCalib(true);
+	// m_susy_obj->initialize(isData, isAtlfast, isMC12b, useLeptonTrigger);
+	// m_susy_obj->SetJetCalib(true);
 
 
-	RJTool->initialize( rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere1",
-						rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere2");
-	// RJTool->initialize("./RJigsawConfig/hemisphere1","./RJigsawConfig/hemisphere2");
-	RJTool->resetHists();
+	// RJTool->initialize( rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere1",
+	// 					rootcorebinpath + "/data/RJigsaw/RJigsawConfig/hemisphere2");
+	// // RJTool->initialize("./RJigsawConfig/hemisphere1","./RJigsawConfig/hemisphere2");
+	// RJTool->resetHists();
 
 
 	std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
@@ -144,6 +160,14 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// code will go.
 
 	int passEvent = 1;
+
+
+	// copy full container(s) to new xAOD
+	// without modifying the contents of it: 
+	CHECK(m_event->copy("AntiKt4LCTopoJets"));
+
+
+
 
 	h_nevents->Fill(0);
 
@@ -774,22 +798,13 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// std::cout << "leaving execute()"  << std::endl;
 
 
+
+	// Save the event:
+	CHECK(m_event->fill());
+
 	return EL::StatusCode::SUCCESS;
 }
 
-
-void SklimmerAnalysis :: SetSyst(SystErr::Syste syst)
-{
-	std::cout << Form("Setting Syst To: %d",syst) << std::endl; 
-	this->whichsyst = syst;
-	std::cout << Form("Successfully set to: %d",this->whichsyst) << std::endl; 
-	return;
-}
-Int_t SklimmerAnalysis :: GetSyst()
-{
-	std::cout << Form("GetSyst: %d",whichsyst) << std::endl; 
-	return this->whichsyst;
-}
 
 
 EL::StatusCode SklimmerAnalysis :: postExecute ()
@@ -813,6 +828,12 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 	// submission node after all your histogram outputs have been
 	// merged.  This is different from histFinalize() in that it only
 	// gets called on worker nodes that processed input events.
+
+
+	// finalize and close our output xAOD file:
+	TFile *file = wk()->getOutputFile ("outputLabel");
+	CHECK(m_event->finishWritingTo( file ));
+	
 	return EL::StatusCode::SUCCESS;
 }
 

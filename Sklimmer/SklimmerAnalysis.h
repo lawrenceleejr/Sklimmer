@@ -12,9 +12,23 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 
-#include <RJigsaw/TRJigsaw.h>
 
+
+
+#ifndef __CINT__
 #include "SUSYTools/SUSYObjDef_xAOD.h"
+#endif
+
+
+#include <RJigsaw/TRJigsaw.h>
+//#include "SUSYTools/SUSYObjDef_xAOD.h"
+
+
+
+namespace ST{
+class SUSYObjDef_xAOD;
+}
+using namespace ST;
 
 
 class SklimmerAnalysis : public EL::Algorithm
@@ -38,9 +52,16 @@ public:
 
 	xAOD::TEvent *m_event;  //!
 
-	SUSYObjDef_xAOD* m_susy_obj = new SUSYObjDef_xAOD(); //!
 
-	Root::TRJigsaw* RJTool = new Root::TRJigsaw(); //!
+
+	#ifndef __CINT__
+	// GoodRunsListSelectionTool *m_grl; //!
+	// PileupReweightingTool *m_pileupReweightingTool; //! 
+	SUSYObjDef_xAOD *m_susy_obj; //!
+	#endif // not __CINT__
+
+
+	Root::TRJigsaw* RJTool; //!
 
 	// this is a standard constructor
 	SklimmerAnalysis ();
@@ -56,13 +77,13 @@ public:
 	virtual EL::StatusCode finalize ();
 	virtual EL::StatusCode histFinalize ();
 
-	void SetSyst(SystErr::Syste );
-	Int_t GetSyst();
+	// void SetSyst(SystErr::Syste );
+	// Int_t GetSyst();
 
-	bool isData; //!
-	bool isAtlfast; //!
-	bool isMC12b; //!
-	bool useLeptonTrigger; //!
+	// bool isData; //!
+	// bool isAtlfast; //!
+	// bool isMC12b; //!
+	// bool useLeptonTrigger; //!
 
 	// Systematic Names
 	// TString whichsystname; //! 
