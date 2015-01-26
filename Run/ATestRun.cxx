@@ -40,6 +40,16 @@ void ATestRun (const std::string& submitDir)
   // add our algorithm to the job
   SklimmerAnalysis *alg = new SklimmerAnalysis;
 
+
+  alg->m_doSklimming = true;
+  alg->m_doSUSYObjDef = true;
+  alg->m_doEventSelection = true;
+  alg->m_doNtuples = false;
+  alg->m_writeFullCollectionsToxAOD = true;
+
+  alg->m_Analysis = "bbmet";
+
+
   // later on we'll add some configuration options for our algorithm that go here
 
   job.algsAdd (alg);

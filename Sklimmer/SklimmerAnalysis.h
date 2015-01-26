@@ -19,6 +19,10 @@
 #endif
 
 
+
+// #include "xAODMissingET/MissingETContainer.h"
+// #include "xAODMissingET/MissingETAuxContainer.h"
+
 #include <RJigsaw/TRJigsaw.h>
 //#include "SUSYTools/SUSYObjDef_xAOD.h"
 
@@ -36,6 +40,14 @@ class SUSYObjDef_xAOD;
 }
 using namespace ST;
 
+
+// struct sortByPt
+// {
+//     bool operator()(xAOD::Jet const & a, xAOD::Jet const & b) const
+//     {
+//         return a.pt() > b.pt();
+//     }
+// };
 
 class SklimmerAnalysis : public EL::Algorithm
 {
@@ -55,11 +67,20 @@ public:
 	// variables that don't get filled at submission time should be
 	// protected from being send from the submission node to the worker
 	// node (done by the //!)
+
+
+
+private:
+	TString eventSelectionBBMet();
+
+
 public:
 
 	xAOD::TEvent *m_event;  //!
-	xAOD::TStore store;  //!
+	xAOD::TStore *m_store;  //!
 
+	// xAOD::MissingETContainer* m_MET; //!
+	// xAOD::MissingETAuxContainer* m_METAux; //!
 
 	#ifndef __CINT__
 		GoodRunsListSelectionTool *m_grl; //!
@@ -112,8 +133,6 @@ public:
  
 	std::string m_Analysis; //!
 
-
-	
 
 	// this is needed to distribute the algorithm to the workers
 	ClassDef(SklimmerAnalysis, 1);

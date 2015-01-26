@@ -139,8 +139,9 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	m_doSklimming = true;
 	m_doSUSYObjDef = true;
-	m_doEventSelection = false;
+	m_doEventSelection = true;
 	m_doNtuples = false;
+	m_writeFullCollectionsToxAOD = true;
  
 	m_Analysis = "bbmet";
 
@@ -148,6 +149,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	////////////////////////////////////////////////////////////////////////////
 
     m_event = wk()->xaodEvent();
+    m_store = wk()->xaodStore();
 
 	// as a check, let's see the number of events in our xAOD
 	Info("initialize()", "Number of events = %lli", m_event->getEntries() ); // print long long int
@@ -290,6 +292,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 		Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< bool >("baseline") );
 	}
 
+
 	//------------
 	// ELECTRONS
 	//------------
@@ -313,6 +316,9 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 		Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< bool >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
 	}
 
+
+
+
 	//------------
 	// PHOTONS
 	//------------
@@ -326,6 +332,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::PhotonContainer* photons_copy(0);
 	xAOD::ShallowAuxContainer* photons_copyaux(0);
 	CHECK( m_susy_obj->GetPhotons(photons_copy,photons_copyaux) );
+
 
 
 	//------------
@@ -342,9 +349,6 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::ShallowAuxContainer* jets_copyaux(0);
 	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux) );
 
-	jets_copy->setStore(jets_copyaux);
-	CHECK( store.record( jets_copy, "CalibJets" ) );
-	CHECK( store.record( jets_copyaux, "CalibJetsAux." ) );
 
 	//------------
 	// TAUS
@@ -371,11 +375,11 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	// GET REBUILT MET
 	//------------
 
-	xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
-	xAOD::MissingETAuxContainer* metAux = new xAOD::MissingETAuxContainer;
-	met->setStore(metAux);
-	CHECK( store.record( met, "CalibMET_RefFinal" ) );
-	CHECK( store.record( metAux, "CalibMET_RefFinalAux." ) );
+	xAOD::MissingETContainer*    MET = new xAOD::MissingETContainer;
+	xAOD::MissingETAuxContainer* METAux = new xAOD::MissingETAuxContainer;
+	MET->setStore(METAux);
+	CHECK( m_store->record( MET, "CalibMET_RefFinal" ) );
+	CHECK( m_store->record( METAux, "CalibMET_RefFinalAux." ) );
 
 	///// TEMPORARY CODE ONLY
 	// Protection against bad muons (calo-tagged, si-associated forward)
@@ -388,7 +392,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	}
 	///// TEMPORARY CODE ONLY
 
-	CHECK( m_susy_obj->GetMET(*met,
+	CHECK( m_susy_obj->GetMET(*MET,
 			  jets_copy,
 			  electrons_copy,
 			  &muons_copy_met,
@@ -419,10 +423,28 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 		if( !m_event->record( jets_copy , "CalibJets" )){return EL::StatusCode::FAILURE;}
 		if( !m_event->record( jets_copyaux, "CalibJetsAux." )) {return EL::StatusCode::FAILURE;}
 
-		if( !m_event->record( met,    "CalibMET" )){return EL::StatusCode::FAILURE;}
-		if( !m_event->record( metAux, "CalibMETAux." )) {return EL::StatusCode::FAILURE;}
+		if( !m_event->record( MET,    "CalibMET" )){return EL::StatusCode::FAILURE;}
+		if( !m_event->record( METAux, "CalibMETAux." )) {return EL::StatusCode::FAILURE;}
 
-	}
+	} 
+
+	muons_copy->setStore(muons_copyaux);
+	CHECK( m_store->record( muons_copy, "CalibMuons" ) );
+	CHECK( m_store->record( muons_copyaux, "CalibMuonsAux." ) );
+
+	electrons_copy->setStore(electrons_copyaux);
+	CHECK( m_store->record( electrons_copy, "CalibElectrons" ) );
+	CHECK( m_store->record( electrons_copyaux, "CalibElectronsAux." ) );
+	
+	photons_copy->setStore(photons_copyaux);
+	CHECK( m_store->record( photons_copy, "CalibPhotons" ) );
+	CHECK( m_store->record( photons_copyaux, "CalibPhotonsAux." ) );
+
+	jets_copy->setStore(jets_copyaux);
+	CHECK( m_store->record( jets_copy, "CalibJets" ) );
+	CHECK( m_store->record( jets_copyaux, "CalibJetsAux." ) );
+
+
 
 	////////////////////////////////////////////////////////
 
@@ -446,7 +468,6 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	h_nevents->Fill(0);
 
 	if(m_doSklimming) copyFullxAODContainers();
-
 
 	//----------------------------
 	// Event information
@@ -493,12 +514,25 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		}
 	}// end if IS MC
 
-
-
-
 	// Let's calibrate some shit
 
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
+
+
+
+
+	if( m_doEventSelection && m_Analysis=="bbmet" ){
+		TString result = eventSelectionBBMet();
+		if(result=="") return EL::StatusCode::SUCCESS;
+		else {
+			eventInfo->auxdecor< char >("selection") = *result.Data();
+		}
+	}
+
+
+
+
+
 
 	// Clear up RJTools vectors
 
@@ -508,7 +542,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// Get Jet Collection to hand to RJTool ////////////////////////////////////////////////////
 
 	xAOD::JetContainer* jets_copy(0);
-	CHECK( store.retrieve( jets_copy, "CalibJets" ) );
+	CHECK( m_store->retrieve( jets_copy, "CalibJets" ) );
 
 	xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
 	xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
@@ -527,11 +561,11 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	// Get MET Collection to hand to RJTool ////////////////////////////////////////////////////
 
-	xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
-	CHECK( store.retrieve( met, "CalibMET_RefFinal" ) );
+	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
+	CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
 
-    xAOD::MissingETContainer::const_iterator met_it = met->find("Final");
-	if (met_it == met->end()) {
+    xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
+	if (met_it == MET->end()) {
 		Error( APP_NAME, "No RefFinal inside MET container" );
 	} else {
 		RJTool->addMET( TVector3( (*met_it)->mpx(), (*met_it)->mpy(), 0 ) );
@@ -569,7 +603,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
 
 
-	store.clear(); 
+	m_store->clear(); 
 
 	// Save the event:
 	CHECK(m_event->fill());
@@ -639,3 +673,103 @@ EL::StatusCode SklimmerAnalysis :: histFinalize ()
 	// they processed input events.
 	return EL::StatusCode::SUCCESS;
 }
+
+
+
+TString SklimmerAnalysis :: eventSelectionBBMet()
+{
+
+	const char* APP_NAME = "SklimmerAnalysis";
+
+
+	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
+
+	xAOD::JetContainer* jets_copy(0);
+	CHECK( m_store->retrieve( jets_copy, "CalibJets" ) );
+
+	xAOD::MuonContainer* muons_copy(0);
+	CHECK( m_store->retrieve( muons_copy, "CalibMuons" ) );
+
+	xAOD::ElectronContainer* electrons_copy(0);
+	CHECK( m_store->retrieve( electrons_copy, "CalibElectrons" ) );
+
+
+	/////////////// Lepton Veto //////////////////////////////
+
+	int Nel=0;
+	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
+	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
+	for( ; el_itr != el_end; ++el_itr ) {
+		if( ( *el_itr )->auxdata<bool>("passOR") ) Nel++;
+	}
+	
+	if(Nel) return "";
+
+
+	int Nmu=0;
+	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
+	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
+	for( ; mu_itr != mu_end; ++mu_itr ) {
+		if( ( *mu_itr )->auxdata<bool>("passOR") ) Nmu++;
+	}
+
+	if(Nmu) return "";
+
+	///////////////////////////////////////////////////////////
+
+
+	xAOD::JetContainer* goodJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
+	// CHECK( m_store->record(goodJets, "MySelJets") );
+
+	xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
+	xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
+
+	for( ; jet_itr != jet_end; ++jet_itr ) {
+
+		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
+			(*jet_itr)->auxdata< bool >("passOR")==1  &&
+			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
+			goodJets->push_back (*jet_itr); 
+		}
+    
+    }
+
+    if(goodJets->size() < 2) return "";
+
+	std::sort(goodJets->begin(), goodJets->end(),
+    [](xAOD::Jet  *a, xAOD::Jet  *b){return a->pt() > b->pt();});
+
+
+	if(goodJets->at(0)->pt() > 130000 &&
+		goodJets->at(1)->pt() > 50000 && 
+		(goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
+		(goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 ){
+		if(goodJets->size() > 2) if(goodJets->at(2)->pt()<50000){
+			return "SRA";
+		}
+	}
+
+
+	if(goodJets->size() > 2){
+		if(goodJets->at(0)->pt() > 150000 &&
+			goodJets->at(1)->pt() > 30000 && 
+			goodJets->at(2)->pt() > 30000 && 
+			(goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 &&
+			(goodJets->at(2)->btagging())->MV1_discriminant() > 0.98 ){
+			return "SRB";
+		}
+	}
+
+	return "";
+
+}
+
+
+
+
+
+
+
+
+
+
