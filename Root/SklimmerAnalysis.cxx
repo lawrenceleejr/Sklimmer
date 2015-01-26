@@ -224,7 +224,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	RJTool->resetHists();
 
-	std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
+	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -469,7 +469,8 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	}   
 
 
-	// if data, check if event passes GRL
+	// if data, check if event passes GRL ////////////////////////////////////////////////
+
 	if(!isMC){ // it's data!
 		if(!m_grl->passRunLB(*eventInfo)){
 			return EL::StatusCode::SUCCESS; // go to next event
@@ -481,7 +482,6 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 			return EL::StatusCode::SUCCESS; // go to the next event
 		} // end if event flags check
 	} // end if not MC
-
 
 	if(isMC){
 		// Check if input file is mc14_13TeV to skip pileup reweighting
@@ -498,58 +498,62 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	// Let's calibrate some shit
 
-
-
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
 
+	// Clear up RJTools vectors
 
 	RJTool->newEvent();
 
+
+	// Get Jet Collection to hand to RJTool ////////////////////////////////////////////////////
 
 	xAOD::JetContainer* jets_copy(0);
 	CHECK( store.retrieve( jets_copy, "CalibJets" ) );
 
 	xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
 	xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
-	std::cout << "Sklimmer: NJets = " << jets_copy->size() << std::endl;
 	int tmpcounter = 0;
 	for( ; jet_itr != jet_end; ++jet_itr ) {
-		std::cout << "Sklimmer: ijet = " << tmpcounter << std::endl;
 		tmpcounter++;
 
 		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
 			(*jet_itr)->auxdata< bool >("passOR")==1  &&
 			(*jet_itr)->pt() > 20000.  && ( fabs( (*jet_itr)->eta()) < 2.5) ) {
 			RJTool->addVisParticle( "", (*jet_itr)->p4(), 0 );
-			std::cout << "Sklimmer: Adding jet to hemisphere reconstruction " << std::endl;
 		}
     
     }
-	std::cout << "Done with jets" << std::endl;
+
+
+	// Get MET Collection to hand to RJTool ////////////////////////////////////////////////////
 
 	xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
 	CHECK( store.retrieve( met, "CalibMET_RefFinal" ) );
 
-	std::cout << "Got MET Collection" << std::endl;
-
-
     xAOD::MissingETContainer::const_iterator met_it = met->find("Final");
-      
-	std::cout << "Got MET" << std::endl;
-
 	if (met_it == met->end()) {
 		Error( APP_NAME, "No RefFinal inside MET container" );
 	} else {
 		RJTool->addMET( TVector3( (*met_it)->mpx(), (*met_it)->mpy(), 0 ) );
 	}
 
-	std::cout << "Added MET to Tool" << std::endl;
+
+	// Do the hemisphere reconstruction ////////////////////////////////////////////////////
 
 	std::pair<TLorentzVector,TLorentzVector> myHemispheres = RJTool->calcHemispheres();
 
+
+	// Calculate the Jigsaw variables ////////////////////////////////////////////////////
+
 	RJTool->getObservables( myHemispheres.first, myHemispheres.second );
 
+
+	// Grab the map of observables to have access to the variables //////////////////////////
+
 	std::map< TString, double > observables = RJTool->getObservablesMap();
+
+
+	// Attach Jigsaw variables as decorators on the EventInfo /////////////////////////////////
 
 	eventInfo->auxdecor<float>("sHatR"               ) = observables[ "sHatR"                ];
 	eventInfo->auxdecor<float>("gammainv_R"          ) = observables[ "gammainv_R"           ];
@@ -565,392 +569,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
 
 
-	// CHECK(m_event->copy("EventInfo"));
-
 	store.clear(); 
-
-
-
-
-//
-//	if(event->mcevt.weight()[0].size() ){
-//		weight = event->mcevt.weight()[0][0][0];
-//	} else {
-//		weight = 1.;
-//	}
-//
-//	isEE = 0;
-//	isMuMu = 0;
-//	isEMu = 0;
-//
-//
-//	TLorentzVector Lepton[3];
-//
-//	TLorentzVector Jet[3];
-//
-//	if( jet_btagged.size() < 2 ) return EL::StatusCode::SUCCESS;;
-//	if( jet_good.size() < 2 ) return EL::StatusCode::SUCCESS;;
-//	Jet[0] = m_susy_obj->GetJetTLV( jet_good[0] );
-//	Jet[1] = m_susy_obj->GetJetTLV( jet_good[1] );
-//
-//	int LeptonCharge0 = 0;
-//	int LeptonCharge1 = 0;
-//
-//	// if( el_signal.size()==2 ){
-//	// 	isEE = 1;
-//	// 	Lepton[0] = m_susy_obj->GetElecTLV( el_signal[0] );
-//	// 	Lepton[1] = m_susy_obj->GetElecTLV( el_signal[1] );
-//	// 	LeptonCharge0 = event->el[el_signal[0] ].charge();
-//	// 	LeptonCharge1 = event->el[el_signal[1] ].charge();
-//	// } else if ( mu_signal.size()==2 ){
-//	// 	isMuMu = 1;
-//	// 	Lepton[0] = m_susy_obj->GetMuonTLV( mu_signal[0] );
-//	// 	Lepton[1] = m_susy_obj->GetMuonTLV( mu_signal[1] );
-//	// 	LeptonCharge0 = event->mu_staco[mu_signal[0] ].charge();
-//	// 	LeptonCharge1 = event->mu_staco[mu_signal[1] ].charge();
-//	// } else if ( mu_signal.size()==1 && el_signal.size()==1 ){
-//	// 	isEMu = 1;
-//	// 	Lepton[0] = m_susy_obj->GetElecTLV( el_signal[0] );
-//	// 	Lepton[1] = m_susy_obj->GetMuonTLV( mu_signal[0] );
-//	// 	LeptonCharge0 = event->el[el_signal[0] ].charge();
-//	// 	LeptonCharge1 = event->mu_staco[mu_signal[0] ].charge();
-//	// } else return EL::StatusCode::SUCCESS;
-//
-//	// if( (Lepton[0]+Jet[0]).M() + (Lepton[1]+Jet[1]).M()  >  (Lepton[1]+Jet[0]).M() + (Lepton[0]+Jet[1]).M()  ){
-//	// 	Lepton[3] = Lepton[0];
-//	// 	Lepton[0] = Lepton[1];
-//	// 	Lepton[1] = Lepton[3];
-//	// }
-//
-//	TVector2 met = m_susy_obj->GetMET(
-//									event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wet(),
-//									event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wpx(),
-//									event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.wpy(),
-//									event->jet_AntiKt4LCTopo_MET_Egamma10NoTau.statusWord(),
-//									el_met,
-//									event->el_MET_Egamma10NoTau.wet(),
-//									event->el_MET_Egamma10NoTau.wpx(),
-//									event->el_MET_Egamma10NoTau.wpy(),
-//									event->el_MET_Egamma10NoTau.statusWord(),                             
-//									event->MET_CellOut_Egamma10NoTau.etx(), 
-//									event->MET_CellOut_Egamma10NoTau.ety(),
-//									event->MET_CellOut_Egamma10NoTau.sumet(),
-//									event->MET_CellOut_Eflow_STVF_Egamma10NoTau.etx(), 
-//									event->MET_CellOut_Eflow_STVF_Egamma10NoTau.ety(),
-//									event->MET_CellOut_Eflow_STVF_Egamma10NoTau.sumet(),                                
-//									event->MET_RefGamma_Egamma10NoTau.etx(),
-//									event->MET_RefGamma_Egamma10NoTau.ety(),
-//									event->MET_RefGamma_Egamma10NoTau.sumet(),
-//									mu_met,
-//									event->mu_staco.ms_qoverp(), 
-//									event->mu_staco.ms_theta(), 
-//									event->mu_staco.ms_phi(), 
-//									event->mu_staco.charge(),
-//									event->mu_staco.energyLossPar(),
-//									event->eventinfo.averageIntPerXing(),
-//									SUSYMet::Default,
-//									whichsyst,
-//									false);
-//
-//
-//	RJTool->newEvent();
-//
-//	RJTool->addVisParticle("b",Jet[0],1);
-//	RJTool->addVisParticle("b",Jet[1],2);
-//
-//	// RJTool->addVisParticle("l",Lepton[0],1);
-//	// RJTool->addVisParticle("l",Lepton[1],2);
-//
-//	if( met.X() == 0. && met.Y() == 0. ) return EL::StatusCode::SUCCESS;
-//	TVector3 METVector;
-//	METVector.SetXYZ(  met.X(), met.Y(), 0.0 );
-//	RJTool->addMET( METVector );
-//
-//	RJTool->setHemisphereMode(0); //top symmetry
-//	RJTool->guessInvParticles();
-//	RJTool->getObservables();
-//
-//	// If you want access to the variables to do whatever with...
-//
-//	// Try again with other Hemisphere mode
-//
-//	// RJTool->setHemisphereMode(1); //W symmetry
-//	// RJTool->guessInvParticles();
-//	// RJTool->getObservables();
-//
-//	std::map< TString, double > RJVars = RJTool->getObservablesMap();
-//
-//	// RJVars_sqrtsHat_0_0_0 = RJVars["sqrtsHat_0_0_0"];
-//	// RJVars_invgamma_0_0_0 = RJVars["invgamma_0_0_0"];
-//	// RJVars_mdelta_0_0_0 = RJVars["mdelta_0_0_0"];
-//	// RJVars_cospt_0_0_0 = RJVars["cospt_0_0_0"];
-//
-//	RJVars_sHatR_0_0_0 = RJVars["sHatR_0_0_0"];  
-//	RJVars_E12_0_0_0 = RJVars["E12_0_0_0"];  
-//	RJVars_gamma_R_0_0_0 = RJVars["gamma_R_0_0_0"];  
-//	RJVars_dphi_Beta_R_0_0_0 = RJVars["dphi_Beta_R_0_0_0"];  
-//	RJVars_dphi_leg1_leg2_0_0_0 = RJVars["dphi_leg1_leg2_0_0_0"];  
-//	RJVars_gamma_Rp1_0_0_0 = RJVars["gamma_Rp1_0_0_0"];  
-//	RJVars_dphi_Beta_Rp1_Beta_R_0_0_0 = RJVars["dphi_Beta_Rp1_Beta_R_0_0_0"];  
-//	RJVars_MDeltaR_0_0_0 = RJVars["MDeltaR_0_0_0"];  
-//	RJVars_Eleg1_0_0_0 = RJVars["Eleg1_0_0_0"];  
-//	RJVars_Eleg2_0_0_0 = RJVars["Eleg2_0_0_0"];  
-//	RJVars_costhetaRp1_0_0_0 = RJVars["costhetaRp1_0_0_0"];  
-//	RJVars_costhetaR_0_0_0 = RJVars["costhetaR_0_0_0"];  
-//
-//	// Filling branches for slims for crogan/jack
-//
-//	// //MET
-//	MET = METVector.Mag();
-//	MET_phi = METVector.Phi();
-//
-//	// // Leptons
-//	// std::vector<float> tmpLEP_pt;
-//	// std::vector<float> tmpLEP_eta;
-//	// std::vector<float> tmpLEP_phi;
-//	// std::vector<float> tmpLEP_E;
-//	// std::vector<float> tmpLEP_charge;
-//
-//	// tmpLEP_pt.push_back(Lepton[0].Pt() );
-//	// tmpLEP_eta.push_back(Lepton[0].Eta() );
-//	// tmpLEP_phi.push_back(Lepton[0].Phi() );
-//	// tmpLEP_E.push_back(Lepton[0].E() );
-//	// tmpLEP_charge.push_back(LeptonCharge0 );
-//
-//	// tmpLEP_pt.push_back(Lepton[1].Pt() );
-//	// tmpLEP_eta.push_back(Lepton[1].Eta() );
-//	// tmpLEP_phi.push_back(Lepton[1].Phi() );
-//	// tmpLEP_E.push_back(Lepton[1].E() );
-//	// tmpLEP_charge.push_back(LeptonCharge1 );
-//
-//	// LEP_pt = new std::vector<float>(tmpLEP_pt);
-//	// LEP_eta= new std::vector<float>(tmpLEP_eta);
-//	// LEP_phi= new std::vector<float>(tmpLEP_phi);
-//	// LEP_E  = new std::vector<float>(tmpLEP_E);
-//	// LEP_charge = new std::vector<float>(tmpLEP_charge);
-//
-//	// // Jets
-//	// std::vector<float> tmpJET_btag;
-//	// std::vector<float> tmpJET_mass;
-//	// std::vector<float> tmpJET_phi;
-//	// std::vector<float> tmpJET_eta;
-//	// std::vector<float> tmpJET_pt ;
-//
-//	// TLorentzVector tmpTLV;
-//	// for( unsigned int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
-//	// 	iJet = jet_good[iJet_good];
-//	// 	tmpTLV = m_susy_obj->GetJetTLV(iJet);
-//
-//	// 	tmpJET_pt.push_back(tmpTLV.Pt() );
-//	// 	tmpJET_eta.push_back(tmpTLV.Eta() );
-//	// 	tmpJET_phi.push_back(tmpTLV.Phi() );
-//	// 	tmpJET_mass.push_back(tmpTLV.M() );
-//	// 	if( std::find(jet_btagged.begin(), jet_btagged.end(), iJet)!=jet_btagged.end() ){
-//	// 		tmpJET_btag.push_back(   1.  );
-//	// 	} else {
-//	// 		tmpJET_btag.push_back(   0.  );
-//	// 	}
-//	// }
-//
-//	// JET_pt = new std::vector<float>(tmpJET_pt);
-//	// JET_eta = new std::vector<float>(tmpJET_eta);
-//	// JET_phi = new std::vector<float>(tmpJET_phi);
-//	// JET_mass = new std::vector<float>(tmpJET_mass);
-//	// JET_btag = new std::vector<float>(tmpJET_btag);
-//
-//	// //now need to do the truth stuff which is reasonably harder...
-//
-//	// //MET_TRUTH
-//	// //MET_TRUTH = event->MET_Truth.Int_et();
-//	// //MET_TRUTH_phi = event->MET_Truth.Int_phi();
-//
-//
-//	// std::vector<int> truth_index;
-//
-//	// std::vector<int> pdgIdsToSave;
-//
-//	// // pdgIdsToSave.push_back(5);
-//	// pdgIdsToSave.push_back(6);
-//	// // pdgIdsToSave.push_back(11);
-//	// // pdgIdsToSave.push_back(12);
-//	// // pdgIdsToSave.push_back(13);
-//	// // pdgIdsToSave.push_back(14);
-//	// // pdgIdsToSave.push_back(15);
-//	// // pdgIdsToSave.push_back(16);
-//	// pdgIdsToSave.push_back(24);
-//	// pdgIdsToSave.push_back(1000006);
-//	// pdgIdsToSave.push_back(2000006);
-//	// pdgIdsToSave.push_back(1000022);
-//	// pdgIdsToSave.push_back(1000024);
-//
-//
-//	// int iMC=0;
-//	// for( iMC = 0; iMC < event->mc.n(); iMC++){
-//
-//	// 	//first stuff that has more complicated parentage requirements
-//	// 	if( event->mc[iMC].status()==1 && (fabs(event->mc[iMC].pdgId() )==11 || fabs(event->mc[iMC].pdgId() )==13  ) ){
-//	// 		bool saveThisLepton = hasAncestor(iMC,24);
-//	// 		if(saveThisLepton){
-//	// 			truth_index.push_back(iMC);
-//	// 		}
-//	// 	}
-//	// 	if( event->mc[iMC].status()==1 && \
-//	// 		(fabs(event->mc[iMC].pdgId() )== 12 || \
-//	// 		fabs(event->mc[iMC].pdgId() )== 14 || \
-//	// 		fabs(event->mc[iMC].pdgId() )== 16 ) ) truth_index.push_back(iMC);
-//
-//	// 	if( fabs(event->mc[iMC].pdgId() )== 5 ){
-//	// 		bool saveThisB = hasAncestor(iMC,6);
-//	// 		if(saveThisB){
-//	// 			truth_index.push_back(iMC);
-//	// 		}
-//	// 	}
-//
-//	// 	if( std::find(pdgIdsToSave.begin(), pdgIdsToSave.end(), fabs(event->mc[iMC].pdgId() ) ) !=pdgIdsToSave.end() ){
-//	// 		truth_index.push_back(iMC);
-//	// 	}
-//
-//	// }
-//
-//	// std::vector<float> tmpTRUTH_pdgId;
-//	// std::vector<float> tmpTRUTH_charge;
-//	// std::vector<float> tmpTRUTH_pt;
-//	// std::vector<float> tmpTRUTH_eta;
-//	// std::vector<float> tmpTRUTH_phi;
-//	// std::vector<float> tmpTRUTH_m;
-//
-//	// for( unsigned int iMC_index = 0; iMC_index < truth_index.size(); iMC_index++){
-//	// 	iMC = truth_index[iMC_index];
-//	// 	tmpTRUTH_pdgId.push_back( event->mc[iMC].pdgId() );
-//	// 	tmpTRUTH_charge.push_back( event->mc[iMC].charge() );
-//	// 	tmpTRUTH_pt.push_back( event->mc[iMC].pt() );
-//	// 	tmpTRUTH_eta.push_back( event->mc[iMC].eta() );
-//	// 	tmpTRUTH_phi.push_back( event->mc[iMC].phi() );
-//	// 	tmpTRUTH_m.push_back( event->mc[iMC].m() );
-//	// }
-//
-//	// TRUTH_pdgId   = new std::vector<float> (tmpTRUTH_pdgId   );          
-//	// TRUTH_charge   = new std::vector<float> (tmpTRUTH_charge   );          
-//	// TRUTH_pt   = new std::vector<float> (tmpTRUTH_pt   );          
-//	// TRUTH_eta  = new std::vector<float> (tmpTRUTH_eta  );         
-//	// TRUTH_phi  = new std::vector<float> (tmpTRUTH_phi  );         
-//	// TRUTH_m    = new std::vector<float> (tmpTRUTH_m    );       
-//
-//
-//	// RJVars_M_0_0_0              =  RJVars["M_0_0_0"];
-//	// RJVars_M_0_0_1              =  RJVars["M_0_0_1"];
-//	// RJVars_M_1_0_0              =  RJVars["M_1_0_0"];
-//	// RJVars_M_1_0_1              =  RJVars["M_1_0_1"];
-//	// RJVars_M_1_1_0              =  RJVars["M_1_1_0"];
-//	// RJVars_M_1_1_1              =  RJVars["M_1_1_1"];
-//	// RJVars_M_2_0_0              =  RJVars["M_2_0_0"];
-//	// RJVars_M_2_0_1              =  RJVars["M_2_0_1"];
-//	// RJVars_M_2_1_0              =  RJVars["M_2_1_0"];
-//	// RJVars_M_2_1_1              =  RJVars["M_2_1_1"];
-//	// RJVars_MDecay_1_1_0         =  RJVars["MDecay_1_1_0"];
-//	// RJVars_MDecay_1_1_1         =  RJVars["MDecay_1_1_1"];
-//	// RJVars_MDecay_2_1_0         =  RJVars["MDecay_2_1_0"];
-//	// RJVars_MDecay_2_1_1         =  RJVars["MDecay_2_1_1"];
-//	// RJVars_dPhi_0_0_0         =  RJVars["dPhi_0_0_0"];
-//	// RJVars_dPhi_0_0_1         =  RJVars["dPhi_0_0_1"];
-//	// RJVars_dPhi_1_0_0         =  RJVars["dPhi_1_0_0"];
-//	// RJVars_dPhi_1_0_1         =  RJVars["dPhi_1_0_1"];
-//	// RJVars_dPhi_2_0_0         =  RJVars["dPhi_2_0_0"];
-//	// RJVars_dPhi_2_0_1         =  RJVars["dPhi_2_0_1"];
-//	// RJVars_dPhi_1_1_0         =  RJVars["dPhi_1_1_0"];
-//	// RJVars_dPhi_1_1_1         =  RJVars["dPhi_1_1_1"];
-//	// RJVars_dPhi_2_1_0         =  RJVars["dPhi_2_1_0"];
-//	// RJVars_dPhi_2_1_1         =  RJVars["dPhi_2_1_1"];
-//	// RJVars_dPhiVis_0_0_0         =  RJVars["dPhiVis_0_0_0"];
-//	// RJVars_dPhiVis_0_0_1         =  RJVars["dPhiVis_0_0_1"];
-//	// RJVars_dPhiVis_1_0_0         =  RJVars["dPhiVis_1_0_0"];
-//	// RJVars_dPhiVis_1_0_1         =  RJVars["dPhiVis_1_0_1"];
-//	// RJVars_dPhiVis_2_0_0         =  RJVars["dPhiVis_2_0_0"];
-//	// RJVars_dPhiVis_2_0_1         =  RJVars["dPhiVis_2_0_1"];
-//	// RJVars_dPhiVis_1_1_0         =  RJVars["dPhiVis_1_1_0"];
-//	// RJVars_dPhiVis_1_1_1         =  RJVars["dPhiVis_1_1_1"];
-//	// RJVars_dPhiVis_2_1_0         =  RJVars["dPhiVis_2_1_0"];
-//	// RJVars_dPhiVis_2_1_1         =  RJVars["dPhiVis_2_1_1"];
-//	// RJVars_cosTheta_0_0_0         =  RJVars["cosTheta_0_0_0"];
-//	// RJVars_cosTheta_0_0_1         =  RJVars["cosTheta_0_0_1"];
-//	// RJVars_cosTheta_1_0_0         =  RJVars["cosTheta_1_0_0"];
-//	// RJVars_cosTheta_1_0_1         =  RJVars["cosTheta_1_0_1"];
-//	// RJVars_cosTheta_2_0_0         =  RJVars["cosTheta_2_0_0"];
-//	// RJVars_cosTheta_2_0_1         =  RJVars["cosTheta_2_0_1"];
-//	// RJVars_cosTheta_1_1_0         =  RJVars["cosTheta_1_1_0"];
-//	// RJVars_cosTheta_1_1_1         =  RJVars["cosTheta_1_1_1"];
-//	// RJVars_cosTheta_2_1_0         =  RJVars["cosTheta_2_1_0"];
-//	// RJVars_cosTheta_2_1_1         =  RJVars["cosTheta_2_1_1"];
-//	// RJVars_dPhiDecay_0_0_0         =  RJVars["dPhiDecay_0_0_0"];
-//	// RJVars_dPhiDecay_0_0_1         =  RJVars["dPhiDecay_0_0_1"];
-//	// RJVars_dPhiDecay_1_0_0         =  RJVars["dPhiDecay_1_0_0"];
-//	// RJVars_dPhiDecay_1_0_1         =  RJVars["dPhiDecay_1_0_1"];
-//	// RJVars_dPhiDecay_2_0_0         =  RJVars["dPhiDecay_2_0_0"];
-//	// RJVars_dPhiDecay_2_0_1         =  RJVars["dPhiDecay_2_0_1"];
-//	// RJVars_cosThetaDecay_0_0_0         =  RJVars["cosThetaDecay_0_0_0"];
-//	// RJVars_cosThetaDecay_0_0_1         =  RJVars["cosThetaDecay_0_0_1"];
-//	// RJVars_cosThetaDecay_1_0_0         =  RJVars["cosThetaDecay_1_0_0"];
-//	// RJVars_cosThetaDecay_1_0_1         =  RJVars["cosThetaDecay_1_0_1"];
-//	// RJVars_cosThetaDecay_2_0_0         =  RJVars["cosThetaDecay_2_0_0"];
-//	// RJVars_cosThetaDecay_2_0_1         =  RJVars["cosThetaDecay_2_0_1"];
-//	// RJVars_gamma_0_0_0         =  RJVars["gamma_0_0_0"];
-//	// RJVars_gamma_0_0_1         =  RJVars["gamma_0_0_1"];
-//
-//
-// 	// RJVars_M_Tot_Mean = getMean(RJVars_M_0_0_0, RJVars_M_0_0_1);
-// 	// RJVars_M_0_Mean = getMean(RJVars_M_1_0_0, RJVars_M_2_0_0, RJVars_M_1_0_1, RJVars_M_2_0_1);
-// 	// RJVars_M_1_Mean = getMean(RJVars_M_1_1_0, RJVars_M_2_1_0, RJVars_M_1_1_1, RJVars_M_2_1_1);
-// 	// RJVars_dPhi_Tot_Mean = getMean(RJVars_dPhi_0_0_0, RJVars_dPhi_0_0_1);
-// 	// RJVars_dPhi_0_Mean = getMean(RJVars_dPhi_1_0_0, RJVars_dPhi_2_0_0, RJVars_dPhi_1_0_1, RJVars_dPhi_2_0_1);
-// 	// RJVars_dPhi_1_Mean = getMean(RJVars_dPhi_1_1_0, RJVars_dPhi_2_1_0, RJVars_dPhi_1_1_1, RJVars_dPhi_2_1_1);
-// 	// RJVars_dPhiVis_Tot_Mean = getMean(RJVars_dPhiVis_0_0_0, RJVars_dPhiVis_0_0_1);
-// 	// RJVars_dPhiVis_0_Mean = getMean(RJVars_dPhiVis_1_0_0, RJVars_dPhiVis_2_0_0, RJVars_dPhiVis_1_0_1, RJVars_dPhiVis_2_0_1);
-// 	// RJVars_dPhiVis_1_Mean = getMean(RJVars_dPhiVis_1_1_0, RJVars_dPhiVis_2_1_0, RJVars_dPhiVis_1_1_1, RJVars_dPhiVis_2_1_1);
-// 	// RJVars_cosTheta_Tot_Mean = getMean(RJVars_cosTheta_0_0_0, RJVars_cosTheta_0_0_1);
-// 	// RJVars_cosTheta_0_Mean = getMean(RJVars_cosTheta_1_0_0, RJVars_cosTheta_2_0_0, RJVars_cosTheta_1_0_1, RJVars_cosTheta_2_0_1);
-// 	// RJVars_cosTheta_1_Mean = getMean(RJVars_cosTheta_1_1_0, RJVars_cosTheta_2_1_0, RJVars_cosTheta_1_1_1, RJVars_cosTheta_2_1_1);
-// 	// RJVars_dPhiDecay_Tot_Mean = getMean(RJVars_dPhiDecay_0_0_0, RJVars_dPhiDecay_0_0_1);
-// 	// RJVars_gamma_Tot_Mean = getMean(RJVars_gamma_0_0_0, RJVars_gamma_0_0_1);
-//
-// 	// RJVars_M_Tot_Var = getVar(RJVars_M_0_0_0, RJVars_M_0_0_1);
-// 	// RJVars_M_0_Var = getVar(RJVars_M_1_0_0, RJVars_M_2_0_0, RJVars_M_1_0_1, RJVars_M_2_0_1);
-// 	// RJVars_M_1_Var = getVar(RJVars_M_1_1_0, RJVars_M_2_1_0, RJVars_M_1_1_1, RJVars_M_2_1_1);
-// 	// RJVars_dPhi_Tot_Var = getVar(RJVars_dPhi_0_0_0, RJVars_dPhi_0_0_1);
-// 	// RJVars_dPhi_0_Var = getVar(RJVars_dPhi_1_0_0, RJVars_dPhi_2_0_0, RJVars_dPhi_1_0_1, RJVars_dPhi_2_0_1);
-// 	// RJVars_dPhi_1_Var = getVar(RJVars_dPhi_1_1_0, RJVars_dPhi_2_1_0, RJVars_dPhi_1_1_1, RJVars_dPhi_2_1_1);
-// 	// RJVars_dPhiVis_Tot_Var = getVar(RJVars_dPhiVis_0_0_0, RJVars_dPhiVis_0_0_1);
-// 	// RJVars_dPhiVis_0_Var = getVar(RJVars_dPhiVis_1_0_0, RJVars_dPhiVis_2_0_0, RJVars_dPhiVis_1_0_1, RJVars_dPhiVis_2_0_1);
-// 	// RJVars_dPhiVis_1_Var = getVar(RJVars_dPhiVis_1_1_0, RJVars_dPhiVis_2_1_0, RJVars_dPhiVis_1_1_1, RJVars_dPhiVis_2_1_1);
-// 	// RJVars_cosTheta_Tot_Var = getVar(RJVars_cosTheta_0_0_0, RJVars_cosTheta_0_0_1);
-// 	// RJVars_cosTheta_0_Var = getVar(RJVars_cosTheta_1_0_0, RJVars_cosTheta_2_0_0, RJVars_cosTheta_1_0_1, RJVars_cosTheta_2_0_1);
-// 	// RJVars_cosTheta_1_Var = getVar(RJVars_cosTheta_1_1_0, RJVars_cosTheta_2_1_0, RJVars_cosTheta_1_1_1, RJVars_cosTheta_2_1_1);
-// 	// RJVars_dPhiDecay_Tot_Var = getVar(RJVars_dPhiDecay_0_0_0, RJVars_dPhiDecay_0_0_1);
-// 	// RJVars_gamma_Tot_Var = getVar(RJVars_gamma_0_0_0, RJVars_gamma_0_0_1);
-//
-//
-//	el_selected  = new vector<int>(el_signal);
-//	mu_selected  = new vector<int>(mu_signal);
-//	jet_selected = new vector<int>(jet_good );
-//	bjet_selected = new vector<int>(jet_btagged );
-//
-//
-//// 	// if( (event->triggerbits.EF_mu24_tight() != 1)    && 
-//// 	//     (event->triggerbits.EF_e24vh_medium1() != 1) && 
-//// 	//     (event->triggerbits.EF_xe80_tclcw() != 1) ){
-//// 	//   passEvent = 0;
-//// 	// }
-//
-//	if(passEvent){
-//		// You can put some criteria here for the event to be selected.
-//		output->setFilterPassed (); // You must have this line somewhere
-//	}
-//
-//	
-//	output->setFilterPassed ();
-//	
-	// std::cout << "leaving execute()"  << std::endl;
-
-
 
 	// Save the event:
 	CHECK(m_event->fill());
