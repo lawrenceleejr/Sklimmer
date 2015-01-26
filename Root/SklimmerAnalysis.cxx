@@ -267,7 +267,6 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	const char* APP_NAME = "SklimmerAnalysis";
 
-
 	//------------
 	// MUONS
 	//------------
@@ -343,6 +342,9 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::ShallowAuxContainer* jets_copyaux(0);
 	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux) );
 
+	jets_copy->setStore(jets_copyaux);
+	CHECK( store.record( jets_copy, "CalibJets" ) );
+	CHECK( store.record( jets_copyaux, "CalibJetsAux." ) );
 
 	//------------
 	// TAUS
@@ -501,6 +503,69 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
 
 
+	RJTool->newEvent();
+
+
+	xAOD::JetContainer* jets_copy(0);
+	CHECK( store.retrieve( jets_copy, "CalibJets" ) );
+
+	xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
+	xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
+	std::cout << "Sklimmer: NJets = " << jets_copy->size() << std::endl;
+	int tmpcounter = 0;
+	for( ; jet_itr != jet_end; ++jet_itr ) {
+		std::cout << "Sklimmer: ijet = " << tmpcounter << std::endl;
+		tmpcounter++;
+
+		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
+			(*jet_itr)->auxdata< bool >("passOR")==1  &&
+			(*jet_itr)->pt() > 20000.  && ( fabs( (*jet_itr)->eta()) < 2.5) ) {
+			RJTool->addVisParticle( "", (*jet_itr)->p4(), 0 );
+			std::cout << "Sklimmer: Adding jet to hemisphere reconstruction " << std::endl;
+		}
+    
+    }
+	std::cout << "Done with jets" << std::endl;
+
+	xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
+	CHECK( store.retrieve( met, "CalibMET_RefFinal" ) );
+
+	std::cout << "Got MET Collection" << std::endl;
+
+
+    xAOD::MissingETContainer::const_iterator met_it = met->find("Final");
+      
+	std::cout << "Got MET" << std::endl;
+
+	if (met_it == met->end()) {
+		Error( APP_NAME, "No RefFinal inside MET container" );
+	} else {
+		RJTool->addMET( TVector3( (*met_it)->mpx(), (*met_it)->mpy(), 0 ) );
+	}
+
+	std::cout << "Added MET to Tool" << std::endl;
+
+	std::pair<TLorentzVector,TLorentzVector> myHemispheres = RJTool->calcHemispheres();
+
+	RJTool->getObservables( myHemispheres.first, myHemispheres.second );
+
+	std::map< TString, double > observables = RJTool->getObservablesMap();
+
+	eventInfo->auxdecor<float>("sHatR"               ) = observables[ "sHatR"                ];
+	eventInfo->auxdecor<float>("gammainv_R"          ) = observables[ "gammainv_R"           ];
+	eventInfo->auxdecor<float>("dphi_Beta_R"         ) = observables[ "dphi_Beta_R"          ];
+	eventInfo->auxdecor<float>("dphi_leg1_leg2"      ) = observables[ "dphi_leg1_leg2"       ];
+	eventInfo->auxdecor<float>("costheta_R"          ) = observables[ "costheta_R"           ];
+	eventInfo->auxdecor<float>("gammainv_Rp1"        ) = observables[ "gammainv_Rp1"         ];
+	eventInfo->auxdecor<float>("dphi_Beta_Rp1_Beta_R") = observables[ "dphi_Beta_Rp1_Beta_R" ];
+	eventInfo->auxdecor<float>("mdelta_R"            ) = observables[ "mdelta_R"             ];
+	eventInfo->auxdecor<float>("costheta_Rp1"        ) = observables[ "costheta_Rp1"         ];
+
+	Info( APP_NAME,"RJigsaw Variables: sHatR %f gammainv_Rp1 %f",
+		eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
+
+
+	// CHECK(m_event->copy("EventInfo"));
 
 	store.clear(); 
 
