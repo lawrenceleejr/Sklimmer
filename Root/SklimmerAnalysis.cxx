@@ -133,36 +133,55 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	const char* APP_NAME = "SklimmerAnalysis";
 
 
+
+	// This will get moved to submission at some point... //////////////////////
+
+
+	m_doSklimming = true;
+	m_doSUSYObjDef = true;
+	m_doEventSelection = false;
+	m_doNtuples = false;
+ 
+	m_Analysis = "bbmet";
+
+
+	////////////////////////////////////////////////////////////////////////////
+
     m_event = wk()->xaodEvent();
 
 	// as a check, let's see the number of events in our xAOD
 	Info("initialize()", "Number of events = %lli", m_event->getEntries() ); // print long long int
 
 	// Output xAOD ///////////////////////////////////////////////////////////////////
-	TFile *file = wk()->getOutputFile ("outputLabel");
-	CHECK(m_event->writeTo(file));
+
+	if(!m_doNtuples){
+		TFile *file = wk()->getOutputFile ("outputLabel");
+		CHECK(m_event->writeTo(file));
+	}
 
 	// SUSYTools ///////////////////////////////////////////////////////////////////
 
-	m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
+	if(m_doSUSYObjDef){
+		m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
 
-	CHECK( m_susy_obj->setProperty("IsData",isData) );
-	CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
-	CHECK( m_susy_obj->setProperty("EleId","Tight") );
+		CHECK( m_susy_obj->setProperty("IsData",isData) );
+		CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
+		CHECK( m_susy_obj->setProperty("EleId","Tight") );
 
-	if( m_susy_obj->SUSYToolsInit().isFailure() ) {
-	  Error( APP_NAME, "Failed to initialise tools in SUSYToolsInit()..." );
-	  Error( APP_NAME, "Exiting..." );
-	  return EL::StatusCode::FAILURE;   
-	}
-	else{ Info(APP_NAME,"SUSYToolsInit with success!!... " );}
+		if( m_susy_obj->SUSYToolsInit().isFailure() ) {
+		  Error( APP_NAME, "Failed to initialise tools in SUSYToolsInit()..." );
+		  Error( APP_NAME, "Exiting..." );
+		  return EL::StatusCode::FAILURE;   
+		}
+		else{ Info(APP_NAME,"SUSYToolsInit with success!!... " );}
 
-	if( m_susy_obj->initialize() != StatusCode::SUCCESS){
-	  Error(APP_NAME, "Cannot intialize SUSYObjDef_xAOD..." );
-	  Error(APP_NAME, "Exiting... " );
-	  return EL::StatusCode::FAILURE;
-	}else{
-	  Info(APP_NAME,"SUSYObjDef_xAOD initialized... " );
+		if( m_susy_obj->initialize() != StatusCode::SUCCESS){
+		  Error(APP_NAME, "Cannot intialize SUSYObjDef_xAOD..." );
+		  Error(APP_NAME, "Exiting... " );
+		  return EL::StatusCode::FAILURE;
+		}else{
+		  Info(APP_NAME,"SUSYObjDef_xAOD initialized... " );
+		}
 	}
 
 	// GRL ///////////////////////////////////////////////////////////////////
@@ -211,6 +230,205 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 }
 
 
+int SklimmerAnalysis :: copyFullxAODContainers ()
+{
+
+	const char* APP_NAME = "SklimmerAnalysis";
+
+
+	// copy full container(s) to new xAOD
+	// without modifying the contents of it: 
+
+	CHECK(m_event->copy("EventInfo"));
+	CHECK(m_event->copy("TruthEvent"));
+
+	CHECK(m_event->copy("TruthParticle"));
+
+	CHECK(m_event->copy("AntiKt4LCTopoJets"));
+	CHECK(m_event->copy("AntiKt4TruthJets"));
+
+	CHECK(m_event->copy("MET_RefFinal"));
+	CHECK(m_event->copy("MET_Truth"));
+
+	CHECK(m_event->copy("TruthVertex"));
+	CHECK(m_event->copy("PrimaryVertices"));
+	
+	CHECK(m_event->copy("ElectronCollection"));
+	CHECK(m_event->copy("Muons"));
+	// CHECK(m_event->copy("PhotonCollection"));
+
+	return 0;
+
+}
+
+
+
+int SklimmerAnalysis :: applySUSYObjectDefinitions (){
+
+	const char* APP_NAME = "SklimmerAnalysis";
+
+
+	//------------
+	// MUONS
+	//------------
+
+	const xAOD::MuonContainer* muons = 0;
+	if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve Muons container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+
+	xAOD::MuonContainer* muons_copy(0);
+	xAOD::ShallowAuxContainer* muons_copyaux(0);
+	CHECK( m_susy_obj->GetMuons(muons_copy,muons_copyaux) );
+
+	xAOD::MuonContainer::iterator mu_itr = (muons_copy)->begin();
+	xAOD::MuonContainer::iterator mu_end  = (muons_copy)->end();
+
+	for( ; mu_itr != mu_end; ++mu_itr ) {
+		m_susy_obj->IsSignalMuonExp( **mu_itr,  ST::SignalIsoExp::TightIso ) ;
+		m_susy_obj->IsCosmicMuon( **mu_itr );
+		Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< bool >("baseline") );
+	}
+
+	//------------
+	// ELECTRONS
+	//------------
+
+	const xAOD::ElectronContainer* electrons = 0;
+	if ( !m_event->retrieve( electrons, "ElectronCollection" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve Electrons container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+
+	xAOD::ElectronContainer* electrons_copy(0);
+	xAOD::ShallowAuxContainer* electrons_copyaux(0);
+	CHECK( m_susy_obj->GetElectrons(electrons_copy,electrons_copyaux) );
+
+	// Print their properties, using the tools:
+	xAOD::ElectronContainer::iterator el_itr = (electrons_copy)->begin();
+	xAOD::ElectronContainer::iterator el_end = (electrons_copy)->end();
+
+	for( ; el_itr != el_end; ++el_itr ) {
+		m_susy_obj->IsSignalElectronExp( **el_itr , ST::SignalIsoExp::TightIso);
+		Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< bool >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
+	}
+
+	//------------
+	// PHOTONS
+	//------------
+
+	const xAOD::PhotonContainer* photons = 0;
+	if ( !m_event->retrieve( photons, "PhotonCollection" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve Photons container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+	  
+	xAOD::PhotonContainer* photons_copy(0);
+	xAOD::ShallowAuxContainer* photons_copyaux(0);
+	CHECK( m_susy_obj->GetPhotons(photons_copy,photons_copyaux) );
+
+
+	//------------
+	// JETS
+	//------------
+
+	const xAOD::JetContainer* jets = 0;
+	if ( !m_event->retrieve( jets, "AntiKt4LCTopoJets" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve AntiKt4LCTopoJets container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+
+	xAOD::JetContainer* jets_copy(0);
+	xAOD::ShallowAuxContainer* jets_copyaux(0);
+	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux) );
+
+
+	//------------
+	// TAUS
+	//------------
+	const xAOD::TauJetContainer* taus = 0;
+	if ( !m_event->retrieve( taus, "TauRecContainer" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve Taus container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+
+	xAOD::TauJetContainer* taus_copy(0);
+	xAOD::ShallowAuxContainer* taus_copyaux(0);
+	CHECK( m_susy_obj->GetTaus(taus_copy,taus_copyaux) );
+
+
+	//------------
+	// OVERLAP REMOVAL (as in susytools tester)
+	//------------
+
+	CHECK( m_susy_obj->OverlapRemoval(electrons_copy, muons_copy, jets_copy) );
+
+
+	//------------
+	// GET REBUILT MET
+	//------------
+
+	xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
+	xAOD::MissingETAuxContainer* metAux = new xAOD::MissingETAuxContainer;
+	met->setStore(metAux);
+	CHECK( store.record( met, "CalibMET_RefFinal" ) );
+	CHECK( store.record( metAux, "CalibMET_RefFinalAux." ) );
+
+	///// TEMPORARY CODE ONLY
+	// Protection against bad muons (calo-tagged, si-associated forward)
+	// Implemented here due to limitations preventing internal patch
+	// This will be made redundant by fixes in MET
+	xAOD::MuonContainer muons_copy_met(SG::VIEW_ELEMENTS);
+	for(auto mu : *muons_copy) {
+	if(mu->muonType()==xAOD::Muon::Combined || mu->muonType()==xAOD::Muon::SegmentTagged || mu->muonType()==xAOD::Muon::MuonStandAlone)
+		muons_copy_met.push_back(mu);
+	}
+	///// TEMPORARY CODE ONLY
+
+	CHECK( m_susy_obj->GetMET(*met,
+			  jets_copy,
+			  electrons_copy,
+			  &muons_copy_met,
+			  photons_copy,
+			  taus_copy) );
+
+
+	//////////////////////////////////////////////////////
+
+	if(m_writeFullCollectionsToxAOD){
+
+		muons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+		if( !m_event->record( muons_copy ,   "CalibMuons" )){return EL::StatusCode::FAILURE;}
+		if( !m_event->record( muons_copyaux, "CalibMuonsAux." )) {return EL::StatusCode::FAILURE;}
+
+
+		electrons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+		if( !m_event->record( electrons_copy ,   "CalibElectrons" )){return EL::StatusCode::FAILURE;}
+		if( !m_event->record( electrons_copyaux, "CalibElectronsAux." )) {return EL::StatusCode::FAILURE;}
+
+		// photons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+		// if( !m_event->record( photons_copy ,   "CalibPhotons" )){return EL::StatusCode::FAILURE;}
+		// if( !m_event->record( photons_copyaux, "CalibPhotonsAux." )) {return EL::StatusCode::FAILURE;}
+
+		jets_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	                                       // if true should have something like this line somewhere:
+	                                       // m_event->copy("AntiKt4LCTopoJets");
+		if( !m_event->record( jets_copy , "CalibJets" )){return EL::StatusCode::FAILURE;}
+		if( !m_event->record( jets_copyaux, "CalibJetsAux." )) {return EL::StatusCode::FAILURE;}
+
+		if( !m_event->record( met,    "CalibMET" )){return EL::StatusCode::FAILURE;}
+		if( !m_event->record( metAux, "CalibMETAux." )) {return EL::StatusCode::FAILURE;}
+
+	}
+
+	////////////////////////////////////////////////////////
+
+
+	return 0;
+
+}
+
 
 EL::StatusCode SklimmerAnalysis :: execute ()
 {
@@ -221,267 +439,74 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	const char* APP_NAME = "SklimmerAnalysis";
 
-
 	int passEvent = 1;
-
-
-	// copy full container(s) to new xAOD
-	// without modifying the contents of it: 
-	CHECK(m_event->copy("AntiKt4LCTopoJets"));
-
-
-
 
 	h_nevents->Fill(0);
 
-	// std::cout << "started execute()"  << std::endl;
+	if(m_doSklimming) copyFullxAODContainers();
+
+
+	//----------------------------
+	// Event information
+	//--------------------------- 
+	const xAOD::EventInfo* eventInfo = 0;
+	if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
+		Error(APP_NAME, "Failed to retrieve event info collection. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+	int EventNumber = eventInfo->eventNumber();
+	int RunNumber = eventInfo->runNumber();
+
+
+	// check if the event is data or MC
+	// (many tools are applied either to data or MC)
+	bool isMC = false;
+	// check if the event is MC
+	if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
+	   isMC = true; // can do something with this later
+	}   
+
+
+	// if data, check if event passes GRL
+	if(!isMC){ // it's data!
+		if(!m_grl->passRunLB(*eventInfo)){
+			return EL::StatusCode::SUCCESS; // go to next event
+		}
+		if(  (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) || 
+			(eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) || 
+			(eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
+		{
+			return EL::StatusCode::SUCCESS; // go to the next event
+		} // end if event flags check
+	} // end if not MC
+
+
+	if(isMC){
+		// Check if input file is mc14_13TeV to skip pileup reweighting
+		bool mc14_13TeV = false;
+		if( RunNumber == 222222) mc14_13TeV = true;
+		if (!mc14_13TeV){ // Only reweight 8 TeV MC
+			CHECK( m_pileupReweightingTool->execute() );
+			Info( APP_NAME,"PileupReweightingTool: PileupWeight %f RandomRunNumber %i RandomLumiBlockNumber %i",eventInfo->auxdata< double >("PileupWeight"), eventInfo->auxdata< unsigned int >("RandomRunNumber"),  eventInfo->auxdata< unsigned int >("RandomLumiBlockNumber") );
+		}
+	}// end if IS MC
 
 
 
-	// Important tools
-	// GRL Reader
-	// Pileup Reweighting Stuff
-	// Event Weight
 
-	// Get the electrons
-	// containers - baseline and signal and trigmatch
+	// Let's calibrate some shit
 
-	
-//	std::vector<int > el_baseline;
-//	std::vector<int > el_crack;
-//	std::vector<int > el_met;
-//	std::vector<int > el_signal;
-//
-//	std::vector<int > mu_baseline;
-//	std::vector<int > mu_cosmic;
-//	std::vector<int > mu_bad;
-//	std::vector<int > mu_met;
-//	std::vector<int > mu_signal;
-//
-//	std::vector<int > jet_signal;
-//	std::vector<int > jet_good;
-//	std::vector<int > jet_bad;
-//	std::vector<int > jet_LArHoleVeto;
-//	std::vector<int > jet_btagged;
-//
-//	float jetptcut = 10000.;
-//	float elecptcut = 5000.;
-//	float muonptcut = 5000.;
-//
-//
-//	int iEl=0;
-//	for( iEl = 0; iEl < event->el.n(); iEl++  ){
-//
-//		if( m_susy_obj->FillElectron(iEl,
-//									event->el[iEl].eta(),
-//									event->el[iEl].phi(),
-//									event->el[iEl].cl_eta(),
-//									event->el[iEl].cl_phi(),
-//									event->el[iEl].cl_E(),
-//									event->el[iEl].tracketa(),
-//									event->el[iEl].trackphi(),
-//									event->el[iEl].author(),
-//									event->el[iEl].mediumPP(),
-//									event->el[iEl].OQ(),
-//									event->el[iEl].nPixHits(),
-//									event->el[iEl].nSCTHits(),
-//									event->el_MET_Egamma10NoTau[iEl].wet().at(0),
-//									elecptcut,2.47,whichsyst) ){
-//			el_baseline.push_back(iEl);
-//		}
-//
-//		if( event->el_MET_Egamma10NoTau[iEl].wet().at(0) != 0. ){
-//			el_met.push_back(iEl);
-//		}
-//
-//	}
-//
-//
-//
-//	for( unsigned int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
-//		iEl = el_baseline.at(iEl_baseline);
-//
-//		if (m_susy_obj->IsInCrack( event->el[iEl].cl_eta() ))  {
-//			el_crack.push_back(iEl);
-//		}
-//		if(m_susy_obj->IsSignalElectronExp(iEl, 
-//											event->el[iEl].tightPP(), 
-//											event->vxp.nTracks(), 
-//											event->el[iEl].ptcone30(), 
-//											event->el[iEl].topoEtcone30_corrected(), 
-//											event->el[iEl].trackIPEstimate_d0_unbiasedpvunbiased(), 
-//											event->el[iEl].trackIPEstimate_z0_unbiasedpvunbiased(), 
-//											event->el[iEl].trackIPEstimate_sigd0_unbiasedpvunbiased(), 
-//											SignalIsoExp::TightIso) ){
-//			el_signal.push_back(iEl);
-//		}
-//	}
-//
-//
-//
-//
-//	int iMu=0;
-//	for( iMu = 0; iMu < event->mu_staco.n(); iMu++  ){
-//
-//		if( m_susy_obj->FillMuon(iMu,
-//							  event->mu_staco[iMu].pt(),
-//							  event->mu_staco[iMu].eta(),
-//							  event->mu_staco[iMu].phi(),
-//							  event->mu_staco[iMu].me_qoverp_exPV(),
-//							  event->mu_staco[iMu].id_qoverp_exPV(),
-//							  event->mu_staco[iMu].me_theta_exPV(),
-//							  event->mu_staco[iMu].id_theta_exPV(),
-//							  event->mu_staco[iMu].id_theta(),
-//							  event->mu_staco[iMu].charge(),
-//							  event->mu_staco[iMu].isCombinedMuon(),
-//							  event->mu_staco[iMu].isSegmentTaggedMuon(),
-//							  event->mu_staco[iMu].loose(),
-//							  event->mu_staco[iMu].nPixHits(),
-//							  event->mu_staco[iMu].nPixelDeadSensors(),
-//							  event->mu_staco[iMu].nPixHoles(),
-//							  event->mu_staco[iMu].nSCTHits(),
-//							  event->mu_staco[iMu].nSCTDeadSensors(),
-//							  event->mu_staco[iMu].nSCTHoles(),
-//							  event->mu_staco[iMu].nTRTHits(),
-//							  event->mu_staco[iMu].nTRTOutliers(),
-//							  muonptcut,2.5, whichsyst) ){
-//			mu_met.push_back(iMu);
-//			mu_baseline.push_back(iMu);
-//		}
-//	}
-//
-//	for( unsigned int iMu_baseline = 0; iMu_baseline < mu_baseline.size(); iMu_baseline++){
-//		iMu = mu_baseline.at(iMu_baseline);
-//
-//		if (m_susy_obj->IsSignalMuonExp(iMu,
-//										event->vxp.nTracks(),
-//										event->mu_staco[iMu].ptcone30_trkelstyle(),
-//										event->mu_staco[iMu].etcone30(),
-//										event->mu_staco[iMu].trackIPEstimate_d0_unbiasedpvunbiased(),
-//										event->mu_staco[iMu].trackIPEstimate_z0_unbiasedpvunbiased(),
-//										event->mu_staco[iMu].trackIPEstimate_sigd0_unbiasedpvunbiased(),
-//										SignalIsoExp::TightIso)){
-//			mu_signal.push_back(iMu);
-//		}
-//		if(m_susy_obj->IsCosmicMuon(event->mu_staco[iMu].z0_exPV(),event->mu_staco[iMu].d0_exPV(),1.,0.2) ){
-//			mu_cosmic.push_back(iMu);
-//		}
-//		if( m_susy_obj->IsBadMuon(event->mu_staco[iMu].qoverp_exPV(),event->mu_staco[iMu].cov_qoverp_exPV() ) ){
-//			mu_bad.push_back(iMu);
-//		}
-//
-//	}
-//
-//
-//
-//
-//	int iJet=0;
-//	int local_truth_flavor=0;
-//	for( iJet = 0; iJet < event->jet_AntiKt4LCTopo.n(); iJet++  ){
-//
-//		m_susy_obj->FillJet(iJet,
-//								event->jet_AntiKt4LCTopo[iJet].pt(),
-//								event->jet_AntiKt4LCTopo[iJet].eta(),
-//								event->jet_AntiKt4LCTopo[iJet].phi(),
-//								event->jet_AntiKt4LCTopo[iJet].E(),
-//								event->jet_AntiKt4LCTopo[iJet].constscale_eta(),
-//								event->jet_AntiKt4LCTopo[iJet].constscale_phi(),
-//								event->jet_AntiKt4LCTopo[iJet].constscale_E(),
-//								event->jet_AntiKt4LCTopo[iJet].constscale_m(),
-//								event->jet_AntiKt4LCTopo[iJet].ActiveAreaPx(),
-//								event->jet_AntiKt4LCTopo[iJet].ActiveAreaPy(),
-//								event->jet_AntiKt4LCTopo[iJet].ActiveAreaPz(),
-//								event->jet_AntiKt4LCTopo[iJet].ActiveAreaE(),
-//								event->Eventshape.rhoKt4LC(),  
-//								event->eventinfo.averageIntPerXing(),
-//								event->vxp.nTracks() );
-//
-//		if(whichsyst!=SystErr::NONE && !isData){
-//			local_truth_flavor=0;
-//			local_truth_flavor = event->jet_AntiKt4LCTopo[iJet].flavor_truth_label();    
-//			m_susy_obj->ApplyJetSystematics(iJet,event->jet_AntiKt4LCTopo[iJet].constscale_eta(),local_truth_flavor,event->eventinfo.averageIntPerXing(),event->vxp.nTracks(),whichsyst);
-//		}
-//
-//		if(m_susy_obj->GetJetTLV(iJet).Pt() <= jetptcut) continue;
-//		
-//		bool isoverlap = false;
-//		for( unsigned int iEl_baseline = 0; iEl_baseline < el_baseline.size(); iEl_baseline++){
-//			iEl = el_baseline.at(iEl_baseline);
-//			if( m_susy_obj->GetElecTLV(iEl).DeltaR(m_susy_obj->GetJetTLV(iJet)) > 0.2 ) continue;
-//			isoverlap = true;
-//			break;
-//		}
-//		if(isoverlap) continue;
-//
-//		bool isgoodjet = false;
-//		if( m_susy_obj->IsGoodJet( iJet,
-//									event->jet_AntiKt4LCTopo[iJet].constscale_eta(),
-//									event->jet_AntiKt4LCTopo[iJet].emfrac(),
-//									event->jet_AntiKt4LCTopo[iJet].hecf(),
-//									event->jet_AntiKt4LCTopo[iJet].LArQuality(),
-//									event->jet_AntiKt4LCTopo[iJet].HECQuality(),
-//									event->jet_AntiKt4LCTopo[iJet].AverageLArQF(),
-//									event->jet_AntiKt4LCTopo[iJet].Timing(),
-//									event->jet_AntiKt4LCTopo[iJet].sumPtTrk_pv0_500MeV(),
-//									event->jet_AntiKt4LCTopo[iJet].fracSamplingMax(),
-//									event->jet_AntiKt4LCTopo[iJet].SamplingMax(),
-//									event->jet_AntiKt4LCTopo[iJet].NegativeE(),
-//									event->eventinfo.RunNumber(),20000.,10.) ) isgoodjet = true;
-//
-//		if(m_susy_obj->GetJetTLV(iJet).Pt() <= jetptcut) continue;
-//
-//		if(!isgoodjet) jet_bad.push_back(iJet);
-//		else if(fabs(m_susy_obj->GetJetTLV(iJet).Eta() ) < 2.8 ){
-//			jet_good.push_back(iJet);
-//		
-//			if( fabs(m_susy_obj->GetJetTLV(iJet).Eta() ) < 2.5  && fabs(m_susy_obj->GetJetTLV(iJet).Pt() ) > 25000.  ){
-//				if( m_susy_obj->IsBJet(event->jet_AntiKt4LCTopo[iJet].flavor_weight_MV1() , 0.7892) ){
-//					jet_btagged.push_back(iJet);
-//				}
-//			}
-//
-//		}
-//
-//	}
-//
-//
-//	// Now look at all the chosen leptons and make sure they're >0.4 away from any good jet
-//
-//
-//	for( unsigned int iEl_signal = 0; iEl_signal < el_signal.size(); iEl_signal++){
-//		iEl = el_signal.at(iEl_signal);
-//
-//		bool isoverlap = false;
-//		for( unsigned int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
-//			iJet = jet_good[iJet_good];
-//			if( m_susy_obj->GetElecTLV(iEl).DeltaR(m_susy_obj->GetJetTLV(iJet)) < 0.4 ){
-//				isoverlap = true;
-//				break;
-//			}
-//		}
-//		if(isoverlap){
-//			el_signal.erase(el_signal.begin() + iEl_signal);
-//			iEl_signal--;
-//		}
-//	}
-//
-//
-//	for( unsigned int iMu_signal = 0; iMu_signal < mu_signal.size(); iMu_signal++){
-//		iMu = mu_signal.at(iMu_signal);
-//
-//		bool isoverlap = false;
-//		for( unsigned int iJet_good = 0; iJet_good < jet_good.size(); iJet_good++){
-//			iJet = jet_good[iJet_good];
-//			if( m_susy_obj->GetMuonTLV(iMu).DeltaR(m_susy_obj->GetJetTLV(iJet)) < 0.4 ){
-//				isoverlap = true;
-//				break;
-//			}
-//		}
-//		if(isoverlap){
-//			mu_signal.erase(mu_signal.begin() + iMu_signal);
-//			iMu_signal--;
-//		}
-//	}
+
+
+	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
+
+
+
+	store.clear(); 
+
+
+
+
 //
 //	if(event->mcevt.weight()[0].size() ){
 //		weight = event->mcevt.weight()[0][0][0];
@@ -894,6 +919,18 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 
 	const char* APP_NAME = "SklimmerAnalysis";
 
+
+	// GRL
+	if( m_grl ) {
+		delete m_grl;
+		m_grl = 0;
+	}
+
+	// Pileup_Reweighting
+	if( m_pileupReweightingTool ) {
+		delete m_pileupReweightingTool;
+		m_pileupReweightingTool = 0;
+	}
 
 	// finalize and close our output xAOD file:
 	TFile *file = wk()->getOutputFile ("outputLabel");

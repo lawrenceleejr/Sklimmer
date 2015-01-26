@@ -11,8 +11,7 @@
 // Infrastructure include(s):
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
-
-
+#include "xAODRootAccess/TStore.h"
 
 
 #ifndef __CINT__
@@ -42,6 +41,7 @@ class SklimmerAnalysis : public EL::Algorithm
 {
 	// put your configuration variables here as public variables.
 	// that way they can be set directly from CINT and python.
+
 public:
 	// float cutValue;
 
@@ -58,7 +58,7 @@ public:
 public:
 
 	xAOD::TEvent *m_event;  //!
-
+	xAOD::TStore store;  //!
 
 
 	#ifndef __CINT__
@@ -84,6 +84,10 @@ public:
 	virtual EL::StatusCode finalize ();
 	virtual EL::StatusCode histFinalize ();
 
+	int copyFullxAODContainers ();
+	int applySUSYObjectDefinitions ();
+
+
 	// void SetSyst(SystErr::Syste );
 	// Int_t GetSyst();
 
@@ -97,6 +101,19 @@ public:
 	int useLeptonTrigger;
 	int doSyst;
 
+	// These are the switches to steer the analysis code, depending on what step you want to do
+
+	bool m_doSklimming; //!
+	bool m_doSUSYObjDef; //!
+	bool m_doEventSelection; //!
+	bool m_doNtuples; //!
+
+	bool m_writeFullCollectionsToxAOD; //!
+ 
+	std::string m_Analysis; //!
+
+
+	
 
 	// this is needed to distribute the algorithm to the workers
 	ClassDef(SklimmerAnalysis, 1);
