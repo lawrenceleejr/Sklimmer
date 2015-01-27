@@ -75,7 +75,7 @@ EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 	xAOD::Init( "SklimmerAnalysis" ).ignore(); // call before opening first file
 
 	// tell EventLoop about our output xAOD:
-	EL::OutputStream out ("outputLabel");
+	EL::OutputStream out ("outputxAOD");
 	job.outputAdd (out);
 	
 	return EL::StatusCode::SUCCESS;
@@ -137,14 +137,23 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// This will get moved to submission at some point... //////////////////////
 
 
-	m_doSklimming = true;
-	m_doSUSYObjDef = true;
-	m_doEventSelection = true;
-	m_writeNtuple = false;
-	m_writexAOD = true;
-	m_writeFullCollectionsToxAOD = true;
+	Info("initialize()", "m_doSklimming = %i"               , m_doSklimming                 ); 
+	Info("initialize()", "m_doSUSYObjDef = %i"              , m_doSUSYObjDef                ); 
+	Info("initialize()", "m_doEventSelection = %i"          , m_doEventSelection            ); 
+	Info("initialize()", "m_writeNtuple = %i"               , m_writeNtuple                 ); 
+	Info("initialize()", "m_writexAOD = %i"                 , m_writexAOD                   ); 
+	Info("initialize()", "m_writeFullCollectionsToxAOD = %i", m_writeFullCollectionsToxAOD  ); 
+	Info("initialize()", "m_Analysis = %s"                  , m_Analysis.Data()             ); 
+
+
+	// m_doSklimming = true;
+	// m_doSUSYObjDef = true;
+	// m_doEventSelection = true;
+	// m_writeNtuple = false;
+	// m_writexAOD = true;
+	// m_writeFullCollectionsToxAOD = true;
  
-	m_Analysis = "bbmet";
+	// m_Analysis = "bbmet";
 
 
 	////////////////////////////////////////////////////////////////////////////
@@ -158,7 +167,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// Output xAOD ///////////////////////////////////////////////////////////////////
 
 	if(m_writexAOD){
-		TFile *file = wk()->getOutputFile ("outputLabel");
+		TFile *file = wk()->getOutputFile ("outputxAOD");
 		CHECK(m_event->writeTo(file));
 	}
 

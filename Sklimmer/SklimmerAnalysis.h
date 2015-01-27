@@ -124,15 +124,15 @@ public:
 
 	// These are the switches to steer the analysis code, depending on what step you want to do
 
-	bool m_doSklimming; //!
-	bool m_doSUSYObjDef; //!
-	bool m_doEventSelection; //!
-	bool m_writeNtuple; //!
-	bool m_writexAOD; //!
+	bool m_doSklimming; 
+	bool m_doSUSYObjDef; 
+	bool m_doEventSelection; 
+	bool m_writeNtuple; 
+	bool m_writexAOD; 
 
-	bool m_writeFullCollectionsToxAOD; //!
+	bool m_writeFullCollectionsToxAOD; 
  
-	std::string m_Analysis; //!
+	TString m_Analysis; 
 
 
 	// this is needed to distribute the algorithm to the workers

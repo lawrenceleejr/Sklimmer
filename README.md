@@ -37,7 +37,7 @@ root -l 'ATestRun.cxx ("submitDir")' # Make sure ATestRun.cxx is using the xAOD 
 
 
 
-You can turn each step on and off with the following flags that are public members of the algo class (Not working yet)
+You can turn each step on and off with the following flags that are public members of the algo class (See Run/ATestRun.cxx for example usage.)
 
 ```
 	// To turn on the copying of branches to an output xAOD
