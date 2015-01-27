@@ -16,13 +16,14 @@ Do event selection for string-configurable analysis - e.g. analysis-specific tri
 
 Works in a RootCore setup. Requires SUSYTools and RJigsaw. Current working system can be setup:
 
+setupATLAS
 rcSetup -u
 rcSetup Base,2.0.22
 rc checkout packages.txt
 cd EventShapeTools && svn patch -p0 -i EventShapeTools.diff
 #Then you'll also need Sklimmer and RJigsaw - Will be moved to CERN svn at some point
-svn co https://github.com/lawrenceleejr/Sklimmer 
-svn co https://github.com/lawrenceleejr/RJigsaw
+svn co https://github.com/lawrenceleejr/Sklimmer/trunk Sklimmer
+svn co https://github.com/lawrenceleejr/RJigsaw/trunk RJigsaw
 rc clean
 rc find_packages
 rc compile
