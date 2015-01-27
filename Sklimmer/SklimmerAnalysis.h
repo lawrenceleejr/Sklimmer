@@ -73,6 +73,9 @@ public:
 private:
 	TString eventSelectionBBMet();
 
+	int copyFullxAODContainers ();
+	int applySUSYObjectDefinitions ();
+
 
 public:
 
@@ -105,9 +108,6 @@ public:
 	virtual EL::StatusCode finalize ();
 	virtual EL::StatusCode histFinalize ();
 
-	int copyFullxAODContainers ();
-	int applySUSYObjectDefinitions ();
-
 
 	// void SetSyst(SystErr::Syste );
 	// Int_t GetSyst();
@@ -127,7 +127,8 @@ public:
 	bool m_doSklimming; //!
 	bool m_doSUSYObjDef; //!
 	bool m_doEventSelection; //!
-	bool m_doNtuples; //!
+	bool m_writeNtuple; //!
+	bool m_writexAOD; //!
 
 	bool m_writeFullCollectionsToxAOD; //!
  

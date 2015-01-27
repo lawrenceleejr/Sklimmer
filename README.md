@@ -3,25 +3,76 @@ Sklimmer
 
 Skimmer/Slimmer for RJigsaw Implementation
 
-Works in a RootCore setup. Get it into $ROOTCOREBIN and 
+Uses SUSYTools+EventLoop setup.
 
-    rc find_packages; 
-    rc compile;
+Input an xAOD. Flag configurable to
 
-This will give you the actually sklimming tool which can be steered by the files in run/.
-
-For simplicity, you can test by doing
-
-    cd run/;
-    source runSklimmer; 
-
-which will create a run directory that includes the output file. You'll need to edit runSklimmer to point to a folder with D3PDs that has a structure ./[DSName]/*.root* like:
-
-    ./mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.merge.NTUP_COMMON.e1513_s1499_s1504_r3658_r3549_p1562/NTUP_COMMON.01315237._002716.root
+Sklim
+Run SUSYTools for calibration, overlap removal, etc
+Write out xAOD
+Write out ntuple
+Do event selection for string-configurable analysis - e.g. analysis-specific trigger skims
 
 
-This is already built to use the grid for when we're at full steam.
+Works in a RootCore setup. Requires SUSYTools and RJigsaw. Current working system can be setup:
 
-Root/SklimmerAnalysis.cxx contains the use of the TRJigsaw tool and is where we can output whatever variables we need in the final sklims. Many RJigsaw variables are already being written out to the sklim.
+rcSetup -u
+rcSetup Base,2.0.22
+rc checkout packages.txt
+cd EventShapeTools && svn patch -p0 -i EventShapeTools.diff
+#Then you'll also need Sklimmer and RJigsaw - Will be moved to CERN svn at some point
+svn co https://github.com/lawrenceleejr/Sklimmer 
+svn co https://github.com/lawrenceleejr/RJigsaw
+rc clean
+rc find_packages
+rc compile
 
-A note about the grid - I've only gotten grid submission to work for RootCore Base,1.5.2 and EventLoopGrid-00-00-23 and then maybe a little hack in EventLoopGrid. Let me know if you run into that same problem and I can give you a hacked file.
+
+You can test on the xAOD sample from the tutorials:
+
+export ALRB_TutorialData=/afs/cern.ch/atlas/project/PAT/tutorial/cern-nov2014/
+cd Sklimmer/Run
+root -l 'ATestRun.cxx ("submitDir")' # Make sure ATestRun.cxx is using the xAOD from the above location
+
+
+
+You can turn each step on and off with the following flags that are public members of the algo class (Not working yet)
+
+```
+	// To turn on the copying of branches to an output xAOD
+	bool m_doSklimming; //!
+
+	// To run the SUSYTools object definition/calibration and write shallow-copies to the TStore/TEvent
+	bool m_doSUSYObjDef; //!
+
+	// To run a selection function of your own writing. Which function is configurable via m_Analysis (e.g. "bbmet")
+	bool m_doEventSelection; //!
+
+	// Output xAOD switch
+	bool m_writexAOD; //!
+
+	// Write out ntuples for analysis/HistFitter - Not a thing yet...
+	bool m_writeNtuple; //!
+
+	// Should just be true for now - if we implement some thinning, then this will be relevant
+	bool m_writeFullCollectionsToxAOD; //!
+ 
+	// Name of event selection for steering m_doEventSelection
+	std::string m_Analysis; //!
+```
+
+
+e.g. Event Selection in TString SklimmerAnalysis::eventSelectionBBMet() in execute() like:
+
+```
+	if( m_doEventSelection && m_Analysis=="bbmet" ){
+		TString result = eventSelectionBBMet();
+		if(result=="") return EL::StatusCode::SUCCESS;
+		else {
+			eventInfo->auxdecor< char >("selection") = *result.Data();
+		}
+	}
+```
+
+And does whatever you want that's analysis-specific that you don't want to do at the ntuple level, e.g. trigger skimming. Can return a string with a region label that gets written out as an EventInfo decoration in case you wanted to, say, define CR/VR/SRs here. Or whatever you want. 
+

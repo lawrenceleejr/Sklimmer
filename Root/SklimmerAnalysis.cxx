@@ -140,7 +140,8 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	m_doSklimming = true;
 	m_doSUSYObjDef = true;
 	m_doEventSelection = true;
-	m_doNtuples = false;
+	m_writeNtuple = false;
+	m_writexAOD = true;
 	m_writeFullCollectionsToxAOD = true;
  
 	m_Analysis = "bbmet";
@@ -156,7 +157,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	// Output xAOD ///////////////////////////////////////////////////////////////////
 
-	if(!m_doNtuples){
+	if(m_writexAOD){
 		TFile *file = wk()->getOutputFile ("outputLabel");
 		CHECK(m_event->writeTo(file));
 	}
@@ -514,11 +515,9 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		}
 	}// end if IS MC
 
-	// Let's calibrate some shit
+	// Let's calibrate 
 
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
-
-
 
 
 	if( m_doEventSelection && m_Analysis=="bbmet" ){
@@ -528,9 +527,6 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 			eventInfo->auxdecor< char >("selection") = *result.Data();
 		}
 	}
-
-
-
 
 
 
@@ -605,8 +601,10 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	m_store->clear(); 
 
-	// Save the event:
-	CHECK(m_event->fill());
+	if(m_writexAOD){
+		// Save the event:
+		CHECK(m_event->fill());
+	}
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -651,9 +649,12 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 	}
 
 	// finalize and close our output xAOD file:
-	TFile *file = wk()->getOutputFile ("outputLabel");
-	CHECK(m_event->finishWritingTo( file ));
-	
+
+	if(m_writexAOD){
+		TFile *file = wk()->getOutputFile ("outputxAOD");
+		CHECK(m_event->finishWritingTo( file ));
+	}
+
 	return EL::StatusCode::SUCCESS;
 }
 
