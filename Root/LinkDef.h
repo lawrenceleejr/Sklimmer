@@ -1,3 +1,5 @@
+#include <Sklimmer/PlantATree.h>
+
 #include <Sklimmer/SklimmerAnalysis.h>
 
 #ifdef __CINT__
@@ -11,4 +13,8 @@
 
 #ifdef __CINT__
 #pragma link C++ class SklimmerAnalysis+;
+#endif
+
+#ifdef __CINT__
+#pragma link C++ class PlantATree+;
 #endif

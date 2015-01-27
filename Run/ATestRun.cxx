@@ -40,7 +40,6 @@ void ATestRun (const std::string& submitDir)
   // add our algorithm to the job
   SklimmerAnalysis *alg = new SklimmerAnalysis;
 
-
   alg->m_doSklimming = true;
   alg->m_doSUSYObjDef = true;
   alg->m_doEventSelection = false;
@@ -51,9 +50,24 @@ void ATestRun (const std::string& submitDir)
   alg->m_Analysis = "bbmet";
 
 
+  // define an output and an ntuple associated to that output
+  EL::OutputStream output  ("treeOutput");
+  job.outputAdd (output);
+  EL::NTupleSvc *ntuple = new EL::NTupleSvc ("treeOutput");
+  job.algsAdd (ntuple);
+
+  PlantATree *treeWriter = new PlantATree;
+
+
+
+
   // later on we'll add some configuration options for our algorithm that go here
 
   job.algsAdd (alg);
+  job.algsAdd (treeWriter);
+
+  treeWriter->outputName = "treeOutput";
+
 
   // make the driver we want to use:
   // this one works by running the algorithm directly:

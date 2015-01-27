@@ -527,6 +527,9 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// Let's calibrate 
 
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
+	else putStuffInStore();
+
+	// m_store->print();
 
 
 	if( m_doEventSelection && m_Analysis=="bbmet" ){
@@ -608,7 +611,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
 
 
-	m_store->clear(); 
+	// m_store->clear(); 
 
 	if(m_writexAOD){
 		// Save the event:

@@ -18,27 +18,25 @@
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 #endif
 
-
-
-// #include "xAODMissingET/MissingETContainer.h"
-// #include "xAODMissingET/MissingETAuxContainer.h"
-
 #include <RJigsaw/TRJigsaw.h>
 //#include "SUSYTools/SUSYObjDef_xAOD.h"
-
 
 
 // GRL
 class GoodRunsListSelectionTool;
 namespace CP{
-class PileupReweightingTool;}
+	class PileupReweightingTool;
+}
 using namespace CP;
+
 class JetCleaningTool;
 
 namespace ST{
-class SUSYObjDef_xAOD;
+	class SUSYObjDef_xAOD;
 }
 using namespace ST;
+
+
 
 
 // struct sortByPt
@@ -75,9 +73,12 @@ private:
 
 	int copyFullxAODContainers ();
 	int applySUSYObjectDefinitions ();
+	int putStuffInStore ();
 
 
 public:
+
+
 
 	xAOD::TEvent *m_event;  //!
 	xAOD::TStore *m_store;  //!
