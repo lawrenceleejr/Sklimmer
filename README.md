@@ -14,6 +14,8 @@ Write out ntuple
 Do event selection for string-configurable analysis - e.g. analysis-specific trigger skims
 
 
+## How to get setup
+
 Works in a RootCore setup. Requires SUSYTools and RJigsaw. Current working system can be setup:
 
 ```
@@ -37,6 +39,7 @@ cd Sklimmer/Run
 root -l 'ATestRun.cxx ("submitDir")' # Make sure ATestRun.cxx is using the xAOD from the above location
 
 
+## Configuration Flags in Run Script
 
 You can turn each step on and off with the following flags that are public members of the algo class (See Run/ATestRun.cxx for example usage.)
 
@@ -52,9 +55,6 @@ You can turn each step on and off with the following flags that are public membe
 
 	// Output xAOD switch
 	bool m_writexAOD; //!
-
-	// Write out ntuples for analysis/HistFitter - Not a thing yet...
-	bool m_writeNtuple; //!
 
 	// Should just be true for now - if we implement some thinning, then this will be relevant
 	bool m_writeFullCollectionsToxAOD; //!
@@ -77,4 +77,13 @@ e.g. Event Selection in TString SklimmerAnalysis::eventSelectionBBMet() in execu
 ```
 
 And does whatever you want that's analysis-specific that you don't want to do at the ntuple level, e.g. trigger skimming. Can return a string with a region label that gets written out as an EventInfo decoration in case you wanted to, say, define CR/VR/SRs here. Or whatever you want. 
+
+
+
+## NTuple Output **NEW**
+
+The package contains an algorithm class called Sklimmer::PlantATree that can be added to the job (after SklimmerAnalysis) which reads out the calibrated objects from the TStore and writes out important information to a small flat NTuple which can be used for plotting, HistFitter, or whatever you want.
+
+See PlantATree.h/cxx for information, and Run/ATestRun.cxx for example usage. 
+
 
