@@ -14,7 +14,7 @@ Write out ntuple
 Do event selection for string-configurable analysis - e.g. analysis-specific trigger skims
 
 
-## How to get setup
+### How to get set up
 
 Works in a RootCore setup. Requires SUSYTools and RJigsaw. Current working system can be setup:
 
@@ -39,7 +39,7 @@ cd Sklimmer/Run
 root -l 'ATestRun.cxx ("submitDir")' # Make sure ATestRun.cxx is using the xAOD from the above location
 
 
-## Configuration Flags in Run Script
+### Configuration Flags in Run Script
 
 You can turn each step on and off with the following flags that are public members of the algo class (See Run/ATestRun.cxx for example usage.)
 
@@ -80,7 +80,7 @@ And does whatever you want that's analysis-specific that you don't want to do at
 
 
 
-## NTuple Output **NEW**
+### NTuple Output - **NEW**
 
 The package contains an algorithm class called Sklimmer::PlantATree that can be added to the job (after SklimmerAnalysis) which reads out the calibrated objects from the TStore and writes out important information to a small flat NTuple which can be used for plotting, HistFitter, or whatever you want.
 
