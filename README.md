@@ -16,6 +16,7 @@ Do event selection for string-configurable analysis - e.g. analysis-specific tri
 
 Works in a RootCore setup. Requires SUSYTools and RJigsaw. Current working system can be setup:
 
+```
 setupATLAS
 rcSetup -u
 rcSetup Base,2.0.22
@@ -27,7 +28,7 @@ svn co https://github.com/lawrenceleejr/RJigsaw/trunk RJigsaw
 rc clean
 rc find_packages
 rc compile
-
+```
 
 You can test on the xAOD sample from the tutorials:
 

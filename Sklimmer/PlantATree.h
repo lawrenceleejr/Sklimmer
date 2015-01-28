@@ -32,7 +32,28 @@ public:
 
   std::string outputName;
   TTree* tree; //!
+
+
+  // Setup variables for branches
   int EventNumber; //!
+
+  std::vector<float> * Jet_pT;    //!
+  std::vector<float> * Jet_eta;   //!
+  std::vector<float> * Jet_phi;   //!
+  std::vector<float> * Jet_E;     //!
+  std::vector<float> * Jet_m;     //!
+
+  std::vector<float> * Muon_pT;    //!
+  std::vector<float> * Muon_eta;   //!
+  std::vector<float> * Muon_phi;   //!
+  std::vector<float> * Muon_E;     //!
+  std::vector<float> * Muon_m;     //!
+
+  std::vector<float> * Electron_pT;    //!
+  std::vector<float> * Electron_eta;   //!
+  std::vector<float> * Electron_phi;   //!
+  std::vector<float> * Electron_E;     //!
+  std::vector<float> * Electron_m;     //!
 
 
   xAOD::TEvent *m_event;  //!

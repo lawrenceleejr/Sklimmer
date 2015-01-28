@@ -76,7 +76,45 @@ EL::StatusCode PlantATree :: histInitialize ()
   TFile *outputFile = wk()->getOutputFile (outputName);
   tree = new TTree ("tree", "tree");
   tree->SetDirectory (outputFile);
+
+
+  Jet_pT = new std::vector<float>       ;    
+  Jet_eta = new std::vector<float>       ;   
+  Jet_phi = new std::vector<float>       ;   
+  Jet_E = new std::vector<float>       ;     
+  Jet_m = new std::vector<float>       ;     
+  Muon_pT = new std::vector<float>       ;    
+  Muon_eta = new std::vector<float>       ;   
+  Muon_phi = new std::vector<float>       ;   
+  Muon_E = new std::vector<float>       ;     
+  Muon_m = new std::vector<float>       ;     
+  Electron_pT = new std::vector<float>       ;    
+  Electron_eta = new std::vector<float>       ;   
+  Electron_phi = new std::vector<float>       ;   
+  Electron_E = new std::vector<float>       ;     
+  Electron_m = new std::vector<float>       ;     
+
+
+  //Set up branches here
+
   tree->Branch("EventNumber", &EventNumber);
+
+
+  tree->Branch("Jet_pT"       , &Jet_pT        );
+  tree->Branch("Jet_eta"      , &Jet_eta       );
+  tree->Branch("Jet_phi"      , &Jet_phi       );
+  tree->Branch("Jet_E"        , &Jet_E         );
+  tree->Branch("Jet_m"        , &Jet_m         );
+  tree->Branch("Muon_pT"      , &Muon_pT       );
+  tree->Branch("Muon_eta"     , &Muon_eta      );
+  tree->Branch("Muon_phi"     , &Muon_phi      );
+  tree->Branch("Muon_E"       , &Muon_E        );
+  tree->Branch("Muon_m"       , &Muon_m        );
+  tree->Branch("Electron_pT"  , &Electron_pT   );
+  tree->Branch("Electron_eta" , &Electron_eta  );
+  tree->Branch("Electron_phi" , &Electron_phi  );
+  tree->Branch("Electron_E"   , &Electron_E    );
+  tree->Branch("Electron_m"   , &Electron_m    );
 
 
   return EL::StatusCode::SUCCESS;
@@ -140,19 +178,73 @@ EL::StatusCode PlantATree :: execute ()
 
   const char* APP_NAME = "PlantATree";
 
-
-
-  const xAOD::JetContainer* jets = 0;
-
-
   std::cout << "PlantATree :: execute ()" << std::endl;
   std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
-  std::cout << "PlantATree - *******************************" << m_store->retrieve( jets, "CalibJets" ) << std::endl;
+
+
+  Jet_pT        ->clear();
+  Jet_eta       ->clear();
+  Jet_phi       ->clear();
+  Jet_E         ->clear();
+  Jet_m         ->clear();
+  Muon_pT       ->clear();
+  Muon_eta      ->clear();
+  Muon_phi      ->clear();
+  Muon_E        ->clear();
+  Muon_m        ->clear();
+  Electron_pT   ->clear();
+  Electron_eta  ->clear();
+  Electron_phi  ->clear();
+  Electron_E    ->clear();
+  Electron_m    ->clear();
+
+  /////////////////////////////////////////////////////////////////////////////////////
+
+  xAOD::JetContainer* jets = 0;
+  m_store->retrieve( jets, "CalibJets" );
+
+  xAOD::JetContainer::iterator jet_itr = (jets)->begin();
+  xAOD::JetContainer::iterator jet_end = (jets)->end();
+  for( ; jet_itr != jet_end; ++jet_itr ) {
+    if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
+        (*jet_itr)->auxdata< bool >("passOR")==1  &&
+        (*jet_itr)->pt() > 20000.  && ( fabs( (*jet_itr)->eta()) < 2.5)  ) {
+
+        Jet_pT  ->push_back( (*jet_itr)->pt()  );
+        Jet_eta ->push_back( (*jet_itr)->eta()  );
+        Jet_phi ->push_back( (*jet_itr)->phi()  );
+        Jet_E   ->push_back( (*jet_itr)->e()  );
+        Jet_m   ->push_back( (*jet_itr)->m()  );
+
+    } 
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////
+
+
+  xAOD::MuonContainer* muons = 0;
+  m_store->retrieve( muons, "CalibMuons" );
+
+  xAOD::MuonContainer::iterator muon_itr = (muons)->begin();
+  xAOD::MuonContainer::iterator muon_end = (muons)->end();
+  for( ; muon_itr != muon_end; ++muon_itr ) {
+    if( (*muon_itr)->auxdata< bool >("baseline")==1  &&
+        (*muon_itr)->auxdata< bool >("passOR")==1   ) {
+
+        Muon_pT  ->push_back( (*muon_itr)->pt()  );
+        Muon_eta ->push_back( (*muon_itr)->eta()  );
+        Muon_phi ->push_back( (*muon_itr)->phi()  );
+        Muon_E   ->push_back( (*muon_itr)->e()  );
+        Muon_m   ->push_back( (*muon_itr)->m()  );
+
+    } 
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////
 
 
 // fill the branches of our trees
   EventNumber = 111;
-
 
 
 
