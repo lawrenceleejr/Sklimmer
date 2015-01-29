@@ -20,10 +20,9 @@ Works in a RootCore setup. Requires SUSYTools and RJigsaw. Current working syste
 
 ```
 setupATLAS
-rcSetup -u
 rcSetup Base,2.0.22
 rc checkout packages.txt
-cd EventShapeTools && svn patch -p0 -i EventShapeTools.diff
+cd EventShapeTools && svn patch -p0 -i EventShapeTools.diff #convenient patch from diff - Giordon
 #Then you'll also need Sklimmer and RJigsaw - Will be moved to CERN svn at some point
 svn co https://github.com/lawrenceleejr/Sklimmer/trunk Sklimmer
 svn co https://github.com/lawrenceleejr/RJigsaw/trunk RJigsaw
@@ -86,4 +85,5 @@ The package contains an algorithm class called Sklimmer::PlantATree that can be 
 
 See PlantATree.h/cxx for information, and Run/ATestRun.cxx for example usage. 
 
+Currently writes out event info and calibrated physics objects.
 

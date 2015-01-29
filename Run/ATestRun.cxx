@@ -43,7 +43,6 @@ void ATestRun (const std::string& submitDir)
   alg->m_doSklimming = true;
   alg->m_doSUSYObjDef = true;
   alg->m_doEventSelection = false;
-  alg->m_writeNtuple = false;
   alg->m_writexAOD = true;
   alg->m_writeFullCollectionsToxAOD = true;
 

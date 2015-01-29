@@ -35,7 +35,25 @@ public:
 
 
   // Setup variables for branches
+  int RunNumber; //!
   int EventNumber; //!
+  int LumiBlock; //!
+  int BCID; //!
+  int MCChannelNumber; //!
+  int MCEventNumber; //!
+  int MCEventWeight; //!
+  float ActualInteractionsPerCrossing; //!
+  float AverageInteractionsPerCrossing; //!
+
+  float   RJVars_sHatR ; //!              
+  float   RJVars_gammainv_R ; //!         
+  float   RJVars_dphi_Beta_R ; //!        
+  float   RJVars_dphi_leg1_leg2 ; //!     
+  float   RJVars_costheta_R ; //!         
+  float   RJVars_gammainv_Rp1 ; //!       
+  float   RJVars_dphi_Beta_Rp1_Beta_R ; //!
+  float   RJVars_mdelta_R ; //!           
+  float   RJVars_costheta_Rp1 ; //!       
 
   std::vector<float> * Jet_pT;    //!
   std::vector<float> * Jet_eta;   //!

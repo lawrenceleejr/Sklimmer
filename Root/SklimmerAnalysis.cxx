@@ -14,6 +14,7 @@
 
 // EDM includes:
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODMuon/MuonContainer.h"
@@ -140,7 +141,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	Info("initialize()", "m_doSklimming = %i"               , m_doSklimming                 ); 
 	Info("initialize()", "m_doSUSYObjDef = %i"              , m_doSUSYObjDef                ); 
 	Info("initialize()", "m_doEventSelection = %i"          , m_doEventSelection            ); 
-	Info("initialize()", "m_writeNtuple = %i"               , m_writeNtuple                 ); 
+	// Info("initialize()", "m_writeNtuple = %i"               , m_writeNtuple                 ); 
 	Info("initialize()", "m_writexAOD = %i"                 , m_writexAOD                   ); 
 	Info("initialize()", "m_writeFullCollectionsToxAOD = %i", m_writeFullCollectionsToxAOD  ); 
 	Info("initialize()", "m_Analysis = %s"                  , m_Analysis.Data()             ); 
@@ -456,6 +457,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 
 
+
+
 	////////////////////////////////////////////////////////
 
 
@@ -487,6 +490,14 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		Error(APP_NAME, "Failed to retrieve event info collection. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
+
+	// xAOD::EventInfo* eventInfo = 0;
+	// xAOD::EventAuxInfo* eventInfoAux = 0;
+
+	// CHECK( m_event->retrieve( eventInfo, "EventInfo") );
+	// CHECK( m_event->retrieve( eventInfoAux, "EventInfoAux.") );
+
+
 	int EventNumber = eventInfo->eventNumber();
 	int RunNumber = eventInfo->runNumber();
 
@@ -528,6 +539,11 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
 	else putStuffInStore();
+
+
+	std::pair< xAOD::EventInfo*, xAOD::ShallowAuxInfo* > eventInfo_shallowCopy = xAOD::shallowCopyObject( *eventInfo );
+	if( !m_store->record( eventInfo_shallowCopy.first , "EventInfo" )){return EL::StatusCode::FAILURE;}
+	if( !m_store->record( eventInfo_shallowCopy.second, "EventInfoAux." )) {return EL::StatusCode::FAILURE;}
 
 	// m_store->print();
 
@@ -716,17 +732,12 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 		if( ( *el_itr )->auxdata<bool>("passOR") ) Nel++;
 	}
 	
-	if(Nel) return "";
-
-
 	int Nmu=0;
 	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
 	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
 	for( ; mu_itr != mu_end; ++mu_itr ) {
 		if( ( *mu_itr )->auxdata<bool>("passOR") ) Nmu++;
 	}
-
-	if(Nmu) return "";
 
 	///////////////////////////////////////////////////////////
 

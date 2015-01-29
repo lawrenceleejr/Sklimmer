@@ -6,16 +6,29 @@ int SklimmerAnalysis :: putStuffInStore (){
 	const char* APP_NAME = "SklimmerAnalysis";
 
 
+	// Event Info /////////////////////////////////
+
+	xAOD::EventInfo* eventInfo = 0;
+	xAOD::EventAuxInfo* eventInfoAux = 0;
+
+	CHECK( m_event->retrieve( eventInfo, "EventInfo") );
+	CHECK( m_event->retrieve( eventInfoAux, "EventInfoAux.") );
+
+	eventInfo->setStore(eventInfoAux);
+
+	CHECK( m_store->record( eventInfo, "EventInfo" ) );
+
+
+	// Objects ////////////////////////////////////
+
 	xAOD::MuonContainer* muons_copy(0);
 	xAOD::ShallowAuxContainer* muons_copyaux(0);
 
 	xAOD::ElectronContainer* electrons_copy(0);
 	xAOD::ShallowAuxContainer* electrons_copyaux(0);
-	
+
 	xAOD::JetContainer* jets_copy(0);
 	xAOD::ShallowAuxContainer* jets_copyaux(0);
-
-
 
 	CHECK( m_event->retrieve( jets_copy, "CalibJets" ) );
 	CHECK( m_event->retrieve( muons_copy, "CalibMuons" ) );
@@ -33,6 +46,8 @@ int SklimmerAnalysis :: putStuffInStore (){
 	CHECK( m_store->record( muons_copy, "CalibMuons" ) );
 	CHECK( m_store->record( electrons_copy, "CalibElectrons" ) );
 
+
+	m_store->print();
 
 
 	return 0;

@@ -1,0 +1,50 @@
+================================================================================
+                          Container type | StoreGate keys                          
+-----------------------------------------+--------------------------------------   
+             xAOD::TauJetAuxContainer_v1 | TauRecContainerAux.                     
+          xAOD::MissingETComponentMap_v1 | METMap_LocHadTopo, METMap_LocHadTopoRegions, METMap_RefFinal, METMap_RefFinalRegions, METMap_Track, METMap_Truth, METMap_TruthRegions
+           xAOD::MuonSegmentContainer_v1 | MuonSegments                            
+                   xAOD::EventAuxInfo_v1 | EventInfoAux.                           
+                       CaloCellContainer | AODCellContainer                        
+                xAOD::VertexContainer_v1 | GSFConversionVertices, PrimaryVertices, TauSecondaryVertexContainer
+                xAOD::PFOAuxContainer_v1 | TauPi0ChargedPFOContainerAux., TauPi0NeutralPFOContainerAux., TauShotPFOContainerAux., chargedJetETMissPFO_eflowRecAux., chargedTauPFO_eflowRecAux., neutralJetETMissPFO_eflowRecAux., neutralJetETMiss_LCPFO_NonModified_eflowRecAux., neutralJetETMiss_LCPFO_eflowRecAux., neutralTauPFO_eflowRecAux.
+         xAOD::TrackParticleContainer_v1 | CombinedMuonTrackParticles, ExtrapolatedMuonTrackParticles, GSFTrackParticles, InDetTrackParticles, InDetTrackParticlesForward
+             CaloCalibrationHitContainer | LArCalibrationHitActive, LArCalibrationHitDeadMaterial, LArCalibrationHitInactive
+                   xAOD::JetContainer_v1 | AntiKt10LCTopoJets, AntiKt10TruthJets, AntiKt10TruthWZJets, AntiKt3PV0TrackJets, AntiKt3ZTrackJets, AntiKt4EMTopoJets, AntiKt4LCTopoJets, AntiKt4PV0TrackJets, AntiKt4TruthJets, AntiKt4TruthWZJets, AntiKt4ZTrackJets, CamKt12LCTopoJets, CamKt12TruthJets, CamKt12TruthWZJets
+           xAOD::CaloClusterContainer_v1 | CaloCalTopoCluster, LArClusterEMFrwd, egClusterCollection
+                xAOD::PhotonContainer_v1 | PhotonCollection                        
+          xAOD::MissingETAuxContainer_v1 | MET_LocHadTopoAux., MET_LocHadTopoRegionsAux., MET_RefFinalAux., MET_RefFinalRegionsAux., MET_TrackAux., MET_TruthAux., MET_TruthRegionsAux.
+             xAOD::VertexAuxContainer_v1 | GSFConversionVerticesAux., PrimaryVerticesAux., TauSecondaryVertexContainerAux.
+               xAOD::MuonAuxContainer_v1 | MuonsAux.                               
+             xAOD::PhotonAuxContainer_v1 | PhotonCollectionAux.                    
+              xAOD::BTaggingContainer_v1 | BTagging_AntiKt10LCTopo, BTagging_AntiKt10Truth, BTagging_AntiKt10TruthWZ, BTagging_AntiKt4EMTopo, BTagging_AntiKt4LCTopo, BTagging_AntiKt4Truth, BTagging_AntiKt4TruthWZ
+                              DataHeader | StreamAOD                               
+            CaloClusterCellLinkContainer | egClusterCollection_links               
+           xAOD::ElectronAuxContainer_v1 | ElectronCollectionAux., FwdElectronsAux.
+      xAOD::TrackParticleAuxContainer_v1 | CombinedMuonTrackParticlesAux., ExtrapolatedMuonTrackParticlesAux., GSFTrackParticlesAux., InDetTrackParticlesAux., InDetTrackParticlesForwardAux.
+                      xAOD::EventInfo_v1 | EventInfo                               
+             xAOD::MissingETContainer_v1 | MET_LocHadTopo, MET_LocHadTopoRegions, MET_RefFinal, MET_RefFinalRegions, MET_Track, MET_Truth, MET_TruthRegions
+                xAOD::TauJetContainer_v1 | TauRecContainer                         
+                xAOD::JetAuxContainer_v1 | AntiKt10LCTopoJetsAux., AntiKt10TruthJetsAux., AntiKt10TruthWZJetsAux., AntiKt3PV0TrackJetsAux., AntiKt3ZTrackJetsAux., AntiKt4EMTopoJetsAux., AntiKt4LCTopoJetsAux., AntiKt4PV0TrackJetsAux., AntiKt4TruthJetsAux., AntiKt4TruthWZJetsAux., AntiKt4ZTrackJetsAux., CamKt12LCTopoJetsAux., CamKt12TruthJetsAux., CamKt12TruthWZJetsAux.
+                  xAOD::MuonContainer_v1 | Muons                                   
+                         TrackCollection | GSFTracks                               
+        xAOD::CaloClusterAuxContainer_v1 | CaloCalTopoClusterAux., LArClusterEMFrwdAux., egClusterCollectionAux.
+         xAOD::TruthParticleContainer_v1 | MuonTruthParticle, TruthParticle        
+                         PileUpEventInfo | McEventInfo                             
+            xAOD::TruthEventContainer_v1 | TruthEvent                              
+      xAOD::TruthParticleAuxContainer_v1 | MuonTruthParticleAux., TruthParticleAux.
+       xAOD::MissingETAuxComponentMap_v1 | METMap_LocHadTopoAux., METMap_LocHadTopoRegionsAux., METMap_RefFinalAux., METMap_RefFinalRegionsAux., METMap_TrackAux., METMap_TruthAux., METMap_TruthRegionsAux.
+                 MuonCaloEnergyContainer | MuonCaloEnergyCollection                
+                   TrackRecordCollection | MuonEntryLayerFilter                    
+                       LArNoisyROSummary | LArNoisyROSummary                       
+                           RecoTimingObj | ESDtoAOD_mems, ESDtoAOD_timings, EVNTtoHITS_timings, HITStoRDO_timings, RAWtoESD_mems, RAWtoESD_timings
+                         TileMuContainer | TileMuObj                               
+        xAOD::MuonSegmentAuxContainer_v1 | MuonSegmentsAux.                        
+           xAOD::TruthVertexContainer_v1 | TruthVertex                             
+                       TileCellContainer | MBTSContainer                           
+           xAOD::BTaggingAuxContainer_v1 | BTagging_AntiKt10LCTopoAux., BTagging_AntiKt10TruthAux., BTagging_AntiKt10TruthWZAux., BTagging_AntiKt4EMTopoAux., BTagging_AntiKt4LCTopoAux., BTagging_AntiKt4TruthAux., BTagging_AntiKt4TruthWZAux.
+        xAOD::TruthVertexAuxContainer_v1 | TruthVertexAux.                         
+                   xAOD::PFOContainer_v1 | TauPi0ChargedPFOContainer, TauPi0NeutralPFOContainer, TauShotPFOContainer, chargedJetETMissPFO_eflowRec, chargedTauPFO_eflowRec, neutralJetETMissPFO_eflowRec, neutralJetETMiss_LCPFO_NonModified_eflowRec, neutralJetETMiss_LCPFO_eflowRec, neutralTauPFO_eflowRec
+         xAOD::TruthEventAuxContainer_v1 | TruthEventAux.                          
+              xAOD::ElectronContainer_v1 | ElectronCollection, FwdElectrons        
+================================================================================

@@ -128,7 +128,7 @@ public:
 	bool m_doSklimming; 
 	bool m_doSUSYObjDef; 
 	bool m_doEventSelection; 
-	bool m_writeNtuple; 
+	// bool m_writeNtuple; 
 	bool m_writexAOD; 
 
 	bool m_writeFullCollectionsToxAOD; 

@@ -97,7 +97,26 @@ EL::StatusCode PlantATree :: histInitialize ()
 
   //Set up branches here
 
-  tree->Branch("EventNumber", &EventNumber);
+  
+  tree->Branch("RunNumber"                     , &RunNumber                      );
+  tree->Branch("EventNumber"                   , &EventNumber                    );
+  tree->Branch("LumiBlock"                     , &LumiBlock                      );
+  tree->Branch("BCID"                          , &BCID                           );
+  tree->Branch("MCChannelNumber"               , &MCChannelNumber                );
+  tree->Branch("MCEventNumber"                 , &MCEventNumber                  );
+  tree->Branch("MCEventWeight"                 , &MCEventWeight                  );
+  tree->Branch("ActualInteractionsPerCrossing" , &ActualInteractionsPerCrossing  );
+  tree->Branch("AverageInteractionsPerCrossing", &AverageInteractionsPerCrossing );
+  tree->Branch("RJVars_sHatR"                  , &RJVars_sHatR                   );
+  tree->Branch("RJVars_gammainv_R"             , &RJVars_gammainv_R              );
+  tree->Branch("RJVars_dphi_Beta_R"            , &RJVars_dphi_Beta_R             );
+  tree->Branch("RJVars_dphi_leg1_leg2"         , &RJVars_dphi_leg1_leg2          );
+  tree->Branch("RJVars_costheta_R"             , &RJVars_costheta_R              );
+  tree->Branch("RJVars_gammainv_Rp1"           , &RJVars_gammainv_Rp1            );
+  tree->Branch("RJVars_dphi_Beta_Rp1_Beta_R"   , &RJVars_dphi_Beta_Rp1_Beta_R    );
+  tree->Branch("RJVars_mdelta_R"               , &RJVars_mdelta_R                );
+  tree->Branch("RJVars_costheta_Rp1"           , &RJVars_costheta_Rp1            );
+
 
 
   tree->Branch("Jet_pT"       , &Jet_pT        );
@@ -179,8 +198,34 @@ EL::StatusCode PlantATree :: execute ()
   const char* APP_NAME = "PlantATree";
 
   std::cout << "PlantATree :: execute ()" << std::endl;
-  std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
+  // std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
 
+
+  xAOD::EventInfo* eventinfo = 0;
+  m_store->retrieve(eventinfo, "EventInfo");
+
+  RunNumber                       = eventinfo->runNumber(); 
+  EventNumber                     = eventinfo->eventNumber(); 
+  LumiBlock                       = eventinfo->lumiBlock(); 
+  BCID                            = eventinfo->bcid(); 
+  MCChannelNumber                 = eventinfo->mcChannelNumber(); 
+  MCEventNumber                   = eventinfo->mcEventNumber(); 
+  MCEventWeight                   = eventinfo->mcEventWeight(); 
+  ActualInteractionsPerCrossing   = eventinfo->actualInteractionsPerCrossing(); 
+  AverageInteractionsPerCrossing  = eventinfo->averageInteractionsPerCrossing(); 
+  RJVars_sHatR                    = eventinfo->auxdata<float>("sHatR"               ); 
+  RJVars_gammainv_R               = eventinfo->auxdata<float>("gammainv_R"          ); 
+  RJVars_dphi_Beta_R              = eventinfo->auxdata<float>("dphi_Beta_R"         ); 
+  RJVars_dphi_leg1_leg2           = eventinfo->auxdata<float>("dphi_leg1_leg2"      ); 
+  RJVars_costheta_R               = eventinfo->auxdata<float>("costheta_R"          ); 
+  RJVars_gammainv_Rp1             = eventinfo->auxdata<float>("gammainv_Rp1"        ); 
+  RJVars_dphi_Beta_Rp1_Beta_R     = eventinfo->auxdata<float>("dphi_Beta_Rp1_Beta_R"); 
+  RJVars_mdelta_R                 = eventinfo->auxdata<float>("mdelta_R"            ); 
+  RJVars_costheta_Rp1             = eventinfo->auxdata<float>("costheta_Rp1"        ); 
+
+
+
+  //////////////////////////////////////////////////////////////////////////////////////////
 
   Jet_pT        ->clear();
   Jet_eta       ->clear();
@@ -242,9 +287,29 @@ EL::StatusCode PlantATree :: execute ()
 
   /////////////////////////////////////////////////////////////////////////////////////
 
+  xAOD::ElectronContainer* electrons = 0;
+  m_store->retrieve( electrons, "CalibElectrons" );
+
+  xAOD::ElectronContainer::iterator electron_itr = (electrons)->begin();
+  xAOD::ElectronContainer::iterator electron_end = (electrons)->end();
+  for( ; electron_itr != electron_end; ++electron_itr ) {
+    if( (*electron_itr)->auxdata< bool >("baseline")==1  &&
+        (*electron_itr)->auxdata< bool >("passOR")==1   ) {
+
+        Electron_pT  ->push_back( (*electron_itr)->pt()  );
+        Electron_eta ->push_back( (*electron_itr)->eta()  );
+        Electron_phi ->push_back( (*electron_itr)->phi()  );
+        Electron_E   ->push_back( (*electron_itr)->e()  );
+        Electron_m   ->push_back( (*electron_itr)->m()  );
+
+    } 
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////
+
 
 // fill the branches of our trees
-  EventNumber = 111;
+  // EventNumber = 111;
 
 
 
