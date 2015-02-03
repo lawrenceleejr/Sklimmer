@@ -1,4 +1,25 @@
 
+// EDM includes:
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthEvent.h"
+#include "xAODCore/ShallowCopy.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETAuxContainer.h"
+#include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
+//#include "xAODBTagging/BTagging.h"
+
+
+
 int SklimmerAnalysis :: putStuffInStore (){
 
 	//this is written this way so that you don't need to have run SUSYTools in order to have access to the calibrated objects

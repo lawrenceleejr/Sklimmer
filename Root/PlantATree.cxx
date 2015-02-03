@@ -107,16 +107,24 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("MCEventWeight"                 , &MCEventWeight                  );
   tree->Branch("ActualInteractionsPerCrossing" , &ActualInteractionsPerCrossing  );
   tree->Branch("AverageInteractionsPerCrossing", &AverageInteractionsPerCrossing );
-  tree->Branch("RJVars_sHatR"                  , &RJVars_sHatR                   );
-  tree->Branch("RJVars_gammainv_R"             , &RJVars_gammainv_R              );
-  tree->Branch("RJVars_dphi_Beta_R"            , &RJVars_dphi_Beta_R             );
-  tree->Branch("RJVars_dphi_leg1_leg2"         , &RJVars_dphi_leg1_leg2          );
-  tree->Branch("RJVars_costheta_R"             , &RJVars_costheta_R              );
-  tree->Branch("RJVars_gammainv_Rp1"           , &RJVars_gammainv_Rp1            );
-  tree->Branch("RJVars_dphi_Beta_Rp1_Beta_R"   , &RJVars_dphi_Beta_Rp1_Beta_R    );
-  tree->Branch("RJVars_mdelta_R"               , &RJVars_mdelta_R                );
-  tree->Branch("RJVars_costheta_Rp1"           , &RJVars_costheta_Rp1            );
 
+
+  tree->Branch("RJVars_SS_Mass"           , &RJVars_SS_Mass           ); 
+  tree->Branch("RJVars_SS_InvGamma"       , &RJVars_SS_InvGamma       ); 
+  tree->Branch("RJVars_SS_dPhiBetaR"      , &RJVars_SS_dPhiBetaR      ); 
+  tree->Branch("RJVars_SS_dPhiVis"        , &RJVars_SS_dPhiVis        ); 
+  tree->Branch("RJVars_SS_CosTheta"       , &RJVars_SS_CosTheta       ); 
+  tree->Branch("RJVars_SS_dPhiDecayAngle" , &RJVars_SS_dPhiDecayAngle ); 
+  tree->Branch("RJVars_SS_VisShape"       , &RJVars_SS_VisShape       ); 
+  tree->Branch("RJVars_SS_MDeltaR"        , &RJVars_SS_MDeltaR        ); 
+  tree->Branch("RJVars_S1_Mass"           , &RJVars_S1_Mass           ); 
+  tree->Branch("RJVars_S1_CosTheta"       , &RJVars_S1_CosTheta       ); 
+  tree->Branch("RJVars_S2_Mass"           , &RJVars_S2_Mass           ); 
+  tree->Branch("RJVars_S2_CosTheta"       , &RJVars_S2_CosTheta       ); 
+  tree->Branch("RJVars_I1_Depth"          , &RJVars_I1_Depth          ); 
+  tree->Branch("RJVars_I2_Depth"          , &RJVars_I2_Depth          ); 
+  tree->Branch("RJVars_V1_N"              , &RJVars_V1_N              ); 
+  tree->Branch("RJVars_V2_N"              , &RJVars_V2_N              ); 
 
 
   tree->Branch("Jet_pT"       , &Jet_pT        );
@@ -134,6 +142,9 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("Electron_phi" , &Electron_phi  );
   tree->Branch("Electron_E"   , &Electron_E    );
   tree->Branch("Electron_m"   , &Electron_m    );
+
+  tree->Branch("MET_x"   , &MET_x    );
+  tree->Branch("MET_y"   , &MET_y    );
 
 
   return EL::StatusCode::SUCCESS;
@@ -200,9 +211,15 @@ EL::StatusCode PlantATree :: execute ()
   std::cout << "PlantATree :: execute ()" << std::endl;
   // std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
 
+  // m_store->print();
 
   xAOD::EventInfo* eventinfo = 0;
-  m_store->retrieve(eventinfo, "EventInfo");
+  CHECK( m_store->retrieve(eventinfo, "myEventInfo") );
+
+  if( eventinfo->auxdata<char>("selection") == (char) 0 ){
+      m_store->clear(); 
+      return EL::StatusCode::SUCCESS;
+  }
 
   RunNumber                       = eventinfo->runNumber(); 
   EventNumber                     = eventinfo->eventNumber(); 
@@ -213,16 +230,24 @@ EL::StatusCode PlantATree :: execute ()
   MCEventWeight                   = eventinfo->mcEventWeight(); 
   ActualInteractionsPerCrossing   = eventinfo->actualInteractionsPerCrossing(); 
   AverageInteractionsPerCrossing  = eventinfo->averageInteractionsPerCrossing(); 
-  RJVars_sHatR                    = eventinfo->auxdata<float>("sHatR"               ); 
-  RJVars_gammainv_R               = eventinfo->auxdata<float>("gammainv_R"          ); 
-  RJVars_dphi_Beta_R              = eventinfo->auxdata<float>("dphi_Beta_R"         ); 
-  RJVars_dphi_leg1_leg2           = eventinfo->auxdata<float>("dphi_leg1_leg2"      ); 
-  RJVars_costheta_R               = eventinfo->auxdata<float>("costheta_R"          ); 
-  RJVars_gammainv_Rp1             = eventinfo->auxdata<float>("gammainv_Rp1"        ); 
-  RJVars_dphi_Beta_Rp1_Beta_R     = eventinfo->auxdata<float>("dphi_Beta_Rp1_Beta_R"); 
-  RJVars_mdelta_R                 = eventinfo->auxdata<float>("mdelta_R"            ); 
-  RJVars_costheta_Rp1             = eventinfo->auxdata<float>("costheta_Rp1"        ); 
 
+
+  RJVars_SS_Mass            = eventinfo->auxdata<float>("SS_Mass");
+  RJVars_SS_InvGamma        = eventinfo->auxdata<float>("SS_InvGamma");
+  RJVars_SS_dPhiBetaR       = eventinfo->auxdata<float>("SS_dPhiBetaR");
+  RJVars_SS_dPhiVis         = eventinfo->auxdata<float>("SS_dPhiVis");
+  RJVars_SS_CosTheta        = eventinfo->auxdata<float>("SS_CosTheta");
+  RJVars_SS_dPhiDecayAngle  = eventinfo->auxdata<float>("SS_dPhiDecayAngle");
+  RJVars_SS_VisShape        = eventinfo->auxdata<float>("SS_VisShape");
+  RJVars_SS_MDeltaR         = eventinfo->auxdata<float>("SS_MDeltaR");
+  RJVars_S1_Mass            = eventinfo->auxdata<float>("S1_Mass");
+  RJVars_S1_CosTheta        = eventinfo->auxdata<float>("S1_CosTheta");
+  RJVars_S2_Mass            = eventinfo->auxdata<float>("S2_Mass");
+  RJVars_S2_CosTheta        = eventinfo->auxdata<float>("S2_CosTheta");
+  RJVars_I1_Depth           = eventinfo->auxdata<float>("I1_Depth");
+  RJVars_I2_Depth           = eventinfo->auxdata<float>("I2_Depth");
+  RJVars_V1_N               = eventinfo->auxdata<float>("V1_N");
+  RJVars_V2_N               = eventinfo->auxdata<float>("V2_N");
 
 
   //////////////////////////////////////////////////////////////////////////////////////////
@@ -246,7 +271,7 @@ EL::StatusCode PlantATree :: execute ()
   /////////////////////////////////////////////////////////////////////////////////////
 
   xAOD::JetContainer* jets = 0;
-  m_store->retrieve( jets, "CalibJets" );
+  CHECK( m_store->retrieve( jets, "CalibJets" ) );
 
   xAOD::JetContainer::iterator jet_itr = (jets)->begin();
   xAOD::JetContainer::iterator jet_end = (jets)->end();
@@ -268,7 +293,7 @@ EL::StatusCode PlantATree :: execute ()
 
 
   xAOD::MuonContainer* muons = 0;
-  m_store->retrieve( muons, "CalibMuons" );
+  CHECK( m_store->retrieve( muons, "CalibMuons" ) );
 
   xAOD::MuonContainer::iterator muon_itr = (muons)->begin();
   xAOD::MuonContainer::iterator muon_end = (muons)->end();
@@ -288,7 +313,7 @@ EL::StatusCode PlantATree :: execute ()
   /////////////////////////////////////////////////////////////////////////////////////
 
   xAOD::ElectronContainer* electrons = 0;
-  m_store->retrieve( electrons, "CalibElectrons" );
+  CHECK( m_store->retrieve( electrons, "CalibElectrons" ) );
 
   xAOD::ElectronContainer::iterator electron_itr = (electrons)->begin();
   xAOD::ElectronContainer::iterator electron_end = (electrons)->end();
@@ -306,6 +331,20 @@ EL::StatusCode PlantATree :: execute ()
   }
 
   /////////////////////////////////////////////////////////////////////////////////////
+
+
+
+  xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
+  CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
+
+    xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
+  if (met_it == MET->end()) {
+    Error( APP_NAME, "No RefFinal inside MET container" );
+  } else {
+    MET_x = (*met_it)->mpx();
+    MET_y = (*met_it)->mpy();
+  }
+
 
 
 // fill the branches of our trees

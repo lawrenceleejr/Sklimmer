@@ -45,15 +45,23 @@ public:
   float ActualInteractionsPerCrossing; //!
   float AverageInteractionsPerCrossing; //!
 
-  float   RJVars_sHatR ; //!              
-  float   RJVars_gammainv_R ; //!         
-  float   RJVars_dphi_Beta_R ; //!        
-  float   RJVars_dphi_leg1_leg2 ; //!     
-  float   RJVars_costheta_R ; //!         
-  float   RJVars_gammainv_Rp1 ; //!       
-  float   RJVars_dphi_Beta_Rp1_Beta_R ; //!
-  float   RJVars_mdelta_R ; //!           
-  float   RJVars_costheta_Rp1 ; //!       
+
+  float RJVars_SS_Mass           ; //!
+  float RJVars_SS_InvGamma       ; //!
+  float RJVars_SS_dPhiBetaR      ; //!
+  float RJVars_SS_dPhiVis        ; //!
+  float RJVars_SS_CosTheta       ; //!
+  float RJVars_SS_dPhiDecayAngle ; //!
+  float RJVars_SS_VisShape       ; //!
+  float RJVars_SS_MDeltaR        ; //!
+  float RJVars_S1_Mass           ; //!
+  float RJVars_S1_CosTheta       ; //!
+  float RJVars_S2_Mass           ; //!
+  float RJVars_S2_CosTheta       ; //!
+  float RJVars_I1_Depth          ; //!
+  float RJVars_I2_Depth          ; //!
+  float RJVars_V1_N              ; //!
+  float RJVars_V2_N              ; //!     
 
   std::vector<float> * Jet_pT;    //!
   std::vector<float> * Jet_eta;   //!
@@ -73,6 +81,8 @@ public:
   std::vector<float> * Electron_E;     //!
   std::vector<float> * Electron_m;     //!
 
+  float MET_x; //!
+  float MET_y; //!
 
   xAOD::TEvent *m_event;  //!
   xAOD::TStore *m_store;  //!

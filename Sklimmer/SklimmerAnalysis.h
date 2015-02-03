@@ -19,7 +19,6 @@
 #endif
 
 #include <RJigsaw/TRJigsaw.h>
-//#include "SUSYTools/SUSYObjDef_xAOD.h"
 
 
 // GRL

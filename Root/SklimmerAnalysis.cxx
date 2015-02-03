@@ -12,6 +12,24 @@
 
 #include "EventLoop/OutputStream.h"
 
+
+#include "RestFrames/RestFrame.hh"
+#include "RestFrames/RFrame.hh"
+#include "RestFrames/RLabFrame.hh"
+#include "RestFrames/RDecayFrame.hh"
+#include "RestFrames/RVisibleFrame.hh"
+#include "RestFrames/RInvisibleFrame.hh"
+#include "RestFrames/SelfAssemblingFrame.hh"
+#include "RestFrames/InvisibleMassJigsaw.hh"
+#include "RestFrames/InvisibleRapidityJigsaw.hh"
+#include "RestFrames/ContraBoostInvariantJigsaw.hh"
+#include "RestFrames/MinimizeMassesCombinatoricJigsaw.hh"
+#include "RestFrames/InvisibleGroup.hh"
+#include "RestFrames/CombinatoricGroup.hh"
+#include "RestFrames/FramePlot.hh"
+
+
+
 // EDM includes:
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -491,13 +509,6 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		return EL::StatusCode::FAILURE;
 	}
 
-	// xAOD::EventInfo* eventInfo = 0;
-	// xAOD::EventAuxInfo* eventInfoAux = 0;
-
-	// CHECK( m_event->retrieve( eventInfo, "EventInfo") );
-	// CHECK( m_event->retrieve( eventInfoAux, "EventInfoAux.") );
-
-
 	int EventNumber = eventInfo->eventNumber();
 	int RunNumber = eventInfo->runNumber();
 
@@ -541,98 +552,45 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	else putStuffInStore();
 
 
+
 	std::pair< xAOD::EventInfo*, xAOD::ShallowAuxInfo* > eventInfo_shallowCopy = xAOD::shallowCopyObject( *eventInfo );
-	if( !m_store->record( eventInfo_shallowCopy.first , "EventInfo" )){return EL::StatusCode::FAILURE;}
-	if( !m_store->record( eventInfo_shallowCopy.second, "EventInfoAux." )) {return EL::StatusCode::FAILURE;}
+	if( !m_store->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
+	if( !m_store->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
+
+
+	eventInfo_shallowCopy.second->setShallowIO(true);
+	if( !m_event->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
+	if( !m_event->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
+
 
 	// m_store->print();
 
 
+
 	if( m_doEventSelection && m_Analysis=="bbmet" ){
 		TString result = eventSelectionBBMet();
-		if(result=="") return EL::StatusCode::SUCCESS;
-		else {
-			eventInfo->auxdecor< char >("selection") = *result.Data();
-		}
+		(eventInfo_shallowCopy.first)->auxdecor< char >("selection") = *result.Data();
+		//if(result=="") return EL::StatusCode::SUCCESS;
 	}
 
+	Info( APP_NAME,"About to access eventInfo "  );
 
-
-	// Clear up RJTools vectors
-
-	RJTool->newEvent();
-
-
-	// Get Jet Collection to hand to RJTool ////////////////////////////////////////////////////
-
-	xAOD::JetContainer* jets_copy(0);
-	CHECK( m_store->retrieve( jets_copy, "CalibJets" ) );
-
-	xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
-	xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
-	int tmpcounter = 0;
-	for( ; jet_itr != jet_end; ++jet_itr ) {
-		tmpcounter++;
-
-		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
-			(*jet_itr)->auxdata< bool >("passOR")==1  &&
-			(*jet_itr)->pt() > 20000.  && ( fabs( (*jet_itr)->eta()) < 2.5) ) {
-			RJTool->addVisParticle( "", (*jet_itr)->p4(), 0 );
-		}
-    
-    }
-
-
-	// Get MET Collection to hand to RJTool ////////////////////////////////////////////////////
-
-	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-	CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
-
-    xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
-	if (met_it == MET->end()) {
-		Error( APP_NAME, "No RefFinal inside MET container" );
-	} else {
-		RJTool->addMET( TVector3( (*met_it)->mpx(), (*met_it)->mpy(), 0 ) );
-	}
-
-
-	// Do the hemisphere reconstruction ////////////////////////////////////////////////////
-
-	std::pair<TLorentzVector,TLorentzVector> myHemispheres = RJTool->calcHemispheres();
-
-
-	// Calculate the Jigsaw variables ////////////////////////////////////////////////////
-
-	RJTool->getObservables( myHemispheres.first, myHemispheres.second );
-
-
-	// Grab the map of observables to have access to the variables //////////////////////////
-
-	std::map< TString, double > observables = RJTool->getObservablesMap();
-
-
-	// Attach Jigsaw variables as decorators on the EventInfo /////////////////////////////////
-
-	eventInfo->auxdecor<float>("sHatR"               ) = observables[ "sHatR"                ];
-	eventInfo->auxdecor<float>("gammainv_R"          ) = observables[ "gammainv_R"           ];
-	eventInfo->auxdecor<float>("dphi_Beta_R"         ) = observables[ "dphi_Beta_R"          ];
-	eventInfo->auxdecor<float>("dphi_leg1_leg2"      ) = observables[ "dphi_leg1_leg2"       ];
-	eventInfo->auxdecor<float>("costheta_R"          ) = observables[ "costheta_R"           ];
-	eventInfo->auxdecor<float>("gammainv_Rp1"        ) = observables[ "gammainv_Rp1"         ];
-	eventInfo->auxdecor<float>("dphi_Beta_Rp1_Beta_R") = observables[ "dphi_Beta_Rp1_Beta_R" ];
-	eventInfo->auxdecor<float>("mdelta_R"            ) = observables[ "mdelta_R"             ];
-	eventInfo->auxdecor<float>("costheta_Rp1"        ) = observables[ "costheta_Rp1"         ];
-
-	Info( APP_NAME,"RJigsaw Variables: sHatR %f gammainv_Rp1 %f",
-		eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
-
+	Info( APP_NAME,"RJigsaw Variables: sHatR %f",
+		(eventInfo_shallowCopy.first)->auxdata< float >("sHatR")  );
+	Info( APP_NAME,"RJigsaw Variables: gammainv_Rp1 %f",
+		(eventInfo_shallowCopy.first)->auxdata< float >("gammainv_Rp1") );
 
 	// m_store->clear(); 
 
+	Info( APP_NAME,"About to write to xAOD "  );
+
 	if(m_writexAOD){
 		// Save the event:
-		CHECK(m_event->fill());
+		CHECK(m_event->fill()); // Trying to fill the output xAOD causes problems right now...
 	}
+
+	Info( APP_NAME,"leaving execute "  );
+
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -723,6 +681,9 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	CHECK( m_store->retrieve( electrons_copy, "CalibElectrons" ) );
 
 
+	xAOD::EventInfo* eventInfo = 0;
+	m_store->retrieve(eventInfo, "myEventInfo");
+
 	/////////////// Lepton Veto //////////////////////////////
 
 	int Nel=0;
@@ -758,11 +719,153 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
     
     }
 
-    if(goodJets->size() < 2) return "";
+    if(goodJets->size() < 2){
+
+
+		// eventInfo->auxdecor<float>("SS_Mass"         ) = 0.;
+		// eventInfo->auxdecor<float>("SS_Phi"          ) = 0.;
+		// eventInfo->auxdecor<float>("SS_CosTheta"     ) = 0.;
+		// eventInfo->auxdecor<float>("S1_Mass"         ) = 0.;
+		// eventInfo->auxdecor<float>("S1_Phi"          ) = 0.;
+		// eventInfo->auxdecor<float>("S1_CosTheta"     ) = 0.;
+		// eventInfo->auxdecor<float>("S2_Mass"         ) = 0.;
+		// eventInfo->auxdecor<float>("S2_Phi"          ) = 0.;
+		// eventInfo->auxdecor<float>("S2_CosTheta"     ) = 0.;
+		// eventInfo->auxdecor<float>("I1_Depth"        ) = 0.;
+		// eventInfo->auxdecor<float>("I2_Depth"        ) = 0.;
+		// eventInfo->auxdecor<float>("V1_N"            ) = 0.;
+		// eventInfo->auxdecor<float>("V2_N"            ) = 0.;
+
+		return "";
+
+    } 
 
 	std::sort(goodJets->begin(), goodJets->end(),
     [](xAOD::Jet  *a, xAOD::Jet  *b){return a->pt() > b->pt();});
 
+
+	// Set up RestFrames topology ///////////////////////////////////
+
+	RestFrames::RLabFrame LAB("LAB","lab");
+	RestFrames::RDecayFrame SS("SS","SS");
+	RestFrames::SelfAssemblingFrame S1("S1","#tilde{S}_{a}");
+	RestFrames::SelfAssemblingFrame S2("S2","#tilde{S}_{b}");
+	RestFrames::RVisibleFrame V1("V1","V_{a}");
+	RestFrames::RVisibleFrame V2("V2","V_{b}");
+	RestFrames::RInvisibleFrame I1("I1","I_{a}");
+	RestFrames::RInvisibleFrame I2("I2","I_{b}");
+
+	// The invisible group is all of the weakly interacting particles
+	RestFrames::InvisibleGroup INV("INV","Invisible State Jigsaws");
+	INV.AddFrame(I1);
+	INV.AddFrame(I2);
+
+	// the combinatoric group is the list of visible objects
+	// that go into our hemispheres 
+	RestFrames::CombinatoricGroup VIS("VIS","Visible Object Jigsaws");
+	VIS.AddFrame(V1);
+	VIS.SetNElementsForFrame(V1,1,false);
+	VIS.AddFrame(V2);
+	VIS.SetNElementsForFrame(V2,1,false);
+
+	LAB.SetChildFrame(SS);
+
+	SS.AddChildFrame(S1);
+	SS.AddChildFrame(S2);
+
+	S1.AddChildFrame(V1);
+	S1.AddChildFrame(I1);
+	S2.AddChildFrame(V2);
+	S2.AddChildFrame(I2);
+
+	std::cout << "Is consistent tree topology? " << LAB.InitializeTree() << std::endl; 
+
+
+	//////////////////////////////////////////////////////////////
+	// now we define 'jigsaw rules' that tell the tree
+	// how to define the objects in our groups 
+	//////////////////////////////////////////////////////////////
+	RestFrames::InvisibleMassJigsaw MinMassJigsaw("MINMASS_JIGSAW", "Invisible system mass Jigsaw");
+	INV.AddJigsaw(MinMassJigsaw);
+
+	RestFrames::InvisibleRapidityJigsaw RapidityJigsaw("RAPIDITY_JIGSAW", "Invisible system rapidity Jigsaw");
+	INV.AddJigsaw(RapidityJigsaw);
+	RapidityJigsaw.AddVisibleFrame((LAB.GetListVisibleFrames()));
+
+	RestFrames::ContraBoostInvariantJigsaw ContraBoostJigsaw("CB_JIGSAW","Contraboost invariant Jigsaw");
+	INV.AddJigsaw(ContraBoostJigsaw);
+	ContraBoostJigsaw.AddVisibleFrame((S1.GetListVisibleFrames()), 0);
+	ContraBoostJigsaw.AddVisibleFrame((S2.GetListVisibleFrames()), 1);
+	ContraBoostJigsaw.AddInvisibleFrame((S1.GetListInvisibleFrames()), 0);
+	ContraBoostJigsaw.AddInvisibleFrame((S2.GetListInvisibleFrames()), 1);
+
+	RestFrames::MinimizeMassesCombinatoricJigsaw HemiJigsaw("HEM_JIGSAW","Minimize m _{V_{a,b}} Jigsaw");
+	VIS.AddJigsaw(HemiJigsaw);
+	HemiJigsaw.AddFrame(V1,0);
+	HemiJigsaw.AddFrame(V2,1);
+
+	//////////////////////////////////////////////////////////////
+	// check to make sure that all the jigsaws etc. are correctly connected
+	//////////////////////////////////////////////////////////////
+	std::cout << "Is consistent analysis tree? : " << LAB.InitializeAnalysis() << std::endl; 
+
+
+	LAB.ClearEvent();
+
+
+	jet_itr = (jets_copy)->begin();
+	for( ; jet_itr != jet_end; ++jet_itr ) {
+
+		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
+			(*jet_itr)->auxdata< bool >("passOR")==1  &&
+			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
+			VIS.AddLabFrameFourVector( (*jet_itr)->p4()  );  
+		}
+    
+    }
+
+
+	// Get MET Collection to hand to Rest Frames////////////////////////////////////////////////////
+
+	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
+	CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
+
+    xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
+	if (met_it == MET->end()) {
+		Error( APP_NAME, "No RefFinal inside MET container" );
+	} else {
+		INV.SetLabFrameThreeVector(  TVector3( (*met_it)->mpx(), (*met_it)->mpy(), 0 ) );
+	}
+
+	LAB.AnalyzeEvent();
+
+
+	std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
+
+	eventInfo->auxdecor<float>("SS_Mass"           ) = SS.GetMass();
+	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS.GetGammaInParentFrame();
+	eventInfo->auxdecor<float>("SS_dPhiBetaR"      ) = SS.GetDeltaPhiBoostVisible();
+	eventInfo->auxdecor<float>("SS_dPhiVis"        ) = SS.GetDeltaPhiVisible();
+	eventInfo->auxdecor<float>("SS_CosTheta"       ) = SS.GetCosDecayAngle();
+	eventInfo->auxdecor<float>("SS_dPhiDecayAngle" ) = SS.GetDeltaPhiDecayAngle();
+	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS.GetVisibleShape();
+	eventInfo->auxdecor<float>("SS_MDeltaR"        ) = SS.GetVisibleShape() * SS.GetMass() ;
+	eventInfo->auxdecor<float>("S1_Mass"           ) = S1.GetMass();
+	eventInfo->auxdecor<float>("S1_CosTheta"       ) = S1.GetCosDecayAngle();
+	eventInfo->auxdecor<float>("S2_Mass"           ) = S2.GetMass();
+	eventInfo->auxdecor<float>("S2_CosTheta"       ) = S2.GetCosDecayAngle();
+	eventInfo->auxdecor<float>("I1_Depth"          ) = S1.GetFrameDepth(I1);
+	eventInfo->auxdecor<float>("I2_Depth"          ) = S2.GetFrameDepth(I2);
+	eventInfo->auxdecor<float>("V1_N"              ) = VIS.GetNElementsInFrame(V1);
+	eventInfo->auxdecor<float>("V2_N"              ) = VIS.GetNElementsInFrame(V2);
+
+
+	// Info( APP_NAME,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
+	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
+
+
+
+	/////////////////////////////////////////////////////////////////
 
 	if(goodJets->at(0)->pt() > 130000 &&
 		goodJets->at(1)->pt() > 50000 && 
@@ -784,7 +887,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 		}
 	}
 
-	return "";
+	return "Test";
 
 }
 
