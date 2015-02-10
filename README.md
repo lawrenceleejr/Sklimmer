@@ -16,16 +16,16 @@ Do event selection for string-configurable analysis - e.g. analysis-specific tri
 
 ### How to get set up
 
-Works in a RootCore setup. Requires SUSYTools and RJigsaw. Current working system can be setup:
+Works in a RootCore setup. Requires SUSYTools and Ext_RestFrames. Current working system can be setup:
 
 ```
 setupATLAS
 rcSetup Base,2.0.22
 rc checkout packages.txt
 cd EventShapeTools && svn patch -p0 -i EventShapeTools.diff #convenient patch from diff - Giordon
-#Then you'll also need Sklimmer and RJigsaw - Will be moved to CERN svn at some point
+#Then you'll also need Sklimmer and Ext_RestFrames - Will be moved to CERN svn at some point
 svn co https://github.com/lawrenceleejr/Sklimmer/trunk Sklimmer
-svn co https://github.com/lawrenceleejr/RJigsaw/trunk RJigsaw
+svn co https://github.com/lawrenceleejr/Ext_RestFrames/trunk Ext_RestFrames
 rc clean
 rc find_packages
 rc compile
@@ -36,6 +36,25 @@ You can test on the xAOD sample from the tutorials:
 export ALRB_TutorialData=/afs/cern.ch/atlas/project/PAT/tutorial/cern-nov2014/
 cd Sklimmer/Run
 root -l 'ATestRun.cxx ("submitDir")' # Make sure ATestRun.cxx is using the xAOD from the above location
+
+In practice, I think we'll use the scripts/Run.py steering script. See file for details.
+
+
+### Run it with python steering code
+
+Stolen from the SUSY group example and modified. Used to run job directly, use FAX, or submit to the grid. (grid is default). The option inputDS can be left blank to scan CWD, given a single DQ2 search string, or be given a text file e.g. "inputDS.txt". Simple running over a bunch of datasets can be done with
+
+```
+python Run.py  --inputDS "mc14_13TeV.202266.MadGraphPythia_AUET2BCTEQ6L1_SM_BB_direct_800_1_MET50.merge.AOD.e3064_s1982_s2008_r5787_r5853/" --runTag="021015a"
+python Run.py --inputDS "inputDS.txt" --runTag="021015b"
+```
+
+Results can be pulled down from the grid using the Wait.py and Retrieve.py scripts which take the --submitDir option to point them to the SampleHandler structure used in the submission.
+
+```
+python Wait.py --submitDir "submit_dir"
+python Retrieve.py --submitDir "submit_dir"
+```
 
 
 ### Configuration Flags in Run Script
