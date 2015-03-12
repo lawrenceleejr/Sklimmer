@@ -41,7 +41,7 @@ public:
   int BCID; //!
   int MCChannelNumber; //!
   int MCEventNumber; //!
-  int MCEventWeight; //!
+  float MCEventWeight; //!
   float ActualInteractionsPerCrossing; //!
   float AverageInteractionsPerCrossing; //!
 
@@ -61,13 +61,21 @@ public:
   float RJVars_I1_Depth          ; //!
   float RJVars_I2_Depth          ; //!
   float RJVars_V1_N              ; //!
-  float RJVars_V2_N              ; //!     
+  float RJVars_V2_N              ; //!    
+
+  //QCD Variables
+  float RJVars_QCD_dPhiR         ; //! 
+  float RJVars_QCD_Rpt           ; //! 
+  float RJVars_QCD_Rmsib         ; //! 
+  float RJVars_QCD_Delta         ; //! 
 
   std::vector<float> * Jet_pT;    //!
   std::vector<float> * Jet_eta;   //!
   std::vector<float> * Jet_phi;   //!
   std::vector<float> * Jet_E;     //!
   std::vector<float> * Jet_m;     //!
+
+  std::vector<float> * Jet_MV1;     //!
 
   std::vector<float> * Muon_pT;    //!
   std::vector<float> * Muon_eta;   //!

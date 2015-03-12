@@ -1,7 +1,7 @@
 import ROOT
 import logging
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -124,7 +124,10 @@ elif (options.driver == "grid"):
     logging.info("running on Grid") 
     driver = ROOT.EL.PrunDriver()   
     driver.options().setString("nc_outputSampleName", "user.leejr.%%in:name[2]%%.%%in:name[3]%%.%s"%options.runTag)
-    driver.options().setDouble("nc_disableAutoRetry", 1)
+    #driver.options().setDouble("nc_disableAutoRetry", 1)
+    driver.options().setDouble("nc_nFilesPerJob", 1)
+    driver.options().setDouble(ROOT.EL.Job.optGridMergeOutput, 1);
+
     logging.info("submit job")
     driver.submitOnly(job, options.submitDir)
 

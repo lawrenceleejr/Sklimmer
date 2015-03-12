@@ -83,6 +83,7 @@ EL::StatusCode PlantATree :: histInitialize ()
   Jet_phi = new std::vector<float>       ;   
   Jet_E = new std::vector<float>       ;     
   Jet_m = new std::vector<float>       ;     
+  Jet_MV1 = new std::vector<float>       ;     
   Muon_pT = new std::vector<float>       ;    
   Muon_eta = new std::vector<float>       ;   
   Muon_phi = new std::vector<float>       ;   
@@ -126,12 +127,19 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_V1_N"              , &RJVars_V1_N              ); 
   tree->Branch("RJVars_V2_N"              , &RJVars_V2_N              ); 
 
+  //QCD Variables
+
+  tree->Branch("RJVars_QCD_dPhiR" ,  &RJVars_QCD_dPhiR  );
+  tree->Branch("RJVars_QCD_Rpt"   ,  &RJVars_QCD_Rpt    );
+  tree->Branch("RJVars_QCD_Rmsib" ,  &RJVars_QCD_Rmsib  );
+  tree->Branch("RJVars_QCD_Delta" ,  &RJVars_QCD_Delta  );
 
   tree->Branch("Jet_pT"       , &Jet_pT        );
   tree->Branch("Jet_eta"      , &Jet_eta       );
   tree->Branch("Jet_phi"      , &Jet_phi       );
   tree->Branch("Jet_E"        , &Jet_E         );
   tree->Branch("Jet_m"        , &Jet_m         );
+  tree->Branch("Jet_MV1"      , &Jet_MV1       );
   tree->Branch("Muon_pT"      , &Muon_pT       );
   tree->Branch("Muon_eta"     , &Muon_eta      );
   tree->Branch("Muon_phi"     , &Muon_phi      );
@@ -249,6 +257,10 @@ EL::StatusCode PlantATree :: execute ()
   RJVars_V1_N               = eventinfo->auxdata<float>("V1_N");
   RJVars_V2_N               = eventinfo->auxdata<float>("V2_N");
 
+  RJVars_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_dPhiR"); 
+  RJVars_QCD_Rpt            = eventinfo->auxdata<float>("QCD_Rpt"  );
+  RJVars_QCD_Rmsib          = eventinfo->auxdata<float>("QCD_Rmsib");
+  RJVars_QCD_Delta          = eventinfo->auxdata<float>("QCD_Delta");
 
   //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -257,6 +269,7 @@ EL::StatusCode PlantATree :: execute ()
   Jet_phi       ->clear();
   Jet_E         ->clear();
   Jet_m         ->clear();
+  Jet_MV1       ->clear();
   Muon_pT       ->clear();
   Muon_eta      ->clear();
   Muon_phi      ->clear();
@@ -285,6 +298,7 @@ EL::StatusCode PlantATree :: execute ()
         Jet_phi ->push_back( (*jet_itr)->phi()  );
         Jet_E   ->push_back( (*jet_itr)->e()  );
         Jet_m   ->push_back( (*jet_itr)->m()  );
+        Jet_MV1 ->push_back( (*jet_itr)->auxdata< float >("MV1")   );
 
     } 
   }

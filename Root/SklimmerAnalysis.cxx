@@ -19,7 +19,7 @@
 #include "RestFrames/RDecayFrame.hh"
 #include "RestFrames/RVisibleFrame.hh"
 #include "RestFrames/RInvisibleFrame.hh"
-#include "RestFrames/SelfAssemblingFrame.hh"
+#include "RestFrames/RSelfAssemblingFrame.hh"
 #include "RestFrames/InvisibleMassJigsaw.hh"
 #include "RestFrames/InvisibleRapidityJigsaw.hh"
 #include "RestFrames/ContraBoostInvariantJigsaw.hh"
@@ -318,7 +318,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	for( ; mu_itr != mu_end; ++mu_itr ) {
 		m_susy_obj->IsSignalMuonExp( **mu_itr,  ST::SignalIsoExp::TightIso ) ;
 		m_susy_obj->IsCosmicMuon( **mu_itr );
-		Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< bool >("baseline") );
+		//Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< bool >("baseline") );
 	}
 
 
@@ -342,7 +342,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	for( ; el_itr != el_end; ++el_itr ) {
 		m_susy_obj->IsSignalElectronExp( **el_itr , ST::SignalIsoExp::TightIso);
-		Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< bool >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
+		//Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< bool >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
 	}
 
 
@@ -542,7 +542,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		if( RunNumber == 222222) mc14_13TeV = true;
 		if (!mc14_13TeV){ // Only reweight 8 TeV MC
 			CHECK( m_pileupReweightingTool->execute() );
-			Info( APP_NAME,"PileupReweightingTool: PileupWeight %f RandomRunNumber %i RandomLumiBlockNumber %i",eventInfo->auxdata< double >("PileupWeight"), eventInfo->auxdata< unsigned int >("RandomRunNumber"),  eventInfo->auxdata< unsigned int >("RandomLumiBlockNumber") );
+			//Info( APP_NAME,"PileupReweightingTool: PileupWeight %f RandomRunNumber %i RandomLumiBlockNumber %i",eventInfo->auxdata< double >("PileupWeight"), eventInfo->auxdata< unsigned int >("RandomRunNumber"),  eventInfo->auxdata< unsigned int >("RandomLumiBlockNumber") );
 		}
 	}// end if IS MC
 
@@ -573,23 +573,23 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		//if(result=="") return EL::StatusCode::SUCCESS;
 	}
 
-	Info( APP_NAME,"About to access eventInfo "  );
+	//Info( APP_NAME,"About to access eventInfo "  );
 
-	Info( APP_NAME,"RJigsaw Variables: sHatR %f",
-		(eventInfo_shallowCopy.first)->auxdata< float >("sHatR")  );
-	Info( APP_NAME,"RJigsaw Variables: gammainv_Rp1 %f",
-		(eventInfo_shallowCopy.first)->auxdata< float >("gammainv_Rp1") );
+	//Info( APP_NAME,"RJigsaw Variables: sHatR %f",
+	//	(eventInfo_shallowCopy.first)->auxdata< float >("sHatR")  );
+	//Info( APP_NAME,"RJigsaw Variables: gammainv_Rp1 %f",
+	//	(eventInfo_shallowCopy.first)->auxdata< float >("gammainv_Rp1") );
 
 	// m_store->clear(); 
 
-	Info( APP_NAME,"About to write to xAOD "  );
+	//Info( APP_NAME,"About to write to xAOD "  );
 
 	if(m_writexAOD){
 		// Save the event:
 		CHECK(m_event->fill()); // Trying to fill the output xAOD causes problems right now...
 	}
 
-	Info( APP_NAME,"leaving execute "  );
+	//Info( APP_NAME,"leaving execute "  );
 
 
 	return EL::StatusCode::SUCCESS;
@@ -700,6 +700,8 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 		if( ( *mu_itr )->auxdata<bool>("passOR") ) Nmu++;
 	}
 
+	if(Nel || Nmu) return "";
+
 	///////////////////////////////////////////////////////////
 
 
@@ -716,6 +718,8 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
 			goodJets->push_back (*jet_itr); 
 		}
+
+		(*jet_itr)->auxdecor<float>("MV1") =  ((*jet_itr)->btagging())->MV1_discriminant() ;
     
     }
 
@@ -748,8 +752,8 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	RestFrames::RLabFrame LAB("LAB","lab");
 	RestFrames::RDecayFrame SS("SS","SS");
-	RestFrames::SelfAssemblingFrame S1("S1","#tilde{S}_{a}");
-	RestFrames::SelfAssemblingFrame S2("S2","#tilde{S}_{b}");
+	RestFrames::RSelfAssemblingFrame S1("S1","#tilde{S}_{a}");
+	RestFrames::RSelfAssemblingFrame S2("S2","#tilde{S}_{b}");
 	RestFrames::RVisibleFrame V1("V1","V_{a}");
 	RestFrames::RVisibleFrame V2("V2","V_{b}");
 	RestFrames::RInvisibleFrame I1("I1","I_{a}");
@@ -811,9 +815,45 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	//////////////////////////////////////////////////////////////
 	std::cout << "Is consistent analysis tree? : " << LAB.InitializeAnalysis() << std::endl; 
 
-
 	LAB.ClearEvent();
 
+
+	//////////////////////////////////////////////////////////////
+	// Now, we make a 'background'-like, transverse momentum only, tree
+	//////////////////////////////////////////////////////////////
+	RestFrames::RLabFrame LAB_alt("LAB","lab");
+	RestFrames::RSelfAssemblingFrame S_alt("CM","CM");
+	RestFrames::RVisibleFrame V_alt("V_alt","Vis");
+	RestFrames::RInvisibleFrame I_alt("I_alt","Iinv");
+
+	RestFrames::InvisibleGroup INV_alt("INV_alt","Invisible State Jigsaws");
+	INV_alt.AddFrame(I_alt);
+
+	RestFrames::CombinatoricGroup VIS_alt("VIS_alt","Visible Object Jigsaws");
+	VIS_alt.AddFrame(V_alt);
+	VIS_alt.SetNElementsForFrame(V_alt,1,false);
+
+	LAB_alt.SetChildFrame(S_alt);
+	S_alt.AddChildFrame(V_alt);
+	S_alt.AddChildFrame(I_alt);
+
+	LAB_alt.InitializeTree(); 
+
+	// Will just set invisible mass to zero
+	RestFrames::InvisibleMassJigsaw MinMass_alt("MINMASS_JIGSAW_ALT", "Invisible system mass Jigsaw");
+	INV_alt.AddJigsaw(MinMass_alt);
+
+	// will set rapidity to zero
+	RestFrames::InvisibleRapidityJigsaw Rapidity_alt("RAPIDITY_JIGSAW_ALT", "Invisible system rapidity Jigsaw");
+	INV_alt.AddJigsaw(Rapidity_alt);
+	Rapidity_alt.AddVisibleFrame((LAB_alt.GetListVisibleFrames()));
+
+	LAB_alt.InitializeAnalysis(); 
+
+
+
+
+	TLorentzVector jet;
 
 	jet_itr = (jets_copy)->begin();
 	for( ; jet_itr != jet_end; ++jet_itr ) {
@@ -822,6 +862,9 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 			(*jet_itr)->auxdata< bool >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
 			VIS.AddLabFrameFourVector( (*jet_itr)->p4()  );  
+			
+			jet.SetPtEtaPhiM( (*jet_itr)->pt(), 0., (*jet_itr)->phi(), (*jet_itr)->m()  );
+			VIS_alt.AddLabFrameFourVector(jet);
 		}
     
     }
@@ -832,17 +875,25 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
 	CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
 
+	TVector3 MET_TV3;
+
     xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
 	if (met_it == MET->end()) {
 		Error( APP_NAME, "No RefFinal inside MET container" );
 	} else {
 		INV.SetLabFrameThreeVector(  TVector3( (*met_it)->mpx(), (*met_it)->mpy(), 0 ) );
+		MET_TV3.SetZ(0.);
+		MET_TV3.SetX((*met_it)->mpx() );
+		MET_TV3.SetY((*met_it)->mpy() );
 	}
 
 	LAB.AnalyzeEvent();
 
+	
+    INV_alt.SetLabFrameThreeVector(MET_TV3);
+    LAB_alt.AnalyzeEvent();
 
-	std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
+	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
 
 	eventInfo->auxdecor<float>("SS_Mass"           ) = SS.GetMass();
 	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS.GetGammaInParentFrame();
@@ -862,6 +913,42 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	eventInfo->auxdecor<float>("V2_N"              ) = VIS.GetNElementsInFrame(V2);
 
 
+
+    // dphiR and Rptshat (formerly cosPT)
+    // for QCD rejection
+    double dphiR = SS.GetDeltaPhiBoostVisible();
+    double PTCM = SS.GetFourVector(LAB).Pt();
+    double Rptshat = PTCM / (PTCM + SS.GetMass()/4.);
+
+    // QCD rejection using the 'background tree'
+    // MET 'sibling' in background tree auxillary calculations
+    TLorentzVector Psib = I_alt.GetSiblingFrame()->GetFourVector(LAB_alt);
+    TLorentzVector Pmet = I_alt.GetFourVector(LAB_alt);
+    double Psib_dot_METhat = max(0., Psib.Vect().Dot(MET_TV3.Unit()));
+    double Mpar2 = Psib.E()*Psib.E()-Psib.Vect().Dot(MET_TV3.Unit())*Psib.Vect().Dot(MET_TV3.Unit());
+    double Msib2 = Psib.M2();
+    double MB2 = 2.*(Pmet.E()*Psib.E()-MET_TV3.Dot(Psib.Vect()));
+    TVector3 boostPsibM = (Pmet+Psib).BoostVector();
+
+
+    // QCD rejection variables from 'background tree'
+    double DepthBKG = S_alt.GetFrameDepth(I_alt);
+    int Nsib = I_alt.GetSiblingFrame()->GetNDescendants();
+    double cosBKG = I_alt.GetParentFrame()->GetCosDecayAngle();
+    double dphiMsib = fabs(MET_TV3.DeltaPhi(Psib.Vect()));
+    double RpsibM = Psib_dot_METhat / (Psib_dot_METhat + MET_TV3.Mag());
+    double RmsibM = 1. / ( MB2/(Mpar2-Msib2) + 1.);
+    Psib.Boost(-boostPsibM);
+    double cosPsibM = -1.*Psib.Vect().Unit().Dot(boostPsibM.Unit());
+    cosPsibM = (1.-cosPsibM)/2.;
+    double DeltaQCD1 = (cosPsibM-RpsibM)/(cosPsibM+RpsibM);
+    double DeltaQCD2 = (cosPsibM-RmsibM)/(cosPsibM+RmsibM);
+
+    eventInfo->auxdecor<float>("QCD_dPhiR"              ) = dphiR;
+    eventInfo->auxdecor<float>("QCD_Rpt"                ) = Rptshat;
+    eventInfo->auxdecor<float>("QCD_Rmsib"              ) = RmsibM;
+    eventInfo->auxdecor<float>("QCD_Delta"              ) = DeltaQCD2;
+
 	// Info( APP_NAME,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
 	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
 
@@ -869,27 +956,28 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	/////////////////////////////////////////////////////////////////
 
-	if(goodJets->at(0)->pt() > 130000 &&
-		goodJets->at(1)->pt() > 50000 && 
-		(goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
-		(goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 ){
-		if(goodJets->size() > 2) if(goodJets->at(2)->pt()<50000){
+	if(goodJets->at(0)->pt() >  20000 &&
+		goodJets->at(1)->pt() > 20000 
+		// (goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
+		// (goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 
+		)
+	{
 			return "SRA";
-		}
+		
 	}
 
 
-	if(goodJets->size() > 2){
-		if(goodJets->at(0)->pt() > 150000 &&
-			goodJets->at(1)->pt() > 30000 && 
-			goodJets->at(2)->pt() > 30000 && 
-			(goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 &&
-			(goodJets->at(2)->btagging())->MV1_discriminant() > 0.98 ){
-			return "SRB";
-		}
-	}
+	// if(goodJets->size() > 2){
+	// 	if(goodJets->at(0)->pt() > 150000 &&
+	// 		goodJets->at(1)->pt() > 30000 && 
+	// 		goodJets->at(2)->pt() > 30000 && 
+	// 		(goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 &&
+	// 		(goodJets->at(2)->btagging())->MV1_discriminant() > 0.98 ){
+	// 		return "SRB";
+	// 	}
+	// }
 
-	return "Test";
+	return "";
 
 }
 
