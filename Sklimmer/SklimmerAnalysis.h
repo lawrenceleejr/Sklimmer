@@ -55,6 +55,7 @@ public:
 	// float cutValue;
 
 	TH1 *h_nevents; //!
+	TH1 *h_nevents_weighted; //!
 
 	Float_t weight; //!
 	Int_t nEvents; //!

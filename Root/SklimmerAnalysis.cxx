@@ -110,7 +110,9 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	// connected.
 
 	h_nevents = new TH1F("h_nevents", "h_nevents", 10, 0, 10);
+	h_nevents_weighted = new TH1F("h_nevents_weighted", "h_nevents_weighted", 10, 0, 10);
 	wk()->addOutput (h_nevents);
+	wk()->addOutput (h_nevents_weighted);
 
 
 
@@ -494,9 +496,9 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	const char* APP_NAME = "SklimmerAnalysis";
 
+
 	int passEvent = 1;
 
-	h_nevents->Fill(0);
 
 	if(m_doSklimming) copyFullxAODContainers();
 
@@ -511,6 +513,95 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	int EventNumber = eventInfo->eventNumber();
 	int RunNumber = eventInfo->runNumber();
+	float EventWeight = eventInfo->mcEventWeight();
+
+	int MCChannelNumber = eventInfo->mcChannelNumber(); 
+
+
+
+
+	h_nevents->Fill(0.);
+	h_nevents_weighted->Fill(0.,EventWeight);
+
+
+	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
+	if ( 
+		MCChannelNumber == 167740 ||
+		MCChannelNumber == 167741 ||
+		MCChannelNumber == 167742 ||
+		MCChannelNumber == 167743 ||
+		MCChannelNumber == 167744 ||
+		MCChannelNumber == 167745 ||
+		MCChannelNumber == 167746 ||
+		MCChannelNumber == 167747 ||
+		MCChannelNumber == 167748 ||
+		MCChannelNumber == 167749 ||
+		MCChannelNumber == 167750 ||
+		MCChannelNumber == 167751 ||
+		MCChannelNumber == 167752 ||
+		MCChannelNumber == 167753 ||
+		MCChannelNumber == 167754 ||
+		MCChannelNumber == 167755 ||
+		MCChannelNumber == 167756 ||
+		MCChannelNumber == 167757 ||
+		MCChannelNumber == 167758 ||
+		MCChannelNumber == 167759 ||
+		MCChannelNumber == 167760 ){
+
+
+
+		const xAOD::TruthParticleContainer* truthParticles = 0;
+		if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
+			Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
+			return EL::StatusCode::FAILURE;
+		}
+
+
+		TLorentzVector V;
+		TLorentzVector l1;
+		TLorentzVector l2;
+
+		bool foundFirst  = false;
+		bool foundSecond = false;
+		bool foundMore   = false;
+
+
+
+		for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
+		  // const TruthParticle* p = *tpi;
+		  // In general for Sherpa,  you have to select particles with status==3 and barcode<100,000 to get get the Matrix element in and out
+		  if ( ((*tpi)->status() == 3) && (fabs( (*tpi)->pdgId() ) >= 11) && (fabs( (*tpi)->pdgId() ) <= 16) && ((*tpi)->barcode() < 100000) ) {
+		    if ( !foundFirst ) {
+		      l1.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
+		      foundFirst = true;
+		    } else if ( !foundSecond ) {
+		      l2.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
+		      foundSecond = true;
+		    } else {
+		      foundMore = true;
+		      break;
+		    }
+		  }
+		}
+
+		if ( !foundSecond )
+		  std::cout << "doSherpaPtFilterCheck: Unable to find 2 leptons" << std::endl;
+		else if ( foundMore )
+		  std::cout << "doSherpaPtFilterCheck: Found more than 2 leptons" << std::endl;
+		else {
+		  V = l1 + l2;
+		  // m_h_sherpaPt->Fill( V.Pt() / GeV, m_eventWeight );
+
+	  		if(V.Pt()>70000.) return EL::StatusCode::SUCCESS;
+
+		}
+
+	}
+	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
+
+
+
+
 
 
 	// check if the event is data or MC
@@ -947,7 +1038,9 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
     eventInfo->auxdecor<float>("QCD_dPhiR"              ) = dphiR;
     eventInfo->auxdecor<float>("QCD_Rpt"                ) = Rptshat;
     eventInfo->auxdecor<float>("QCD_Rmsib"              ) = RmsibM;
-    eventInfo->auxdecor<float>("QCD_Delta"              ) = DeltaQCD2;
+    eventInfo->auxdecor<float>("QCD_Delta2"              ) = DeltaQCD2;
+    eventInfo->auxdecor<float>("QCD_Rpsib"              ) = RpsibM;
+    eventInfo->auxdecor<float>("QCD_Delta1"              ) = DeltaQCD1;
 
 	// Info( APP_NAME,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
 	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );

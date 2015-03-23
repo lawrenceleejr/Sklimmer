@@ -67,7 +67,9 @@ public:
   float RJVars_QCD_dPhiR         ; //! 
   float RJVars_QCD_Rpt           ; //! 
   float RJVars_QCD_Rmsib         ; //! 
-  float RJVars_QCD_Delta         ; //! 
+  float RJVars_QCD_Rpsib         ; //! 
+  float RJVars_QCD_Delta1         ; //! 
+  float RJVars_QCD_Delta2         ; //! 
 
   std::vector<float> * Jet_pT;    //!
   std::vector<float> * Jet_eta;   //!
