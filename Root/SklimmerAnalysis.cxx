@@ -362,6 +362,11 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	xAOD::TEvent *event = wk()->xaodEvent();
 	m_store = wk()->xaodStore();
 
+	if(fillEmptyCollectionNames() != StatusCode::SUCCESS){
+	  Error( APP_NAME, "Failed to fill empty collection names" );
+	  return EL::StatusCode::FAILURE;
+	}
+
 	// as a check, let's see the number of events in our xAOD
 	Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
 
@@ -442,23 +447,22 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 	// without modifying the contents of it:
 	xAOD::TEvent *event = wk()->xaodEvent();
 
-	CHECK(event->copy("EventInfo"));
+	CHECK(event->copy(eventInfoName));
 	CHECK(event->copy("TruthEvent"));
-
 	CHECK(event->copy("TruthParticle"));
 
-	CHECK(event->copy("AntiKt4LCTopoJets"));
+	CHECK(event->copy(jetCollectionName));
 	CHECK(event->copy("AntiKt4TruthJets"));
 
-	CHECK(event->copy("MET_RefFinal"));
+	CHECK(event->copy(metCollectionName));
 	CHECK(event->copy("MET_Truth"));
 
 	CHECK(event->copy("TruthVertex"));
-	CHECK(event->copy("PrimaryVertices"));
+	CHECK(event->copy(primaryVerticesName));
 
-	CHECK(event->copy("ElectronCollection"));
-	CHECK(event->copy("Muons"));
-	// CHECK(event->copy("PhotonCollection"));
+	CHECK(event->copy(electronCollectionName));
+	CHECK(event->copy(muonCollectionName));
+	// CHECK(event->copy(photonCollectionName));
 
 
 	return 0;
@@ -477,9 +481,9 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	//------------
 
 	const xAOD::MuonContainer* muons = 0;
-	if ( !event->retrieve( muons, "Muons" ).isSuccess() ){ // retrieve arguments: container type, container key
-		Error(APP_NAME, "Failed to retrieve Muons container. Exiting." );
-		return EL::StatusCode::FAILURE;
+	if ( !event->retrieve( muons, muonCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
+	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve "+ muonCollectionName+ " container. Exiting.").c_str() );
+	  return EL::StatusCode::FAILURE;
 	}
 
 	xAOD::MuonContainer* muons_copy(0);
@@ -501,8 +505,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	//------------
 
 	const xAOD::ElectronContainer* electrons = 0;
-	if ( !event->retrieve( electrons, "ElectronCollection" ).isSuccess() ){ // retrieve arguments: container type, container key
-		Error(APP_NAME, "Failed to retrieve Electrons container. Exiting." );
+	if ( !event->retrieve( electrons, electronCollectionName).isSuccess() ){ // retrieve arguments: container type, container key
+	  Error(APP_NAME, ("Failed to retrieve"+ electronCollectionName + " container. Exiting.").c_str()) ;
 		return EL::StatusCode::FAILURE;
 	}
 
@@ -527,8 +531,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	//------------
 
 	const xAOD::PhotonContainer* photons = 0;
-	if ( !event->retrieve( photons, "PhotonCollection" ).isSuccess() ){ // retrieve arguments: container type, container key
-		Error(APP_NAME, "Failed to retrieve Photons container. Exiting." );
+	if ( !event->retrieve( photons, photonCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
+	  Error(APP_NAME, ("Failed to retrieve" + photonCollectionName+ ". Exiting.").c_str() );
 		return EL::StatusCode::FAILURE;
 	}
 
@@ -543,8 +547,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	//------------
 
 	const xAOD::JetContainer* jets = 0;
-	if ( !event->retrieve( jets, "AntiKt4LCTopoJets" ).isSuccess() ){ // retrieve arguments: container type, container key
-		Error(APP_NAME, "Failed to retrieve AntiKt4LCTopoJets container. Exiting." );
+	if ( !event->retrieve( jets, jetCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
+	  Error(APP_NAME, ("Failed to retrieve " + jetCollectionName +  ". Exiting.").c_str());
 		return EL::StatusCode::FAILURE;
 	}
 
@@ -557,9 +561,9 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	// TAUS
 	//------------
 	const xAOD::TauJetContainer* taus = 0;
-	if ( !event->retrieve( taus, "TauRecContainer" ).isSuccess() ){ // retrieve arguments: container type, container key
-		Error(APP_NAME, "Failed to retrieve Taus container. Exiting." );
-		return EL::StatusCode::FAILURE;
+	if ( !event->retrieve( taus, tauCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
+	  Error(APP_NAME, ("Failed to retrieve"+ tauCollectionName+ "   container. Exiting.").c_str()) ;
+	  return EL::StatusCode::FAILURE;
 	}
 
 	xAOD::TauJetContainer* taus_copy(0);
@@ -581,8 +585,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::MissingETContainer*    MET = new xAOD::MissingETContainer;
 	xAOD::MissingETAuxContainer* METAux = new xAOD::MissingETAuxContainer;
 	MET->setStore(METAux);
-	CHECK( m_store->record( MET, "CalibMET_RefFinal" ) );
-	CHECK( m_store->record( METAux, "CalibMET_RefFinalAux." ) );
+	CHECK( m_store->record( MET, metCalibCollectionName ) );
+	CHECK( m_store->record( METAux, metCalibCollectionName+"Aux." ) );
 
 	///// TEMPORARY CODE ONLY
 	// Protection against bad muons (calo-tagged, si-associated forward)
@@ -608,13 +612,13 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	if(m_writeFullCollectionsToxAOD){
 
 		muons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
-		if( !event->record( muons_copy ,   "CalibMuons" )){return EL::StatusCode::FAILURE;}
-		if( !event->record( muons_copyaux, "CalibMuonsAux." )) {return EL::StatusCode::FAILURE;}
+		if( !event->record( muons_copy ,   muonCalibCollectionName )){return EL::StatusCode::FAILURE;}
+		if( !event->record( muons_copyaux, muonCalibCollectionName+"Aux." )) {return EL::StatusCode::FAILURE;}
 
 
 		electrons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
-		if( !event->record( electrons_copy ,   "CalibElectrons" )){return EL::StatusCode::FAILURE;}
-		if( !event->record( electrons_copyaux, "CalibElectronsAux." )) {return EL::StatusCode::FAILURE;}
+		if( !event->record( electrons_copy ,   electronCalibCollectionName )){return EL::StatusCode::FAILURE;}
+		if( !event->record( electrons_copyaux, electronCalibCollectionName+"Aux." )) {return EL::StatusCode::FAILURE;}
 
 		// photons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
 		// if( !event->record( photons_copy ,   "CalibPhotons" )){return EL::StatusCode::FAILURE;}
@@ -622,30 +626,30 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 		jets_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
 	                                       // if true should have something like this line somewhere:
-	                                       // event->copy("AntiKt4LCTopoJets");
-		if( !event->record( jets_copy , "CalibJets" )){return EL::StatusCode::FAILURE;}
-		if( !event->record( jets_copyaux, "CalibJetsAux." )) {return EL::StatusCode::FAILURE;}
+	                                       // event->copy(jetCollectionName);
+		if( !event->record( jets_copy , jetCalibCollectionName )){return EL::StatusCode::FAILURE;}
+		if( !event->record( jets_copyaux, jetCalibCollectionName+"Aux." )) {return EL::StatusCode::FAILURE;}
 
-		if( !event->record( MET,    "CalibMET" )){return EL::StatusCode::FAILURE;}
-		if( !event->record( METAux, "CalibMETAux." )) {return EL::StatusCode::FAILURE;}
+		if( !event->record( MET,    metCalibCollectionName )){return EL::StatusCode::FAILURE;}
+		if( !event->record( METAux, metCalibCollectionName+"Aux." )) {return EL::StatusCode::FAILURE;}
 
 	}
 
 	muons_copy->setStore(muons_copyaux);
-	CHECK( m_store->record( muons_copy, "CalibMuons" ) );
-	CHECK( m_store->record( muons_copyaux, "CalibMuonsAux." ) );
+	CHECK( m_store->record( muons_copy, muonCalibCollectionName ) );
+	CHECK( m_store->record( muons_copyaux, muonCalibCollectionName+"Aux." ) );
 
 	electrons_copy->setStore(electrons_copyaux);
-	CHECK( m_store->record( electrons_copy, "CalibElectrons" ) );
-	CHECK( m_store->record( electrons_copyaux, "CalibElectronsAux." ) );
+	CHECK( m_store->record( electrons_copy, electronCalibCollectionName ) );
+	CHECK( m_store->record( electrons_copyaux, electronCalibCollectionName+"Aux." ) );
 
 	photons_copy->setStore(photons_copyaux);
-	CHECK( m_store->record( photons_copy, "CalibPhotons" ) );
-	CHECK( m_store->record( photons_copyaux, "CalibPhotonsAux." ) );
+	CHECK( m_store->record( photons_copy, photonCalibCollectionName ) );
+	CHECK( m_store->record( photons_copyaux, photonCalibCollectionName+"Aux." ) );
 
 	jets_copy->setStore(jets_copyaux);
-	CHECK( m_store->record( jets_copy, "CalibJets" ) );
-	CHECK( m_store->record( jets_copyaux, "CalibJetsAux." ) );
+	CHECK( m_store->record( jets_copy, jetCalibCollectionName ) );
+	CHECK( m_store->record( jets_copyaux, jetCalibCollectionName+"Aux." ) );
 
 
 
@@ -655,7 +659,6 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 
 	return 0;
-
 }
 
 
@@ -682,9 +685,9 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// Event information
 	//---------------------------
 	const xAOD::EventInfo* eventInfo = 0;
-	if( ! event->retrieve( eventInfo, "EventInfo").isSuccess() ){
-		Error(APP_NAME, "Failed to retrieve event info collection. Exiting." );
-		return EL::StatusCode::FAILURE;
+	if( ! event->retrieve( eventInfo, eventInfoName).isSuccess() ){
+	  Error(APP_NAME, ("Failed to retrieve " + eventInfoName + ". Exiting.").c_str()) ;
+	  return EL::StatusCode::FAILURE;
 	}
 
 
@@ -820,14 +823,14 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 	std::pair< xAOD::EventInfo*, xAOD::ShallowAuxInfo* > eventInfo_shallowCopy = xAOD::shallowCopyObject( *eventInfo );
-	if( !m_store->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
-	if( !m_store->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
+	if( !m_store->record( eventInfo_shallowCopy.first , myEventInfoName )){return EL::StatusCode::FAILURE;}
+	if( !m_store->record( eventInfo_shallowCopy.second, myEventInfoName+"Aux." )) {return EL::StatusCode::FAILURE;}
 
 
 	eventInfo_shallowCopy.second->setShallowIO(true);
 
-	if( !event->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
-	if( !event->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
+	if( !event->record( eventInfo_shallowCopy.first , myEventInfoName )){return EL::StatusCode::FAILURE;}
+	if( !event->record( eventInfo_shallowCopy.second, myEventInfoName+"Aux." )) {return EL::StatusCode::FAILURE;}
 
 	// m_store->print();
 
@@ -937,17 +940,17 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
 
 	xAOD::JetContainer* jets_copy(0);
-	CHECK( m_store->retrieve( jets_copy, "CalibJets" ) );
+	CHECK( m_store->retrieve( jets_copy, jetCalibCollectionName ) );
 
 	xAOD::MuonContainer* muons_copy(0);
-	CHECK( m_store->retrieve( muons_copy, "CalibMuons" ) );
+	CHECK( m_store->retrieve( muons_copy, muonCalibCollectionName ) );
 
 	xAOD::ElectronContainer* electrons_copy(0);
-	CHECK( m_store->retrieve( electrons_copy, "CalibElectrons" ) );
+	CHECK( m_store->retrieve( electrons_copy, electronCalibCollectionName ) );
 
 
 	xAOD::EventInfo* eventInfo = 0;
-	CHECK(m_store->retrieve(eventInfo, "myEventInfo"));
+	CHECK(m_store->retrieve(eventInfo, myEventInfoName));
 
 	/////////////// Lepton Veto //////////////////////////////
 
@@ -978,6 +981,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	for( ; jet_itr != jet_end; ++jet_itr ) {
 
+
 		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
 			(*jet_itr)->auxdata< char >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
@@ -988,6 +992,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
     }
 
+	//need two jets
     if(goodJets->size() < 2){
 		return "";
     }
@@ -1017,11 +1022,11 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	// Get MET Collection to hand to Rest Frames////////////////////////////////////////////////////
 
 	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-	CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
+	CHECK( m_store->retrieve( MET, metCalibCollectionName ) );
 
 	TVector3 MET_TV3;
 
-    xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
+	xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");//todo?
 	if (met_it == MET->end()) {
 		Error( APP_NAME, "No RefFinal inside MET container" );
 	} else {
@@ -1209,11 +1214,26 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 
 	return "";
-
 }
 
+EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
 
+  if(muonCollectionName.empty())     muonCollectionName = "Muons";
+  if(electronCollectionName.empty()) electronCollectionName = "ElectronCollection";
+  if(photonCollectionName.empty())   photonCollectionName = "PhotonCollection";
+  if(jetCollectionName.empty())      jetCollectionName = "AntiKt4LCTopoJets";
+  if(metCollectionName.empty())      metCollectionName = "MET_RefFinal";
+  if(tauCollectionName.empty())      tauCollectionName = "TauRecContainer";
 
+  if(muonCalibCollectionName.empty())     muonCalibCollectionName = "CalibMuons";
+  if(electronCalibCollectionName.empty()) electronCalibCollectionName = "CalibElectrons";
+  if(photonCalibCollectionName.empty())   photonCalibCollectionName = "CalibPhotons";
+  if(jetCalibCollectionName.empty())      jetCalibCollectionName = "CalibJets";
+  if(metCalibCollectionName.empty())      metCalibCollectionName = "CalibMET_RefFinal";
+  if(tauCalibCollectionName.empty())      tauCalibCollectionName = "CalibTaus";
+
+  return EL::StatusCode::SUCCESS;
+}
 
 
 
