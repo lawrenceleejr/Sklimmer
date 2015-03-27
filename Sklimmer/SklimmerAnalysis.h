@@ -79,6 +79,7 @@ private:
   EL::StatusCode initializeSUSYTools();
   EL::StatusCode initializeGRLTool();
   EL::StatusCode initializePileupReweightingTool();
+
 public:
 
 
@@ -155,8 +156,6 @@ public:
   std::string truthJetCollectionName;
   std::string truthMetCollectionName;
   // std::string truthTauCollectionName;
-
-
 
 	// These are the switches to steer the analysis code, depending on what step you want to do
 

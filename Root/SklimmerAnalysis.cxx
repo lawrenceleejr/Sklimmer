@@ -327,7 +327,6 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 	CHECK(event->copy(muonCollectionName));
 	// CHECK(event->copy(photonCollectionName));
 
-
 	return 0;
 
 }
@@ -372,7 +371,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	if ( !event->retrieve( electrons, electronCollectionName).isSuccess() ){ // retrieve arguments: container type, container key
 	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve"+ electronCollectionName + " container. Exiting.").c_str()) ;
-		return EL::StatusCode::FAILURE;
+	  return EL::StatusCode::FAILURE;
 	}
 
 	xAOD::ElectronContainer* electrons_copy(0);
@@ -399,7 +398,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	const xAOD::PhotonContainer* photons = 0;
 	if ( !event->retrieve( photons, photonCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
 	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve" + photonCollectionName+ ". Exiting.").c_str() );
-		return EL::StatusCode::FAILURE;
+	  return EL::StatusCode::FAILURE;
 	}
 
 	xAOD::PhotonContainer* photons_copy(0);
@@ -842,7 +841,6 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	for( ; jet_itr != jet_end; ++jet_itr ) {
 
-
 		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
 			(*jet_itr)->auxdata< char >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
@@ -1110,7 +1108,6 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	// 	}
 	// }
 
-
 	return "";
 }
 
@@ -1139,7 +1136,6 @@ EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
   if(truthJetCollectionName.empty())   truthJetCollectionName   = "AntiKt4TruthJets";
   if(truthMetCollectionName.empty())   truthMetCollectionName   = "Truth_MET";
   if(truthPrimaryVerticesName.empty()) truthPrimaryVerticesName = "TruthVertex";
-
 
   return EL::StatusCode::SUCCESS;
 }
