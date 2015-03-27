@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-                                                                                                                   // $Id: errorcheck.h 299732 2014-03-27 17:41:34Z krasznaa $
-#ifndef CPANALYSISEXAMPLES_ERRORCHECK_H
-#define CPANALYSISEXAMPLES_ERRORCHECK_H
+#ifndef SKLIMMER_ERRORCHECK_H
+#define SKLIMMER_ERRORCHECK_H
 
 #define CHECK( ARG )                                     \
   do {                                                  \
