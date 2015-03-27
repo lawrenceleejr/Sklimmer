@@ -102,9 +102,6 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	wk()->addOutput (h_nevents);
 	wk()->addOutput (h_nevents_weighted);
 
-
-
-
 	// BACKGROUND TREE FOR QCD VARIABLES //////////////////////////
 	///////////////////////////////////////////////////////////////
 	//
@@ -159,10 +156,6 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	HemiJigsaw_R = new RestFrames::MinimizeMassesCombinatoricJigsaw ("HEM_JIGSAW_R","Minimize m _{V_{a,b}} Jigsaw");
 	CaHemiJigsaw_R = new RestFrames::MinimizeMassesCombinatoricJigsaw("CbHEM_JIGSAW_R","Minimize m _{C_{a}} Jigsaw");
 	CbHemiJigsaw_R = new RestFrames::MinimizeMassesCombinatoricJigsaw("CaHEM_JIGSAW_R","Minimize m _{C_{b}} Jigsaw");
-
-
-
-
 
 	INV_alt->AddFrame(I_alt);
 	VIS_alt->AddFrame(V_alt);
@@ -296,8 +289,6 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 
 	if(!LAB_R->InitializeAnalysis()) cout << "Problem with signal-tree jigsaws" << endl;
 
-
-
 	return EL::StatusCode::SUCCESS;
 }
 
@@ -362,7 +353,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	////////////////////////////////////////////////////////////////////////////
 
 	xAOD::TEvent *event = wk()->xaodEvent();
-    m_store = wk()->xaodStore();
+	m_store = wk()->xaodStore();
 
 	// as a check, let's see the number of events in our xAOD
 	Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
@@ -379,6 +370,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	if(m_doSUSYObjDef){
 		m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
 
+		//todo do we need this isData property? either this or isMC seems redundant?
 		CHECK( m_susy_obj->setProperty("IsData",isData) );
 		CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
 		CHECK( m_susy_obj->setProperty("EleId","Tight") );
@@ -781,6 +773,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	// check if the event is data or MC
 	// (many tools are applied either to data or MC)
+	//todo we
 	bool isMC = false;
 	// check if the event is MC
 	if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
@@ -815,7 +808,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// Let's calibrate
 
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
-	else putStuffInStore();
+	else putStuffInStore();//todo this can't be used yet?
 
 
 
