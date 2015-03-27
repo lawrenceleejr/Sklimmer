@@ -3,7 +3,7 @@
 void SteeringMacro (const std::string& submitDir, const bool localTest, const std::string dataSet, const std::string date) 
 {
   // Load the libraries for all packages
-  gROOT->ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C");
+  //gROOT->ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C");
 
   // create a new sample handler to describe the data samples we will 'handle'
   SH::SampleHandler sh;

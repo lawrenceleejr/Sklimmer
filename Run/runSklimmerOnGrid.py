@@ -30,12 +30,12 @@ for DS in lines:
 	os.system(""" rm -rf jobs/job_%s_%s """ %(st,DS)  );
 	# os.system(""" root -l -b -q 'KillMacro.cxx () ' """);
 
-	os.system(""" root -l -b -q 'SteeringMacro.cxx ("jobs/job_%s_%s",false,"%s","%s")' """ %(st,DS,DS, st)  )
+	os.system(""" root -l -b -q '$ROOTCOREDIR/scripts/load_packages.C' 'SteeringMacro.cxx ("jobs/job_%s_%s",false,"%s","%s")' """ %(st,DS,DS, st)  )
 
-	os.system(""" root -l -b -q 'StatusMacro.cxx ()' """ );
+	os.system(""" root -l -b -q '$ROOTCOREDIR/scripts/load_packages.C' 'StatusMacro.cxx ()' """ );
 
 	while(1):
-		status, output = commands.getstatusoutput("root -l -b -q 'StatusMacro.cxx ()'")
+		status, output = commands.getstatusoutput("root -l -b -q '$ROOTCOREDIR/scripts/load_packages.C' 'StatusMacro.cxx ()'")
 		print output
 		if(output.find("hold") == -1):
 			break;
