@@ -67,7 +67,14 @@ ClassImp(SklimmerAnalysis)
 
 
 
-SklimmerAnalysis :: SklimmerAnalysis()
+SklimmerAnalysis :: SklimmerAnalysis() : h_nevents(nullptr),
+  m_store(nullptr),
+#ifndef __CINT__
+  m_grl(nullptr),
+  m_pileupReweightingTool(nullptr),
+  m_susy_obj(nullptr),
+#endif // not __CINT__
+  RJTool(nullptr)
 {
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
