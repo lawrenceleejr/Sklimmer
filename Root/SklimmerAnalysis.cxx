@@ -1,6 +1,7 @@
 #include <EventLoop/Job.h>
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/Worker.h>
+#include <Sklimmer/errorcheck.h>
 #include <Sklimmer/SklimmerAnalysis.h>
 
 
@@ -54,7 +55,7 @@
 //PU Reweighting
 #include "PileupReweighting/PileupReweightingTool.h"
 
-#include "CPAnalysisExamples/errorcheck.h"
+
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
 //RJigsaw
