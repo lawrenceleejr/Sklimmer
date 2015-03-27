@@ -76,7 +76,9 @@ private:
 	int applySUSYObjectDefinitions ();
 	int putStuffInStore ();
   EL::StatusCode fillEmptyCollectionNames ();
-
+  EL::StatusCode initializeSUSYTools();
+  EL::StatusCode initializeGRLTool();
+  EL::StatusCode initializePileupReweightingTool();
 public:
 
 

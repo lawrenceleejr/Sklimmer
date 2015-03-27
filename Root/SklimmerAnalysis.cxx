@@ -159,10 +159,6 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// you create here won't be available in the output if you have no
 	// input events.
 
-
-
-
-
 	// This will get moved to submission at some point... //////////////////////
         if(m_writexAOD == false) m_writeFullCollectionsToxAOD = false; // logic and fail-safe
 
@@ -207,55 +203,23 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	// SUSYTools ///////////////////////////////////////////////////////////////////
 
-	if(m_doSUSYObjDef){
-		m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
-
-		//todo do we need this isData property? either this or isMC seems redundant?
-		CHECK( m_susy_obj->setProperty("IsData",isData) );
-		CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
-		CHECK( m_susy_obj->setProperty("EleId","Tight") );
-
-		if( m_susy_obj->SUSYToolsInit().isFailure() ) {
-		  Error( __PRETTY_FUNCTION__, "Failed to initialise tools in SUSYToolsInit()..." );
-		  Error( __PRETTY_FUNCTION__, "Exiting..." );
-		  return EL::StatusCode::FAILURE;
-		}
-		else{ Info(__PRETTY_FUNCTION__,"SUSYToolsInit with success!!... " );}
-
-		if( m_susy_obj->initialize() != StatusCode::SUCCESS){
-		  Error(__PRETTY_FUNCTION__, "Cannot intialize SUSYObjDef_xAOD..." );
-		  Error(__PRETTY_FUNCTION__, "Exiting... " );
-		  return EL::StatusCode::FAILURE;
-		}else{
-		  Info(__PRETTY_FUNCTION__,"SUSYObjDef_xAOD initialized... " );
-		}
+	if(m_doSUSYObjDef &&
+	   (initializeSUSYTools() != StatusCode::SUCCESS)){
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize SUSY Tools" );
+	  return EL::StatusCode::FAILURE;
 	}
 
-	// GRL ///////////////////////////////////////////////////////////////////
 
-	m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
-	std::vector<std::string> vecStringGRL;
-	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/GRL/Summer2013/data12_8TeV.periodAllYear_DetStatus-v61-pro14-02_DQDefects-00-01-00_PHYS_StandardGRL_All_Good.xml"));
-	CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
-	CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
-	if (!m_grl->initialize().isSuccess()) { // check this isSuccess
-		Error(__PRETTY_FUNCTION__, "Failed to properly initialize the GRL. Exiting." );
-		return EL::StatusCode::FAILURE;
+	// GRL ///////////////////////////////////////////////////////////////////
+	if( initializeGRLTool()  != StatusCode::SUCCESS){
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize GRL Tool" );
+	  return EL::StatusCode::FAILURE;
 	}
 
 	// Pile Up Reweighting ///////////////////////////////////////////////////////////////////
-
-	m_pileupReweightingTool= new PileupReweightingTool("PileupReweightingTool");
-	CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );
-	std::vector<std::string> prwFiles;
-	prwFiles.push_back("PileupReweighting/mc14v1_defaults.prw.root");
-	CHECK( m_pileupReweightingTool->setProperty("ConfigFiles",prwFiles) );
-	std::vector<std::string> lumicalcFiles;
-	lumicalcFiles.push_back("SUSYTools/susy_data12_avgintperbx.root");
-	CHECK( m_pileupReweightingTool->setProperty("LumiCalcFiles",lumicalcFiles) );
-	if(!m_pileupReweightingTool->initialize().isSuccess()){
-		Error(__PRETTY_FUNCTION__, "Failed to properly initialize the Pile Up Reweighting. Exiting." );
-		return EL::StatusCode::FAILURE;
+	if( initializePileupReweightingTool() != StatusCode::SUCCESS) {
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize Pileup Reweighting Tool" );
+	  return EL::StatusCode::FAILURE;
 	}
 
 	// RJigsaw Tool ///////////////////////////////////////////////////////////////////
@@ -272,6 +236,64 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	RJTool->resetHists();
 
 	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
+
+	return EL::StatusCode::SUCCESS;
+}
+
+EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
+  m_pileupReweightingTool= new PileupReweightingTool("PileupReweightingTool");
+  CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );
+  std::vector<std::string> prwFiles;
+  prwFiles.push_back("PileupReweighting/mc14v1_defaults.prw.root");
+  CHECK( m_pileupReweightingTool->setProperty("ConfigFiles",prwFiles) );
+  std::vector<std::string> lumicalcFiles;
+  lumicalcFiles.push_back("SUSYTools/susy_data12_avgintperbx.root");
+  CHECK( m_pileupReweightingTool->setProperty("LumiCalcFiles",lumicalcFiles) );
+  if(!m_pileupReweightingTool->initialize().isSuccess()){
+    Error(__PRETTY_FUNCTION__, "Failed to properly initialize the Pile Up Reweighting. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+
+  return EL::StatusCode::SUCCESS;
+}
+
+
+EL::StatusCode SklimmerAnalysis :: initializeSUSYTools(){
+  m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
+
+  //todo do we need this isData property? either this or isMC seems redundant?
+  CHECK( m_susy_obj->setProperty("IsData",isData) );
+  CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
+  CHECK( m_susy_obj->setProperty("EleId","Tight") );
+
+  if( m_susy_obj->SUSYToolsInit().isFailure() ) {
+    Error( __PRETTY_FUNCTION__, "Failed to initialise tools in SUSYToolsInit()..." );
+    Error( __PRETTY_FUNCTION__, "Exiting..." );
+    return EL::StatusCode::FAILURE;
+  }
+  else{ Info(__PRETTY_FUNCTION__,"SUSYToolsInit with success!!... " );}
+
+  if( m_susy_obj->initialize() != StatusCode::SUCCESS){
+    Error(__PRETTY_FUNCTION__, "Cannot intialize SUSYObjDef_xAOD..." );
+    Error(__PRETTY_FUNCTION__, "Exiting... " );
+    return EL::StatusCode::FAILURE;
+  }else{
+    Info(__PRETTY_FUNCTION__,"SUSYObjDef_xAOD initialized... " );
+  }
+
+  return EL::StatusCode::SUCCESS;
+}
+
+EL::StatusCode SklimmerAnalysis :: initializeGRLTool(){
+	m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
+	std::vector<std::string> vecStringGRL;
+	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/GRL/Summer2013/data12_8TeV.periodAllYear_DetStatus-v61-pro14-02_DQDefects-00-01-00_PHYS_StandardGRL_All_Good.xml"));
+	CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
+	CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
+	if (!m_grl->initialize().isSuccess()) { // check this isSuccess
+		Error(__PRETTY_FUNCTION__, "Failed to properly initialize the GRL. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
 
 	return EL::StatusCode::SUCCESS;
 }
