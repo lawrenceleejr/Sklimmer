@@ -156,7 +156,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 
 	// This will get moved to submission at some point... //////////////////////
-
+        if(m_writexAOD == false) m_writeFullCollectionsToxAOD = false; // logic and fail-safe 
 
 	Info("initialize()", "m_doSklimming = %i"               , m_doSklimming                 ); 
 	Info("initialize()", "m_doSUSYObjDef = %i"              , m_doSUSYObjDef                ); 
@@ -271,8 +271,7 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 	// copy full container(s) to new xAOD
 	// without modifying the contents of it: 
-
-	CHECK(m_event->copy("EventInfo"));
+        CHECK(m_event->copy("EventInfo"));
 	CHECK(m_event->copy("TruthEvent"));
 
 	CHECK(m_event->copy("TruthParticle"));
@@ -289,6 +288,7 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 	CHECK(m_event->copy("ElectronCollection"));
 	CHECK(m_event->copy("Muons"));
 	// CHECK(m_event->copy("PhotonCollection"));
+
 
 	return 0;
 
@@ -320,7 +320,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	for( ; mu_itr != mu_end; ++mu_itr ) {
 		m_susy_obj->IsSignalMuonExp( **mu_itr,  ST::SignalIsoExp::TightIso ) ;
 		m_susy_obj->IsCosmicMuon( **mu_itr );
-		//Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< bool >("baseline") );
+		//Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< char >("baseline") );
 	}
 
 
@@ -344,7 +344,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	for( ; el_itr != el_end; ++el_itr ) {
 		m_susy_obj->IsSignalElectronExp( **el_itr , ST::SignalIsoExp::TightIso);
-		//Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< bool >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
+		//Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< char >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
 	}
 
 
@@ -497,10 +497,13 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	const char* APP_NAME = "SklimmerAnalysis";
 
 
+
 	int passEvent = 1;
 
 
-	if(m_doSklimming) copyFullxAODContainers();
+	//if(m_doSklimming) copyFullxAODContainers();
+        // LH update, should the above instead be this:
+        if(m_writeFullCollectionsToxAOD) copyFullxAODContainers();
 
 	//----------------------------
 	// Event information
@@ -510,6 +513,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		Error(APP_NAME, "Failed to retrieve event info collection. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
+
 
 	int EventNumber = eventInfo->eventNumber();
 	int RunNumber = eventInfo->runNumber();
@@ -522,7 +526,6 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	h_nevents->Fill(0.);
 	h_nevents_weighted->Fill(0.,EventWeight);
-
 
 	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
 	if ( 
@@ -602,8 +605,6 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 
-
-
 	// check if the event is data or MC
 	// (many tools are applied either to data or MC)
 	bool isMC = false;
@@ -650,8 +651,10 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 	eventInfo_shallowCopy.second->setShallowIO(true);
-	if( !m_event->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
-	if( !m_event->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
+        if(m_writeFullCollectionsToxAOD){
+	    if( !m_event->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
+	    if( !m_event->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
+        }
 
 
 	// m_store->print();
@@ -677,7 +680,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	if(m_writexAOD){
 		// Save the event:
-		CHECK(m_event->fill()); // Trying to fill the output xAOD causes problems right now...
+		m_event->fill();
 	}
 
 	//Info( APP_NAME,"leaving execute "  );
@@ -773,7 +776,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 
 	xAOD::EventInfo* eventInfo = 0;
-	m_store->retrieve(eventInfo, "myEventInfo");
+	CHECK(m_store->retrieve(eventInfo, "myEventInfo"));
 
 	/////////////// Lepton Veto //////////////////////////////
 
@@ -781,14 +784,14 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
 	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
 	for( ; el_itr != el_end; ++el_itr ) {
-		if( ( *el_itr )->auxdata<bool>("passOR") ) Nel++;
+		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
 	}
 	
 	int Nmu=0;
 	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
 	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
 	for( ; mu_itr != mu_end; ++mu_itr ) {
-		if( ( *mu_itr )->auxdata<bool>("passOR") ) Nmu++;
+		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
 	}
 
 	if(Nel || Nmu) return "";
@@ -804,8 +807,8 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	for( ; jet_itr != jet_end; ++jet_itr ) {
 
-		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
-			(*jet_itr)->auxdata< bool >("passOR")==1  &&
+		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
+			(*jet_itr)->auxdata< char >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
 			goodJets->push_back (*jet_itr); 
 		}
@@ -949,8 +952,8 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	jet_itr = (jets_copy)->begin();
 	for( ; jet_itr != jet_end; ++jet_itr ) {
 
-		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
-			(*jet_itr)->auxdata< bool >("passOR")==1  &&
+		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
+			(*jet_itr)->auxdata< char >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
 			VIS.AddLabFrameFourVector( (*jet_itr)->p4()  );  
 			
@@ -1069,6 +1072,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	// 		return "SRB";
 	// 	}
 	// }
+
 
 	return "";
 

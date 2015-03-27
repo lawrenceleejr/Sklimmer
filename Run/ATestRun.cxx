@@ -1,7 +1,15 @@
 void ATestRun (const std::string& submitDir)
 {
+  //===========================================
+  // FOR ROOT6 WE DO NOT PUT THIS LINE 
+  // (ROOT6 uses Cling instead of CINT)
   // Load the libraries for all packages
-  gROOT->Macro("$ROOTCOREDIR/scripts/load_packages.C");
+  // gROOT->Macro("$ROOTCOREDIR/scripts/load_packages.C");
+  // Instead on command line do:
+  // > root -l '$ROOTCOREDIR/scripts/load_packages.C' 'ATestRun.cxx ("submitDir")'
+  // The above works for ROOT6 and ROOT5
+  //==========================================
+
 
   // Set up the job for xAOD access:
   xAOD::Init().ignore();

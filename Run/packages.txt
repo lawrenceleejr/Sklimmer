@@ -1,14 +1,16 @@
+# from PhysicsAnalysis/SUSYPhys/SUSYTools/README
+
 # SUSYTools
-atlasoff/PhysicsAnalysis/SUSYPhys/SUSYTools/tags/SUSYTools-00-05-00-16
+atlasoff/PhysicsAnalysis/SUSYPhys/SUSYTools/tags/SUSYTools-00-05-00-24
 
-# Additional packages needed on top of Base,2.0.22 (will not be needed for a future AnalysisBase/AnalysisSUSY release)
-atlasoff/Event/xAOD/xAODMissingET/tags/xAODMissingET-00-01-13
-atlasoff/Reconstruction/MET/METInterface/tags/METInterface-00-01-02
-atlasoff/Reconstruction/MET/METUtilities/tags/METUtilities-00-01-11-01
-atlasoff/Reconstruction/Jet/JetCalibTools/tags/JetCalibTools-00-04-20
-atlasoff/PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection/tags/ElectronEfficiencyCorrection-00-01-13
-atlasoff/InnerDetector/InDetRecTools/InDetTrackSelectionTool/tags/InDetTrackSelectionTool-00-01-10
+# Additional packages needed on top of Base,2.1.28 (will not be needed for a
+# future AnalysisBase/AnalysisSUSY release)
+atlasoff/Reconstruction/EventShapes/EventShapeTools/tags/EventShapeTools-00-01-09 
+atlasoff/Reconstruction/EventShapes/EventShapeInterface/tags/EventShapeInterface-00-00-09
+atlasoff/PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection/tags/ElectronEfficiencyCorrection-00-01-19
+atlasoff/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools/tags/ElectronPhotonSelectorTools-00-01-37-20
+atlasoff/Reconstruction/Jet/JetCalibTools/tags/JetCalibTools-00-04-33
 
-# the following needs patching
-atlasoff/Reconstruction/EventShapes/EventShapeTools/tags/EventShapeTools-00-01-03
+# Extra package needed to copy xAOD::EventInfo into new xAOD
+atlasoff/Control/xAODRootAccess/tags/xAODRootAccess-00-00-96
 

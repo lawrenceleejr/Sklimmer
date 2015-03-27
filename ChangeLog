@@ -1,0 +1,4 @@
+2015-03-27 Louise Heelan
+	* updating to ROOT6 and SUSYTools-00-05-00-24
+	* in SUSYTools 'passOR', 'baseline' changed to char (from bool)
+	* fixing small bugs so can (or not) write out xAOD without problems

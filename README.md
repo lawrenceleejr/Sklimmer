@@ -20,12 +20,12 @@ Works in a RootCore setup. Requires SUSYTools and Ext_RestFrames. Current workin
 
 ```
 setupATLAS
-rcSetup Base,2.0.22
-rc checkout packages.txt
-cd EventShapeTools && svn patch -p0 -i EventShapeTools.diff #convenient patch from diff - Giordon
-#Then you'll also need Sklimmer and Ext_RestFrames - Will be moved to CERN svn at some point
+rcSetup Base,2.1.28
 svn co https://github.com/lawrenceleejr/Sklimmer/trunk Sklimmer
-svn co https://github.com/lawrenceleejr/Ext_RestFrames/trunk Ext_RestFrames
+svn co https://github.com/lawrenceleejr/RJigsaw/trunk RJigsaw
+svn co https://github.com/lawrenceleejr/Ext_RestFrames/trunk/ Ext_RestFrames
+cp Sklimmer/Run/packages.txt .
+rc checkout packages.txt
 rc clean
 rc find_packages
 rc compile
@@ -35,7 +35,7 @@ You can test on the xAOD sample from the tutorials:
 
 export ALRB_TutorialData=/afs/cern.ch/atlas/project/PAT/tutorial/cern-nov2014/
 cd Sklimmer/Run
-root -l 'ATestRun.cxx ("submitDir")' # Make sure ATestRun.cxx is using the xAOD from the above location
+root -l '$ROOTCOREDIR/scripts/load_packages.C' 'ATestRun.cxx ("submitDir")'
 
 In practice, I think we'll use the scripts/Run.py steering script. See file for details.
 
