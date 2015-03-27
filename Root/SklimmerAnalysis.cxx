@@ -90,7 +90,11 @@ EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 	xAOD::Init( "SklimmerAnalysis" ).ignore(); // call before opening first file
 
 	// tell EventLoop about our output xAOD:
-	EL::OutputStream out ("outputxAOD");
+	if(outputxAODName.empty()){
+	  outputxAODName = "outputxAOD";
+	}
+
+	EL::OutputStream out (outputxAODName);
 	job.outputAdd (out);
 
 	return EL::StatusCode::SUCCESS;
@@ -370,7 +374,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// Output xAOD ///////////////////////////////////////////////////////////////////
 
 	if(m_writexAOD){
-		TFile *file = wk()->getOutputFile ("outputxAOD");
+		TFile *file = wk()->getOutputFile (outputxAODName);
 		CHECK(event->writeTo(file));
 	}
 
@@ -403,7 +407,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
   m_pileupReweightingTool= new PileupReweightingTool("PileupReweightingTool");
-  CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );
+  CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );//todo should this EventInfo be the eventInfoName member?
   std::vector<std::string> prwFiles;
   prwFiles.push_back("PileupReweighting/mc14v1_defaults.prw.root");
   CHECK( m_pileupReweightingTool->setProperty("ConfigFiles",prwFiles) );
@@ -462,25 +466,21 @@ EL::StatusCode SklimmerAnalysis :: initializeGRLTool(){
 
 int SklimmerAnalysis :: copyFullxAODContainers ()
 {
-
-
-
-
 	// copy full container(s) to new xAOD
 	// without modifying the contents of it:
 	xAOD::TEvent *event = wk()->xaodEvent();
 
 	CHECK(event->copy(eventInfoName));
-	CHECK(event->copy("TruthEvent"));
-	CHECK(event->copy("TruthParticle"));
+	CHECK(event->copy(truthEventName));
+	CHECK(event->copy(truthParticleName));
 
 	CHECK(event->copy(jetCollectionName));
-	CHECK(event->copy("AntiKt4TruthJets"));
+	CHECK(event->copy(truthJetCollectionName));
 
 	CHECK(event->copy(metCollectionName));
-	CHECK(event->copy("MET_Truth"));
+	CHECK(event->copy(truthMetCollectionName));
 
-	CHECK(event->copy("TruthVertex"));
+	CHECK(event->copy(truthPrimaryVerticesName));
 	CHECK(event->copy(primaryVerticesName));
 
 	CHECK(event->copy(electronCollectionName));
@@ -932,7 +932,7 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 	// finalize and close our output xAOD file:
 
 	if(m_writexAOD){
-		TFile *file = wk()->getOutputFile ("outputxAOD");
+		TFile *file = wk()->getOutputFile (outputxAODName);
 		CHECK(event->finishWritingTo( file ));
 	}
 	return EL::StatusCode::SUCCESS;
@@ -1241,20 +1241,31 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 }
 
 EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
+  if(eventInfoName.empty())       eventInfoName       = "EventInfo";
+  if(primaryVerticesName.empty()) primaryVerticesName = "PrimaryVertices";
 
-  if(muonCollectionName.empty())     muonCollectionName = "Muons";
+  if(muonCollectionName.empty())     muonCollectionName     = "Muons";
   if(electronCollectionName.empty()) electronCollectionName = "ElectronCollection";
-  if(photonCollectionName.empty())   photonCollectionName = "PhotonCollection";
-  if(jetCollectionName.empty())      jetCollectionName = "AntiKt4LCTopoJets";
-  if(metCollectionName.empty())      metCollectionName = "MET_RefFinal";
-  if(tauCollectionName.empty())      tauCollectionName = "TauRecContainer";
+  if(photonCollectionName.empty())   photonCollectionName   = "PhotonCollection";
+  if(jetCollectionName.empty())      jetCollectionName      = "AntiKt4LCTopoJets";
+  if(metCollectionName.empty())      metCollectionName      = "MET_RefFinal";
+  if(tauCollectionName.empty())      tauCollectionName      = "TauRecContainer";
 
-  if(muonCalibCollectionName.empty())     muonCalibCollectionName = "CalibMuons";
+  if(myEventInfoName.empty())  myEventInfoName = "MyEventInfo";
+
+  if(muonCalibCollectionName.empty())     muonCalibCollectionName     = "CalibMuons";
   if(electronCalibCollectionName.empty()) electronCalibCollectionName = "CalibElectrons";
-  if(photonCalibCollectionName.empty())   photonCalibCollectionName = "CalibPhotons";
-  if(jetCalibCollectionName.empty())      jetCalibCollectionName = "CalibJets";
-  if(metCalibCollectionName.empty())      metCalibCollectionName = "CalibMET_RefFinal";
-  if(tauCalibCollectionName.empty())      tauCalibCollectionName = "CalibTaus";
+  if(photonCalibCollectionName.empty())   photonCalibCollectionName   = "CalibPhotons";
+  if(jetCalibCollectionName.empty())      jetCalibCollectionName      = "CalibJets";
+  if(metCalibCollectionName.empty())      metCalibCollectionName      = "CalibMET_RefFinal";
+  if(tauCalibCollectionName.empty())      tauCalibCollectionName      = "CalibTaus";
+
+  if(truthEventName.empty())           truthEventName           = "TruthEvent";
+  if(truthParticleName.empty())        truthParticleName        = "TruthParticle";
+  if(truthJetCollectionName.empty())   truthJetCollectionName   = "AntiKt4TruthJets";
+  if(truthMetCollectionName.empty())   truthMetCollectionName   = "Truth_MET";
+  if(truthPrimaryVerticesName.empty()) truthPrimaryVerticesName = "TruthVertex";
+
 
   return EL::StatusCode::SUCCESS;
 }

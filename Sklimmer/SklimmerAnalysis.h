@@ -193,6 +193,8 @@ public:
 	int useLeptonTrigger;
 	int doSyst;
 
+  std::string outputxAODName;
+
   std::string muonCollectionName;
   std::string electronCollectionName;
   std::string photonCollectionName;
@@ -207,10 +209,20 @@ public:
   std::string metCalibCollectionName;
   std::string tauCalibCollectionName;
 
-
   std::string eventInfoName;
   std::string myEventInfoName;
   std::string primaryVerticesName;
+
+  std::string truthEventName;
+  std::string truthParticleName;
+  std::string truthPrimaryVerticesName;
+  // std::string truthMuonCollectionName;
+  // std::string truthElectronCollectionName;
+  // std::string truthPhotonCollectionName;
+  std::string truthJetCollectionName;
+  std::string truthMetCollectionName;
+  // std::string truthTauCollectionName;
+
 
 
 	// These are the switches to steer the analysis code, depending on what step you want to do
@@ -220,7 +232,6 @@ public:
 	bool m_doEventSelection;
 	// bool m_writeNtuple;
 	bool m_writexAOD;
-
 	bool m_writeFullCollectionsToxAOD;
 
 	TString m_Analysis;
