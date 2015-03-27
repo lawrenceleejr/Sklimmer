@@ -232,6 +232,7 @@ public:
 	bool m_doEventSelection;
 	// bool m_writeNtuple;
 	bool m_writexAOD;
+
 	bool m_writeFullCollectionsToxAOD;
 
 	TString m_Analysis;

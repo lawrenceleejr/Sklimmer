@@ -394,6 +394,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	}
 
 	// Pile Up Reweighting ///////////////////////////////////////////////////////////////////
+
 	if( initializePileupReweightingTool() != StatusCode::SUCCESS) {
 	  Error(__PRETTY_FUNCTION__ , "Failed to initialize Pileup Reweighting Tool" );
 	  return EL::StatusCode::FAILURE;
@@ -496,7 +497,6 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
-
 	xAOD::TEvent *event = wk()->xaodEvent();
 
 	//------------
@@ -530,6 +530,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	//------------
 
 	const xAOD::ElectronContainer* electrons = 0;
+
 	if ( !event->retrieve( electrons, electronCollectionName).isSuccess() ){ // retrieve arguments: container type, container key
 	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve"+ electronCollectionName + " container. Exiting.").c_str()) ;
 		return EL::StatusCode::FAILURE;
@@ -575,7 +576,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	const xAOD::JetContainer* jets = 0;
 	if ( !event->retrieve( jets, jetCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
 	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve " + jetCollectionName +  ". Exiting.").c_str());
-		return EL::StatusCode::FAILURE;
+	  return EL::StatusCode::FAILURE;
 	}
 
 	xAOD::JetContainer* jets_copy(0);
@@ -695,10 +696,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// histograms and trees.  This is where most of your actual analysis
 	// code will go.
 
-
 	xAOD::TEvent *event = wk()->xaodEvent();
-
-
 
 	int passEvent = 1;
 
@@ -914,7 +912,6 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 	// merged.  This is different from histFinalize() in that it only
 	// gets called on worker nodes that processed input events.
 
-
 	xAOD::TEvent *event = wk()->xaodEvent();
 
 	// GRL
@@ -932,6 +929,7 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 	// finalize and close our output xAOD file:
 
 	if(m_writexAOD){
+
 		TFile *file = wk()->getOutputFile (outputxAODName);
 		CHECK(event->finishWritingTo( file ));
 	}
