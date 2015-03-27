@@ -220,7 +220,6 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	}
 
 	// Pile Up Reweighting ///////////////////////////////////////////////////////////////////
-
 	if( initializePileupReweightingTool() != StatusCode::SUCCESS) {
 	  Error(__PRETTY_FUNCTION__ , "Failed to initialize Pileup Reweighting Tool" );
 	  return EL::StatusCode::FAILURE;
@@ -260,7 +259,6 @@ EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
 
   return EL::StatusCode::SUCCESS;
 }
-
 
 EL::StatusCode SklimmerAnalysis :: initializeSUSYTools(){
   m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
