@@ -158,7 +158,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// you create here won't be available in the output if you have no
 	// input events.
 
-	const char* APP_NAME = "SklimmerAnalysis";
+
 
 
 
@@ -190,7 +190,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	m_store = wk()->xaodStore();
 
 	if(fillEmptyCollectionNames() != StatusCode::SUCCESS){
-	  Error( APP_NAME, "Failed to fill empty collection names" );
+	  Error( __PRETTY_FUNCTION__, "Failed to fill empty collection names" );
 	  return EL::StatusCode::FAILURE;
 	}
 
@@ -215,18 +215,18 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		CHECK( m_susy_obj->setProperty("EleId","Tight") );
 
 		if( m_susy_obj->SUSYToolsInit().isFailure() ) {
-		  Error( APP_NAME, "Failed to initialise tools in SUSYToolsInit()..." );
-		  Error( APP_NAME, "Exiting..." );
+		  Error( __PRETTY_FUNCTION__, "Failed to initialise tools in SUSYToolsInit()..." );
+		  Error( __PRETTY_FUNCTION__, "Exiting..." );
 		  return EL::StatusCode::FAILURE;
 		}
-		else{ Info(APP_NAME,"SUSYToolsInit with success!!... " );}
+		else{ Info(__PRETTY_FUNCTION__,"SUSYToolsInit with success!!... " );}
 
 		if( m_susy_obj->initialize() != StatusCode::SUCCESS){
-		  Error(APP_NAME, "Cannot intialize SUSYObjDef_xAOD..." );
-		  Error(APP_NAME, "Exiting... " );
+		  Error(__PRETTY_FUNCTION__, "Cannot intialize SUSYObjDef_xAOD..." );
+		  Error(__PRETTY_FUNCTION__, "Exiting... " );
 		  return EL::StatusCode::FAILURE;
 		}else{
-		  Info(APP_NAME,"SUSYObjDef_xAOD initialized... " );
+		  Info(__PRETTY_FUNCTION__,"SUSYObjDef_xAOD initialized... " );
 		}
 	}
 
@@ -238,7 +238,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
 	CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
 	if (!m_grl->initialize().isSuccess()) { // check this isSuccess
-		Error(APP_NAME, "Failed to properly initialize the GRL. Exiting." );
+		Error(__PRETTY_FUNCTION__, "Failed to properly initialize the GRL. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
 
@@ -253,7 +253,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	lumicalcFiles.push_back("SUSYTools/susy_data12_avgintperbx.root");
 	CHECK( m_pileupReweightingTool->setProperty("LumiCalcFiles",lumicalcFiles) );
 	if(!m_pileupReweightingTool->initialize().isSuccess()){
-		Error(APP_NAME, "Failed to properly initialize the Pile Up Reweighting. Exiting." );
+		Error(__PRETTY_FUNCTION__, "Failed to properly initialize the Pile Up Reweighting. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
 
@@ -279,7 +279,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 int SklimmerAnalysis :: copyFullxAODContainers ()
 {
 
-	const char* APP_NAME = "SklimmerAnalysis";
+
 
 
 	// copy full container(s) to new xAOD
@@ -312,7 +312,7 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
-	const char* APP_NAME = "SklimmerAnalysis";
+
 	xAOD::TEvent *event = wk()->xaodEvent();
 
 	//------------
@@ -335,7 +335,9 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	for( ; mu_itr != mu_end; ++mu_itr ) {
 		m_susy_obj->IsSignalMuonExp( **mu_itr,  ST::SignalIsoExp::TightIso ) ;
 		m_susy_obj->IsCosmicMuon( **mu_itr );
-		//Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< char >("baseline") );
+
+
+		//Info(__PRETTY_FUNCTION__, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< bool >("baseline") );
 	}
 
 
@@ -345,7 +347,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	const xAOD::ElectronContainer* electrons = 0;
 	if ( !event->retrieve( electrons, electronCollectionName).isSuccess() ){ // retrieve arguments: container type, container key
-	  Error(APP_NAME, ("Failed to retrieve"+ electronCollectionName + " container. Exiting.").c_str()) ;
+	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve"+ electronCollectionName + " container. Exiting.").c_str()) ;
 		return EL::StatusCode::FAILURE;
 	}
 
@@ -359,7 +361,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	for( ; el_itr != el_end; ++el_itr ) {
 		m_susy_obj->IsSignalElectronExp( **el_itr , ST::SignalIsoExp::TightIso);
-		//Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< char >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
+		//Info( __PRETTY_FUNCTION__, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< bool >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
+
 	}
 
 
@@ -371,7 +374,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	const xAOD::PhotonContainer* photons = 0;
 	if ( !event->retrieve( photons, photonCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
-	  Error(APP_NAME, ("Failed to retrieve" + photonCollectionName+ ". Exiting.").c_str() );
+	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve" + photonCollectionName+ ". Exiting.").c_str() );
 		return EL::StatusCode::FAILURE;
 	}
 
@@ -387,7 +390,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	const xAOD::JetContainer* jets = 0;
 	if ( !event->retrieve( jets, jetCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
-	  Error(APP_NAME, ("Failed to retrieve " + jetCollectionName +  ". Exiting.").c_str());
+	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve " + jetCollectionName +  ". Exiting.").c_str());
 		return EL::StatusCode::FAILURE;
 	}
 
@@ -401,7 +404,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	//------------
 	const xAOD::TauJetContainer* taus = 0;
 	if ( !event->retrieve( taus, tauCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
-	  Error(APP_NAME, ("Failed to retrieve"+ tauCollectionName+ "   container. Exiting.").c_str()) ;
+	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve"+ tauCollectionName+ "   container. Exiting.").c_str()) ;
 	  return EL::StatusCode::FAILURE;
 	}
 
@@ -508,7 +511,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// histograms and trees.  This is where most of your actual analysis
 	// code will go.
 
-	const char* APP_NAME = "SklimmerAnalysis";
+
 	xAOD::TEvent *event = wk()->xaodEvent();
 
 
@@ -525,7 +528,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	//---------------------------
 	const xAOD::EventInfo* eventInfo = 0;
 	if( ! event->retrieve( eventInfo, eventInfoName).isSuccess() ){
-	  Error(APP_NAME, ("Failed to retrieve " + eventInfoName + ". Exiting.").c_str()) ;
+	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve " + eventInfoName + ". Exiting.").c_str()) ;
 	  return EL::StatusCode::FAILURE;
 	}
 
@@ -650,7 +653,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		if( RunNumber == 222222) mc14_13TeV = true;
 		if (!mc14_13TeV){ // Only reweight 8 TeV MC
 			CHECK( m_pileupReweightingTool->execute() );
-			//Info( APP_NAME,"PileupReweightingTool: PileupWeight %f RandomRunNumber %i RandomLumiBlockNumber %i",eventInfo->auxdata< double >("PileupWeight"), eventInfo->auxdata< unsigned int >("RandomRunNumber"),  eventInfo->auxdata< unsigned int >("RandomLumiBlockNumber") );
+			//Info( __PRETTY_FUNCTION__,"PileupReweightingTool: PileupWeight %f RandomRunNumber %i RandomLumiBlockNumber %i",eventInfo->auxdata< double >("PileupWeight"), eventInfo->auxdata< unsigned int >("RandomRunNumber"),  eventInfo->auxdata< unsigned int >("RandomLumiBlockNumber") );
 		}
 	}// end if IS MC
 
@@ -681,23 +684,23 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		//if(result=="") return EL::StatusCode::SUCCESS;
 	}
 
-	//Info( APP_NAME,"About to access eventInfo "  );
+	//Info( __PRETTY_FUNCTION__,"About to access eventInfo "  );
 
-	//Info( APP_NAME,"RJigsaw Variables: sHatR %f",
+	//Info( __PRETTY_FUNCTION__,"RJigsaw Variables: sHatR %f",
 	//	(eventInfo_shallowCopy.first)->auxdata< float >("sHatR")  );
-	//Info( APP_NAME,"RJigsaw Variables: gammainv_Rp1 %f",
+	//Info( __PRETTY_FUNCTION__,"RJigsaw Variables: gammainv_Rp1 %f",
 	//	(eventInfo_shallowCopy.first)->auxdata< float >("gammainv_Rp1") );
 
 	// m_store->clear();
 
-	//Info( APP_NAME,"About to write to xAOD "  );
+	//Info( __PRETTY_FUNCTION__,"About to write to xAOD "  );
 
 	if(m_writexAOD){
 		// Save the event:
 		CHECK(event->fill()); // Trying to fill the output xAOD causes problems right now...
 	}
 
-	//Info( APP_NAME,"leaving execute "  );
+	//Info( __PRETTY_FUNCTION__,"leaving execute "  );
 
 
 	return EL::StatusCode::SUCCESS;
@@ -727,7 +730,7 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 	// merged.  This is different from histFinalize() in that it only
 	// gets called on worker nodes that processed input events.
 
-	const char* APP_NAME = "SklimmerAnalysis";
+
 	xAOD::TEvent *event = wk()->xaodEvent();
 
 	// GRL
@@ -772,8 +775,6 @@ EL::StatusCode SklimmerAnalysis :: histFinalize ()
 
 TString SklimmerAnalysis :: eventSelectionBBMet()
 {
-
-	const char* APP_NAME = "SklimmerAnalysis";
 
 
 	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
@@ -988,7 +989,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");//todo?
 	if (met_it == MET->end()) {
-		Error( APP_NAME, "No RefFinal inside MET container" );
+		Error( __PRETTY_FUNCTION__, "No RefFinal inside MET container" );
 	} else {
 		INV.SetLabFrameThreeVector(  TVector3( (*met_it)->mpx(), (*met_it)->mpy(), 0 ) );
 		MET_TV3.SetZ(0.);
@@ -1060,7 +1061,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
     eventInfo->auxdecor<float>("QCD_Rpsib"              ) = RpsibM;
     eventInfo->auxdecor<float>("QCD_Delta1"              ) = DeltaQCD1;
 
-	// Info( APP_NAME,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
+	// Info( __PRETTY_FUNCTION__,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
 	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
 
 
@@ -1117,3 +1118,5 @@ EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
 
 
 
+
+//  LocalWords:  xaodEvent
