@@ -18,9 +18,10 @@
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 #endif
 
-#include <RJigsaw/TRJigsaw.h>
 
-
+namespace Root{
+  class TRJigsaw;
+}
 // GRL
 class GoodRunsListSelectionTool;
 namespace CP{
@@ -80,7 +81,7 @@ public:
 
 
 
-	xAOD::TEvent *m_event;  //!
+  //	xAOD::TEvent *m_event;  //!
 	xAOD::TStore *m_store;  //!
 
 	// xAOD::MissingETContainer* m_MET; //!
@@ -88,7 +89,7 @@ public:
 
 	#ifndef __CINT__
 		GoodRunsListSelectionTool *m_grl; //!
-		PileupReweightingTool *m_pileupReweightingTool; //! 
+		PileupReweightingTool *m_pileupReweightingTool; //!
 		SUSYObjDef_xAOD *m_susy_obj; //!
 	#endif // not __CINT__
 
@@ -114,7 +115,7 @@ public:
 	// Int_t GetSyst();
 
 	// Systematic Names
-	// TString whichsystname; //! 
+	// TString whichsystname; //!
 
 
 	int isData;
@@ -125,15 +126,15 @@ public:
 
 	// These are the switches to steer the analysis code, depending on what step you want to do
 
-	bool m_doSklimming; 
-	bool m_doSUSYObjDef; 
-	bool m_doEventSelection; 
-	// bool m_writeNtuple; 
-	bool m_writexAOD; 
+	bool m_doSklimming;
+	bool m_doSUSYObjDef;
+	bool m_doEventSelection;
+	// bool m_writeNtuple;
+	bool m_writexAOD;
 
-	bool m_writeFullCollectionsToxAOD; 
- 
-	TString m_Analysis; 
+	bool m_writeFullCollectionsToxAOD;
+
+	TString m_Analysis;
 
 
 	// this is needed to distribute the algorithm to the workers
