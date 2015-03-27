@@ -75,7 +75,7 @@ private:
 	int copyFullxAODContainers ();
 	int applySUSYObjectDefinitions ();
 	int putStuffInStore ();
-
+  EL::StatusCode fillEmptyCollectionNames ();
 
 public:
 
@@ -123,6 +123,26 @@ public:
 	int mc12b;
 	int useLeptonTrigger;
 	int doSyst;
+
+  std::string muonCollectionName;
+  std::string electronCollectionName;
+  std::string photonCollectionName;
+  std::string jetCollectionName;
+  std::string metCollectionName;
+  std::string tauCollectionName;
+
+  std::string muonCalibCollectionName;
+  std::string electronCalibCollectionName;
+  std::string photonCalibCollectionName;
+  std::string jetCalibCollectionName;
+  std::string metCalibCollectionName;
+  std::string tauCalibCollectionName;
+
+
+  std::string eventInfoName;
+  std::string myEventInfoName;
+  std::string primaryVerticesName;
+
 
 	// These are the switches to steer the analysis code, depending on what step you want to do
 
