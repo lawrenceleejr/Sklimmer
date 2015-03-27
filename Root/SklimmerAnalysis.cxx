@@ -213,7 +213,6 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	  return EL::StatusCode::FAILURE;
 	}
 
-
 	// GRL ///////////////////////////////////////////////////////////////////
 	if( initializeGRLTool()  != StatusCode::SUCCESS){
 	  Error(__PRETTY_FUNCTION__ , "Failed to initialize GRL Tool" );
@@ -303,7 +302,6 @@ EL::StatusCode SklimmerAnalysis :: initializeGRLTool(){
 	return EL::StatusCode::SUCCESS;
 }
 
-
 int SklimmerAnalysis :: copyFullxAODContainers ()
 {
 	// copy full container(s) to new xAOD
@@ -357,8 +355,6 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	for( ; mu_itr != mu_end; ++mu_itr ) {
 		m_susy_obj->IsSignalMuonExp( **mu_itr,  ST::SignalIsoExp::TightIso ) ;
 		m_susy_obj->IsCosmicMuon( **mu_itr );
-
-
 		//Info(__PRETTY_FUNCTION__, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< bool >("baseline") );
 	}
 
@@ -371,6 +367,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	if ( !event->retrieve( electrons, electronCollectionName).isSuccess() ){ // retrieve arguments: container type, container key
 	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve"+ electronCollectionName + " container. Exiting.").c_str()) ;
+
 	  return EL::StatusCode::FAILURE;
 	}
 
@@ -385,7 +382,6 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	for( ; el_itr != el_end; ++el_itr ) {
 		m_susy_obj->IsSignalElectronExp( **el_itr , ST::SignalIsoExp::TightIso);
 		//Info( __PRETTY_FUNCTION__, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< bool >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
-
 	}
 
 
@@ -414,6 +410,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	const xAOD::JetContainer* jets = 0;
 	if ( !event->retrieve( jets, jetCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
 	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve " + jetCollectionName +  ". Exiting.").c_str());
+
 	  return EL::StatusCode::FAILURE;
 	}
 
