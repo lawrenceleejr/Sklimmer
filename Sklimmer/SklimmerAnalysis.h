@@ -86,7 +86,7 @@ public:
 
 
 private:
-	TString eventSelectionBBMet();
+
 
 	int copyFullxAODContainers ();
 	int applySUSYObjectDefinitions ();
@@ -96,6 +96,7 @@ private:
   EL::StatusCode initializeGRLTool();
   EL::StatusCode initializePileupReweightingTool();
 
+  TString eventSelectionBBMet();
 public:
 
 	RestFrames::RLabFrame * LAB_alt; //!
@@ -193,6 +194,8 @@ public:
 	int mc12b;
 	int useLeptonTrigger;
 	int doSyst;
+
+  //collection names. All of these are set automatically if the user doesn't give a value
 
   std::string outputxAODName;
 

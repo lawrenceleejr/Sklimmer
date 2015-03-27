@@ -3,6 +3,7 @@
 #include <EventLoop/Worker.h>
 #include <Sklimmer/errorcheck.h>
 #include <Sklimmer/SklimmerAnalysis.h>
+#include <Sklimmer/EventSelectionBBMet.h>
 
 
 #include <TLorentzVector.h>
@@ -12,10 +13,6 @@
 #include <string>
 
 #include "EventLoop/OutputStream.h"
-
-
-
-
 
 // EDM includes:
 #include "xAODEventInfo/EventInfo.h"
@@ -40,7 +37,6 @@
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
 //PU Reweighting
 #include "PileupReweighting/PileupReweightingTool.h"
-
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
@@ -951,283 +947,17 @@ EL::StatusCode SklimmerAnalysis :: histFinalize ()
 
 TString SklimmerAnalysis :: eventSelectionBBMet()
 {
+  xAOD::EventInfo* eventInfo = nullptr;
+  CHECK(m_store->retrieve(eventInfo, myEventInfoName));
 
+  EventSelectionBBMet evtSelection(m_store);//todo should probably be a tool owned up the analysis class? we wouldn't need this silly store pass
+  evtSelection.jetCalibCollectionName      = jetCalibCollectionName;
+  evtSelection.muonCalibCollectionName     = muonCalibCollectionName;
+  evtSelection.electronCalibCollectionName = electronCalibCollectionName;
+  evtSelection.metCalibCollectionName      = metCalibCollectionName;
 
-	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
+  return TString( evtSelection.run(eventInfo));//todo check this is okay.  All the RJ variables are decorators to eventInfo (I think), so it should be? but check
 
-	xAOD::JetContainer* jets_copy(0);
-	CHECK( m_store->retrieve( jets_copy, jetCalibCollectionName ) );
-
-	xAOD::MuonContainer* muons_copy(0);
-	CHECK( m_store->retrieve( muons_copy, muonCalibCollectionName ) );
-
-	xAOD::ElectronContainer* electrons_copy(0);
-	CHECK( m_store->retrieve( electrons_copy, electronCalibCollectionName ) );
-
-
-	xAOD::EventInfo* eventInfo = 0;
-	CHECK(m_store->retrieve(eventInfo, myEventInfoName));
-
-	/////////////// Lepton Veto //////////////////////////////
-
-	int Nel=0;
-	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
-	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
-	for( ; el_itr != el_end; ++el_itr ) {
-		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
-	}
-
-	int Nmu=0;
-	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
-	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
-	for( ; mu_itr != mu_end; ++mu_itr ) {
-		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
-	}
-
-	if(Nel || Nmu) return "";
-
-	///////////////////////////////////////////////////////////
-
-
-	xAOD::JetContainer* goodJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
-	// CHECK( m_store->record(goodJets, "MySelJets") );
-
-	xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
-	xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
-
-	for( ; jet_itr != jet_end; ++jet_itr ) {
-
-		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
-			(*jet_itr)->auxdata< char >("passOR")==1  &&
-			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
-			goodJets->push_back (*jet_itr);
-		}
-
-		(*jet_itr)->auxdecor<float>("MV1") =  ((*jet_itr)->btagging())->MV1_discriminant() ;
-
-    }
-
-	//need two jets
-    if(goodJets->size() < 2){
-		return "";
-    }
-
-	std::sort(goodJets->begin(), goodJets->end(),
-    [](xAOD::Jet  *a, xAOD::Jet  *b){return a->pt() > b->pt();});
-
-	LAB->ClearEvent();
-	LAB_R->ClearEvent();
-	LAB_alt->ClearEvent();
-
-    vector<RestFrames::GroupElementID> jetID_R;                    // ID for tracking jets in tree
-	jet_itr = (jets_copy)->begin();
-
-	for( ; jet_itr != jet_end; ++jet_itr ) {
-
-		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
-			(*jet_itr)->auxdata< char >("passOR")==1  &&
-			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
-			VIS->AddLabFrameFourVector( (*jet_itr)->p4()  );
-			jetID_R.push_back( VIS_R->AddLabFrameFourVector( (*jet_itr)->p4()  )  );
-			VIS_alt->AddLabFrameFourVector( (*jet_itr)->p4()   );
-		}
-
-    }
-
-	// Get MET Collection to hand to Rest Frames////////////////////////////////////////////////////
-
-	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-	CHECK( m_store->retrieve( MET, metCalibCollectionName ) );
-
-	TVector3 MET_TV3;
-
-	xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");//todo?
-	if (met_it == MET->end()) {
-		Error( __PRETTY_FUNCTION__, "No RefFinal inside MET container" );
-	} else {
-		MET_TV3.SetZ(0.);
-		MET_TV3.SetX((*met_it)->mpx() );
-		MET_TV3.SetY((*met_it)->mpy() );
-	}
-
-	INV->SetLabFrameThreeVector(MET_TV3);
-	LAB->AnalyzeEvent();
-
-    INV_alt->SetLabFrameThreeVector(MET_TV3);
-    LAB_alt->AnalyzeEvent();
-
-
-    if(goodJets->size()>3){
-    	INV_R->SetLabFrameThreeVector(MET_TV3);
-    	LAB_R->AnalyzeEvent();
-
-
-		RestFrames::RDecayFrame* G[2];
-		RestFrames::RDecayFrame* C[2];
-		RestFrames::RVisibleFrame* VS[2];
-		RestFrames::RVisibleFrame* VC[2];
-		RestFrames::RInvisibleFrame* X[2];
-		// Randomize the two hemispheres
-		int flip = (gRandom->Rndm() > 0.5);
-		G[flip] = Ga_R;
-		G[(flip+1)%2] = Gb_R;
-		C[flip] = Ca_R;
-		C[(flip+1)%2] = Cb_R;
-		VS[flip] = V1a_R;
-		VS[(flip+1)%2] = V1b_R;
-		VC[flip] = V2a_R;
-		VC[(flip+1)%2] = V2b_R;
-		X[flip] = Xa_R;
-		X[(flip+1)%2] = Xb_R;
-
-
-		double NV[2];
-		double jet1PT[2];
-		double jet2PT[2];
-
-
-		for(int i = 0; i < 2; i++){
-
-			NV[i] =  VIS_R->GetNElementsInFrame(VS[i]);
-			NV[i] += VIS_R->GetNElementsInFrame(VC[i]);
-
-			int N = jetID_R.size();
-			double pTmax[2]; pTmax[0] = -1.; pTmax[1] = -1.;
-			for(int j = 0; j < N; j++){
-				const RestFrames::RestFrame* frame = VIS_R->GetFrame(jetID_R[j]);
-				if(VS[i]->IsSame(frame) || VC[i]->IsSame(frame)){
-					double pT = frame->GetFourVector(LAB_R).Pt();
-					if(pT > pTmax[0]){
-						pTmax[1] = pTmax[0];
-						pTmax[0] = pT;
-					} else {
-						if(pT > pTmax[1]) pTmax[1] = pT;
-					}
-				}
-			}
-			jet1PT[i] = pTmax[0];
-			jet2PT[i] = pTmax[1];
-
-
-			if(NV[i] > 1){
-				eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = C[i]->GetCosDecayAngle();
-				eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = G[i]->GetDeltaPhiDecayPlanes(C[i]);
-				eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = (C[i]->GetMass()-X[i]->GetMass())/(G[i]->GetMass()-X[i]->GetMass());
-			} else {
-				eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = -10.;
-				eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = -10.;
-				eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = -10.;
-			}
-
-			eventInfo->auxdecor<float>(Form("G_%d_CosTheta",i)     ) = G[i]->GetCosDecayAngle();
-
-			eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = jet1PT[i];
-			eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = jet2PT[i];
-
-			// std::cout << "In SklimmerAnalysis: " << jet2PT[i] << std::endl;
-
-		}
-
-    } else {
-
-		for(int i = 0; i < 2; i++){
-			eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = -10.;
-			eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = -10.;
-			eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = -10.;
-			eventInfo->auxdecor<float>(Form("G_%d_CosTheta",i)     ) = -10.;
-			eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = -10.;
-			eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = -10.;
-		}
-
-    }
-
-	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
-
-	eventInfo->auxdecor<float>("SS_Mass"           ) = SS->GetMass();
-	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS->GetGammaInParentFrame();
-	eventInfo->auxdecor<float>("SS_dPhiBetaR"      ) = SS->GetDeltaPhiBoostVisible();
-	eventInfo->auxdecor<float>("SS_dPhiVis"        ) = SS->GetDeltaPhiVisible();
-	eventInfo->auxdecor<float>("SS_CosTheta"       ) = SS->GetCosDecayAngle();
-	eventInfo->auxdecor<float>("SS_dPhiDecayAngle" ) = SS->GetDeltaPhiDecayAngle();
-	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS->GetVisibleShape();
-	eventInfo->auxdecor<float>("SS_MDeltaR"        ) = SS->GetVisibleShape() * SS->GetMass() ;
-	eventInfo->auxdecor<float>("S1_Mass"           ) = S1->GetMass();
-	eventInfo->auxdecor<float>("S1_CosTheta"       ) = S1->GetCosDecayAngle();
-	eventInfo->auxdecor<float>("S2_Mass"           ) = S2->GetMass();
-	eventInfo->auxdecor<float>("S2_CosTheta"       ) = S2->GetCosDecayAngle();
-	eventInfo->auxdecor<float>("I1_Depth"          ) = S1->GetFrameDepth(I1);
-	eventInfo->auxdecor<float>("I2_Depth"          ) = S2->GetFrameDepth(I2);
-	eventInfo->auxdecor<float>("V1_N"              ) = VIS->GetNElementsInFrame(V1);
-	eventInfo->auxdecor<float>("V2_N"              ) = VIS->GetNElementsInFrame(V2);
-
-
-
-    // dphiR and Rptshat (formerly cosPT)
-    // for QCD rejection
-    double dphiR = SS->GetDeltaPhiBoostVisible();
-    double PTCM = SS->GetFourVector(LAB).Pt();
-    double Rptshat = PTCM / (PTCM + SS->GetMass()/4.);
-
-    // QCD rejection using the 'background tree'
-    // MET 'sibling' in background tree auxillary calculations
-    TLorentzVector Psib = I_alt->GetSiblingFrame()->GetFourVector(LAB_alt);
-    TLorentzVector Pmet = I_alt->GetFourVector(LAB_alt);
-    double Psib_dot_METhat = max(0., Psib.Vect().Dot(MET_TV3.Unit()));
-    double Mpar2 = Psib.E()*Psib.E()-Psib.Vect().Dot(MET_TV3.Unit())*Psib.Vect().Dot(MET_TV3.Unit());
-    double Msib2 = Psib.M2();
-    double MB2 = 2.*(Pmet.E()*Psib.E()-MET_TV3.Dot(Psib.Vect()));
-    TVector3 boostPsibM = (Pmet+Psib).BoostVector();
-
-
-    // QCD rejection variables from 'background tree'
-    double DepthBKG = S_alt->GetFrameDepth(I_alt);
-    int Nsib = I_alt->GetSiblingFrame()->GetNDescendants();
-    double cosBKG = I_alt->GetParentFrame()->GetCosDecayAngle();
-    double dphiMsib = fabs(MET_TV3.DeltaPhi(Psib.Vect()));
-    double RpsibM = Psib_dot_METhat / (Psib_dot_METhat + MET_TV3.Mag());
-    double RmsibM = 1. / ( MB2/(Mpar2-Msib2) + 1.);
-    Psib.Boost(-boostPsibM);
-    double cosPsibM = -1.*Psib.Vect().Unit().Dot(boostPsibM.Unit());
-    cosPsibM = (1.-cosPsibM)/2.;
-    double DeltaQCD1 = (cosPsibM-RpsibM)/(cosPsibM+RpsibM);
-    double DeltaQCD2 = (cosPsibM-RmsibM)/(cosPsibM+RmsibM);
-
-    eventInfo->auxdecor<float>("QCD_dPhiR"              ) = dphiR;
-    eventInfo->auxdecor<float>("QCD_Rpt"                ) = Rptshat;
-    eventInfo->auxdecor<float>("QCD_Rmsib"              ) = RmsibM;
-    eventInfo->auxdecor<float>("QCD_Delta2"              ) = DeltaQCD2;
-    eventInfo->auxdecor<float>("QCD_Rpsib"              ) = RpsibM;
-    eventInfo->auxdecor<float>("QCD_Delta1"              ) = DeltaQCD1;
-
-	// Info( __PRETTY_FUNCTION__,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
-	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
-
-
-
-	/////////////////////////////////////////////////////////////////
-
-	if(goodJets->at(0)->pt() >  20000 &&
-		goodJets->at(1)->pt() > 20000
-		// (goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
-		// (goodJets->at(1)->btagging())->MV1_discriminant() > 0.98
-		)
-	{
-			return "SRA";
-
-	}
-
-
-	// if(goodJets->size() > 2){
-	// 	if(goodJets->at(0)->pt() > 150000 &&
-	// 		goodJets->at(1)->pt() > 30000 &&
-	// 		goodJets->at(2)->pt() > 30000 &&
-	// 		(goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 &&
-	// 		(goodJets->at(2)->btagging())->MV1_discriminant() > 0.98 ){
-	// 		return "SRB";
-	// 	}
-	// }
-
-	return "";
 }
 
 EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
