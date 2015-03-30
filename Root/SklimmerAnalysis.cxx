@@ -568,10 +568,8 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		MCChannelNumber == 167759 ||
 		MCChannelNumber == 167760 ){
 
-
-
 		const xAOD::TruthParticleContainer* truthParticles = 0;
-		if ( !event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
+		if ( !event->retrieve( truthParticles, truthParticleName  ).isSuccess() ){ // retrieve arguments: container type, container key
 			Error(__PRETTY_FUNCTION__, "Failed to retrieve truth container. Exiting." );
 			return EL::StatusCode::FAILURE;
 		}
