@@ -744,8 +744,8 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 		const xAOD::TruthParticleContainer* truthParticles = 0;
-		if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
-			Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
+		if ( !event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
+			Error(__PRETTY_FUNCTION__, "Failed to retrieve truth container. Exiting." );
 			return EL::StatusCode::FAILURE;
 		}
 
