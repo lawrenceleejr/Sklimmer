@@ -7,11 +7,11 @@ Uses SUSYTools+EventLoop setup.
 
 Input an xAOD. Flag configurable to
 
-Sklim
-Run SUSYTools for calibration, overlap removal, etc
-Write out xAOD
-Write out ntuple
-Do event selection for string-configurable analysis - e.g. analysis-specific trigger skims
+- Sklim
+- Run SUSYTools for calibration, overlap removal, etc
+- Write out xAOD
+- Write out ntuple
+- Do event selection for string-configurable analysis - e.g. analysis-specific trigger skims
 
 
 ### How to get set up
