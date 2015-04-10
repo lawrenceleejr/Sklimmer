@@ -31,14 +31,14 @@
 
 EventSelectionBBMet::EventSelectionBBMet(xAOD::TStore * store) //probably add a version which sets the collection names
 {
-
+   m_store = store;
 }
 
 std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
 	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
 
+
 	xAOD::JetContainer* jets_copy(0);
-	//todo change these to checks
 	assert( m_store->retrieve( jets_copy, jetCalibCollectionName ) );
 
 	xAOD::MuonContainer* muons_copy(0);
@@ -54,14 +54,14 @@ std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
 	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
 	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
 	for( ; el_itr != el_end; ++el_itr ) {
-		if( ( *el_itr )->auxdata<bool>("passOR") ) Nel++;
+		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
 	}
 
 	int Nmu=0;
 	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
 	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
 	for( ; mu_itr != mu_end; ++mu_itr ) {
-		if( ( *mu_itr )->auxdata<bool>("passOR") ) Nmu++;
+		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
 	}
 
 	if(Nel || Nmu) return "";
@@ -77,8 +77,8 @@ std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
 
 	for( ; jet_itr != jet_end; ++jet_itr ) {
 
-		if( (*jet_itr)->auxdata< bool >("baseline")==1 &&
-		    (*jet_itr)->auxdata< bool >("passOR")  ==1 &&
+		if( (*jet_itr)->auxdata< char >("baseline")==1 &&
+		    (*jet_itr)->auxdata< char >("passOR")  ==1 &&
 		    (*jet_itr)->pt() > 30000.                  &&
 		    ( fabs( (*jet_itr)->eta()) < 2.8)
 		    ) {
@@ -225,8 +225,8 @@ std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
 	jet_itr = (jets_copy)->begin();
 	for( ; jet_itr != jet_end; ++jet_itr ) {
 
-		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
-			(*jet_itr)->auxdata< bool >("passOR")==1  &&
+		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
+			(*jet_itr)->auxdata< char >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
 			VIS.AddLabFrameFourVector( (*jet_itr)->p4()  );
 
@@ -343,6 +343,7 @@ std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
 	// 		return "SRB";
 	// 	}
 	// }
+
 
 	return "";
 }

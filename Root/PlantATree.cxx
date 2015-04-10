@@ -224,7 +224,7 @@ EL::StatusCode PlantATree :: execute ()
   // m_store->print();
 
   xAOD::EventInfo* eventinfo = 0;
-  CHECK( m_store->retrieve(eventinfo, "myEventInfo") );
+  CHECK( m_store->retrieve(eventinfo, "MyEventInfo") );
 
   if( eventinfo->auxdata<char>("selection") == (char) 0 ){
       m_store->clear(); 
