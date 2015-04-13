@@ -96,7 +96,7 @@ private:
   EL::StatusCode initializeGRLTool();
   EL::StatusCode initializePileupReweightingTool();
 
-  TString eventSelectionBBMet();
+  TString eventSelectionBBMet(xAOD::EventInfo * eventInfo );
 public:
 
 	RestFrames::RLabFrame * LAB_alt; //!

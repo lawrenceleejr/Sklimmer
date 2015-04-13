@@ -29,7 +29,7 @@
 #include "Sklimmer/errorcheck.h"
 
 
-EventSelectionBBMet::EventSelectionBBMet(xAOD::TStore * store) //probably add a version which sets the collection names
+EventSelectionBBMet::EventSelectionBBMet(xAOD::TStore * store) // todo probably add a version which sets the collection names
 {
 
 }

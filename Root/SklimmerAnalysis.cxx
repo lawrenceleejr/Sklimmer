@@ -849,7 +849,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 	if( m_doEventSelection && m_Analysis=="bbmet" ){
-		TString result = eventSelectionBBMet();
+		TString result = eventSelectionBBMet(eventInfo_shallowCopy.first );
 		(eventInfo_shallowCopy.first)->auxdecor< char >("selection") = *result.Data();
 		//if(result=="") return EL::StatusCode::SUCCESS;
 	}
@@ -943,10 +943,12 @@ EL::StatusCode SklimmerAnalysis :: histFinalize ()
 
 
 
-TString SklimmerAnalysis :: eventSelectionBBMet()
+TString SklimmerAnalysis :: eventSelectionBBMet(xAOD::EventInfo * eventInfo )
 {
-  xAOD::EventInfo* eventInfo = nullptr;
-  CHECK(m_store->retrieve(eventInfo, myEventInfoName));
+  if(eventInfo == nullptr ){
+    Error(__PRETTY_FUNCTION__, "can't do bbMET eventSelection without eventInfo object" ) ;
+    return TString("");
+  }
 
   EventSelectionBBMet evtSelection(m_store);//todo should probably be a tool owned up the analysis class? we wouldn't need this silly store pass
   evtSelection.jetCalibCollectionName      = jetCalibCollectionName;
