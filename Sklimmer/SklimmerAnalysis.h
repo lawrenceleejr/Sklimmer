@@ -13,7 +13,6 @@
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
 
-
 #ifndef __CINT__
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 #endif
@@ -30,6 +29,13 @@ namespace CP{
 using namespace CP;
 
 class JetCleaningTool;
+
+namespace TrigConf {
+  class xAODConfigTool;
+}
+namespace Trig {
+  class TrigDecisionTool;
+}
 
 namespace ST{
 	class SUSYObjDef_xAOD;
@@ -74,11 +80,12 @@ private:
 
 	int copyFullxAODContainers ();
 	int applySUSYObjectDefinitions ();
-	int putStuffInStore ();
+  int putStuffInStore () {return 0;}
   EL::StatusCode fillEmptyCollectionNames ();
   EL::StatusCode initializeSUSYTools();
   EL::StatusCode initializeGRLTool();
   EL::StatusCode initializePileupReweightingTool();
+  EL::StatusCode initializeTrigDecisionTool();
 
   TString eventSelectionBBMet(xAOD::EventInfo * eventInfo );
 public:
@@ -95,10 +102,14 @@ public:
 		GoodRunsListSelectionTool *m_grl; //!
 		PileupReweightingTool *m_pileupReweightingTool; //!
 		SUSYObjDef_xAOD *m_susy_obj; //!
+
 	#endif // not __CINT__
 
 
 	Root::TRJigsaw* RJTool; //!
+  Trig::TrigDecisionTool *m_trigDecisionTool; //!
+  TrigConf::xAODConfigTool *m_trigConfigTool; //!
+  ToolHandle<TrigConf::ITrigConfigTool> m_configHandle; //!
 
 	// this is a standard constructor
 	SklimmerAnalysis ();

@@ -76,22 +76,28 @@ BOOST_GLOBAL_FIXTURE( globalxAODSetup )
 
 BOOST_FIXTURE_TEST_SUITE(Test_Sklimmer , perTestSetup)
 
-BOOST_AUTO_TEST_CASE(initialization)
-{
-  BOOST_REQUIRE(analysis.m_Analysis =  "bbmet");
-  BOOST_REQUIRE(analysis.initialize() == EL::StatusCode::SUCCESS);
+//todo if this is possible
+// BOOST_AUTO_TEST_CASE(initialization)
+// {
+//   BOOST_REQUIRE(analysis.m_Analysis =  "bbmet");
+//   BOOST_REQUIRE(analysis.initialize() == EL::StatusCode::SUCCESS);
 
-  BOOST_REQUIRE(analysis.m_grl);
-  BOOST_REQUIRE(analysis.m_pileupReweightingTool);
-  BOOST_REQUIRE(analysis.m_susy_obj);
+//   BOOST_REQUIRE(analysis.m_grl);
+//   BOOST_REQUIRE(analysis.m_pileupReweightingTool);
+//   BOOST_REQUIRE(analysis.m_susy_obj);
 
-  BOOST_REQUIRE(analysis.RJTool);
+//   BOOST_REQUIRE(analysis.RJTool);
+//   BOOST_REQUIRE(analysis.m_trigDecisionTool);
+//   BOOST_REQUIRE(analysis.m_trigConfigTool);
+
+// }
+
+BOOST_AUTO_TEST_CASE(trigInitialization){
+
+  BOOST_REQUIRE(analysis.initializeTrigDecisionTool() == EL::StatusCode::SUCCESS);
+
   BOOST_REQUIRE(analysis.m_trigDecisionTool);
   BOOST_REQUIRE(analysis.m_trigConfigTool);
-
-  // Root::TRJigsaw* RJTool; //!
-  // Trig::TrigDecisionTool *m_trigDecisionTool; //!
-  // TrigConf::xAODConfigTool *m_trigConfigTool; //!
 
 }
 

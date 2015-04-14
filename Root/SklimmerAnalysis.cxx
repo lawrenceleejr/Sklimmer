@@ -59,7 +59,9 @@ SklimmerAnalysis :: SklimmerAnalysis() : h_nevents(nullptr),
   m_pileupReweightingTool(nullptr),
   m_susy_obj(nullptr),
 #endif // not __CINT__
-  RJTool(nullptr)
+  RJTool(nullptr),
+  m_trigDecisionTool(nullptr),
+  m_trigConfigTool(nullptr)
 {
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
@@ -209,6 +211,13 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	  return EL::StatusCode::FAILURE;
 	}
 
+	// TrigDecisionTool ///////////////////////////////////////////////////////////////////
+
+	if(initializeTrigDecisionTool() != StatusCode::SUCCESS){
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize TrigDecisionTool" );
+	  return EL::StatusCode::FAILURE;
+	}
+
 	// RJigsaw Tool ///////////////////////////////////////////////////////////////////
 
 	RJTool = new Root::TRJigsaw();
@@ -225,6 +234,20 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
 
 	return EL::StatusCode::SUCCESS;
+}
+
+EL::StatusCode SklimmerAnalysis :: initializeTrigDecisionTool(){
+  m_trigConfigTool   = new TrigConf::xAODConfigTool("TrigConfigTool");
+  m_configHandle = m_trigConfigTool;
+  CHECK(  m_configHandle->initialize() );
+
+  m_trigDecisionTool = new Trig::TrigDecisionTool("TrigDecisionTool");
+  CHECK(    m_trigDecisionTool->setProperty("ConfigTool" , m_configHandle));
+  //trigDecTool.setProperty("OutputLevel", MSG::VERBOSE);
+  CHECK(    m_trigDecisionTool->setProperty("TrigDecisionKey","xTrigDecision"));
+  CHECK(    m_trigDecisionTool->initialize() );
+
+  return EL::StatusCode::SUCCESS;
 }
 
 EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
@@ -681,6 +704,10 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		//if(result=="") return EL::StatusCode::SUCCESS;
 	}
 
+	if( m_Analysis=="triggerTurnOnCurves"){
+	  //TSt
+	}
+
 	//Info( __PRETTY_FUNCTION__,"About to access eventInfo "  );
 
 	//Info( __PRETTY_FUNCTION__,"RJigsaw Variables: sHatR %f",
@@ -740,6 +767,12 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 		delete m_pileupReweightingTool;
 		m_pileupReweightingTool = 0;
 	}
+
+
+	delete m_susy_obj;
+	delete RJTool;
+	delete m_trigDecisionTool;
+	delete m_trigConfigTool;
 
 	// finalize and close our output xAOD file:
 
