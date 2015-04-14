@@ -88,6 +88,7 @@ private:
   EL::StatusCode initializeTrigDecisionTool();
 
   TString eventSelectionBBMet(xAOD::EventInfo * eventInfo );
+  TString eventSelectionRazorTrigger(xAOD::EventInfo * eventInfo );
 public:
 
 

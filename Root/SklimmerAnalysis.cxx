@@ -4,6 +4,8 @@
 #include <Sklimmer/errorcheck.h>
 #include <Sklimmer/SklimmerAnalysis.h>
 #include <Sklimmer/EventSelectionBBMet.h>
+#include <Sklimmer/RazorTriggerAnalysis.h>
+
 
 
 #include <TLorentzVector.h>
@@ -801,7 +803,25 @@ EL::StatusCode SklimmerAnalysis :: histFinalize ()
 	return EL::StatusCode::SUCCESS;
 }
 
+TString SklimmerAnalysis :: eventSelectionRazorTrigger(xAOD::EventInfo * eventInfo ) {
 
+  if(eventInfo == nullptr ){
+    Error(__PRETTY_FUNCTION__, "can't do razor trigger eventSelection without eventInfo object" ) ;
+    return TString("");
+  }
+
+  RazorTriggerAnalysis evtSelection(m_store);//todo should probably be a tool owned up the analysis class? we wouldn't need this silly store pass
+  evtSelection.jetCalibCollectionName      = jetCalibCollectionName;
+  evtSelection.muonCalibCollectionName     = muonCalibCollectionName;
+  evtSelection.electronCalibCollectionName = electronCalibCollectionName;
+  evtSelection.metCalibCollectionName      = metCalibCollectionName;
+
+  TString selectionResult(evtSelection.run(eventInfo));
+
+  //todo get mdeltaR out and check if the event passed using the TrigDecisionTool
+
+  return selectionResult;
+}
 
 TString SklimmerAnalysis :: eventSelectionBBMet(xAOD::EventInfo * eventInfo )
 {
