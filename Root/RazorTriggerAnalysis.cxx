@@ -33,6 +33,7 @@ RazorTriggerAnalysis::RazorTriggerAnalysis(xAOD::TStore * store) // todo probabl
 
 }
 
+//todo refactor this code to separate out common code
 std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
 
