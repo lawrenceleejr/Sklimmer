@@ -28,7 +28,8 @@
 #include "Sklimmer/RazorTriggerAnalysis.h"
 #include "Sklimmer/errorcheck.h"
 
-RazorTriggerAnalysis::RazorTriggerAnalysis(xAOD::TStore * store) // todo probably add a version which sets the collection names
+RazorTriggerAnalysis::RazorTriggerAnalysis(xAOD::TStore * store) : // todo probably add a version which sets the collection names
+  m_store(store)
 {
 
 }
@@ -36,6 +37,14 @@ RazorTriggerAnalysis::RazorTriggerAnalysis(xAOD::TStore * store) // todo probabl
 //todo refactor this code to separate out common code
 std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
+  //  m_store->print();
+
+  if(m_store == nullptr){
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    std::cout << "event store null, returning without doing event selection" << std::endl;
+    return std::string("");
+  }
+
 
 	xAOD::JetContainer* jets_copy(0);
 	//todo change these to checks
@@ -43,10 +52,8 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 
 	xAOD::MuonContainer* muons_copy(0);
 	assert( m_store->retrieve( muons_copy, muonCalibCollectionName ) );
-
 	xAOD::ElectronContainer* electrons_copy(0);
 	assert( m_store->retrieve( electrons_copy, electronCalibCollectionName ) );
-
 
 	/////////////// Lepton Veto //////////////////////////////
 
@@ -54,14 +61,14 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
 	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
 	for( ; el_itr != el_end; ++el_itr ) {
-		if( ( *el_itr )->auxdata<bool>("passOR") ) Nel++;
+		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
 	}
 
 	int Nmu=0;
 	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
 	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
 	for( ; mu_itr != mu_end; ++mu_itr ) {
-		if( ( *mu_itr )->auxdata<bool>("passOR") ) Nmu++;
+		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
 	}
 
 	if(Nel || Nmu) return "";
@@ -77,8 +84,8 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 
 	for( ; jet_itr != jet_end; ++jet_itr ) {
 
-		if( (*jet_itr)->auxdata< bool >("baseline")==1 &&
-		    (*jet_itr)->auxdata< bool >("passOR")  ==1 &&
+		if( (*jet_itr)->auxdata<char >("baseline")==1 &&
+		    (*jet_itr)->auxdata<char >("passOR")  ==1 &&
 		    (*jet_itr)->pt() > 30000.                  &&
 		    ( fabs( (*jet_itr)->eta()) < 2.8)
 		    ) {
@@ -149,7 +156,7 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 	S2.AddChildFrame(V2);
 	S2.AddChildFrame(I2);
 
-	std::cout << "Is consistent tree topology? " << LAB.InitializeTree() << std::endl;
+	//	std::cout << "Is consistent tree topology? " << LAB.InitializeTree() << std::endl;
 
 
 	// MT2 etc
@@ -180,7 +187,7 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 	//////////////////////////////////////////////////////////////
 	// check to make sure that all the jigsaws etc. are correctly connected
 	//////////////////////////////////////////////////////////////
-	std::cout << "Is consistent analysis tree? : " << LAB.InitializeAnalysis() << std::endl;
+	//	std::cout << "Is consistent analysis tree? : " << LAB.InitializeAnalysis() << std::endl;
 
 	LAB.ClearEvent();
 
@@ -222,8 +229,8 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
     // 	jet_itr = (jets_copy)->begin();
     // 	for( ; jet_itr != jet_end; ++jet_itr ) {
 
-    // 		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
-    // 			(*jet_itr)->auxdata< bool >("passOR")==1  &&
+    // 		if( (*jet_itr)->auxdata<char >("baseline")==1  &&
+    // 			(*jet_itr)->auxdata<char >("passOR")==1  &&
     // 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
     // 			VIS.AddLabFrameFourVector( (*jet_itr)->p4()  );
 

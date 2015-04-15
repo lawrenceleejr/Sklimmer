@@ -276,9 +276,13 @@ EL::StatusCode SklimmerAnalysis :: initializeSUSYTools(){
   m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
 
   //todo do we need this isData property? either this or isMC seems redundant?
-  CHECK( m_susy_obj->setProperty("IsData",isData) );
-  CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
-  CHECK( m_susy_obj->setProperty("EleId","Tight") );
+
+  //  CHECK( m_susy_obj->setProperty("DataSource",0) );
+  CHECK( m_susy_obj->setProperty("IsData",0) );
+  CHECK( m_susy_obj->setProperty("IsAtlfast",0) );
+  CHECK( m_susy_obj->setProperty("EleId","TightLLH") );
+  //  CHECK( m_susy_obj->setProperty("EleId","Tight") );
+  //  CHECK( m_susy_obj->setProperty("METInputMap", "METAssoc_AntiKt4LCTopoJets" ));
 
   if( m_susy_obj->SUSYToolsInit().isFailure() ) {
     Error( __PRETTY_FUNCTION__, "Failed to initialise tools in SUSYToolsInit()..." );
@@ -476,7 +480,9 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 			  electrons_copy,
 			  &muons_copy_met,
 			  photons_copy,
-			  taus_copy) );
+			  taus_copy
+			  //todo doTST argument here, probably should be true
+				  ) );
 
 
 	//////////////////////////////////////////////////////
@@ -486,7 +492,6 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 		muons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
 		if( !event->record( muons_copy ,   muonCalibCollectionName )){return EL::StatusCode::FAILURE;}
 		if( !event->record( muons_copyaux, muonCalibCollectionName+"Aux." )) {return EL::StatusCode::FAILURE;}
-
 
 		electrons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
 		if( !event->record( electrons_copy ,   electronCalibCollectionName )){return EL::StatusCode::FAILURE;}
@@ -736,6 +741,11 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 EL::StatusCode SklimmerAnalysis :: addTrigDecisionInfo ( xAOD::EventInfo * eventInfo)
 {
+  if(eventInfo == nullptr ){
+    Error(__PRETTY_FUNCTION__, "can't add without eventInfo object" ) ;
+    return EL::StatusCode::FAILURE;
+  }
+
   std::bitset<32> triggers;
 
   //todo make this list configurable
@@ -878,11 +888,11 @@ EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
   if(primaryVerticesName.empty()) primaryVerticesName = "PrimaryVertices";
 
   if(muonCollectionName.empty())     muonCollectionName     = "Muons";
-  if(electronCollectionName.empty()) electronCollectionName = "ElectronCollection";
-  if(photonCollectionName.empty())   photonCollectionName   = "PhotonCollection";
+  if(electronCollectionName.empty()) electronCollectionName = "Electrons"; //Collection";
+  if(photonCollectionName.empty())   photonCollectionName   = "Photons"; // Collection";
   if(jetCollectionName.empty())      jetCollectionName      = "AntiKt4LCTopoJets";
-  if(metCollectionName.empty())      metCollectionName      = "MET_RefFinal";
-  if(tauCollectionName.empty())      tauCollectionName      = "TauRecContainer";
+  if(metCollectionName.empty())      metCollectionName      = "MET_Reference_AntiKt4LCTopoJets";//todo get this from jet name
+  if(tauCollectionName.empty())      tauCollectionName      = "TauJets";//"TauRecContainer";
 
   if(myEventInfoName.empty())  myEventInfoName = "MyEventInfo";
 
