@@ -32,6 +32,7 @@ class JetCleaningTool;
 
 namespace TrigConf {
   class xAODConfigTool;
+  class ITrigConfigTool;
 }
 namespace Trig {
   class TrigDecisionTool;
@@ -181,6 +182,7 @@ public:
 	bool m_doEventSelection;
 	// bool m_writeNtuple;
 	bool m_writexAOD;
+  bool m_doPileupReweighting;
 
 	bool m_writeFullCollectionsToxAOD;
 

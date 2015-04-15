@@ -39,7 +39,7 @@ struct globalxAODSetup
     // xAOD::TReturnCode::enableFailure();
     //   TString const fileName = "AOD.pool.root";
 
-    TString const fileName = "/afs/cern.ch/work/r/rsmith/public/METUtilities_testfiles/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s1982_s1964_r6006_tid04628718_00/AOD.04628718._000158.pool.root.1";
+    TString const fileName = "/afs/cern.ch/work/r/rsmith/mc14_13TeV.110351.PowhegPythia_P2012_ttbar_allhad.recon.AOD.e3232_s2127_s2132_r6561_tid05274300_00/AOD.05274300._000018.pool.root.1";
 
     ifile = new TFile( fileName, "READ" ) ;
     event = new xAOD::TEvent( ifile,  xAOD::TEvent::kClassAccess );
@@ -98,6 +98,18 @@ BOOST_AUTO_TEST_CASE(trigInitialization){
 
   BOOST_REQUIRE(analysis.m_trigDecisionTool);
   BOOST_REQUIRE(analysis.m_trigConfigTool);
+}
+
+BOOST_AUTO_TEST_CASE(trigFilling){
+
+  BOOST_REQUIRE(analysis.initializeTrigDecisionTool() == EL::StatusCode::SUCCESS);
+
+  xAOD::EventInfo* eventInfo = nullptr;
+  BOOST_REQUIRE( event->retrieve( eventInfo, "EventInfo").isSuccess());
+
+  analysis.addTrigDecisionInfo( eventInfo);
+
+  BOOST_REQUIRE(  eventInfo->auxdecor<int>("triggerBitset") );
 
 }
 

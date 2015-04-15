@@ -18,6 +18,9 @@
 #include "EventLoop/OutputStream.h"
 
 // EDM includes:
+
+#include "TrigConfxAOD/xAODConfigTool.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 #include "xAODJet/JetContainer.h"
@@ -207,7 +210,8 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	}
 
 	// Pile Up Reweighting ///////////////////////////////////////////////////////////////////
-	if( initializePileupReweightingTool() != StatusCode::SUCCESS) {
+	if(m_doPileupReweighting &&
+	   initializePileupReweightingTool() != StatusCode::SUCCESS) {
 	  Error(__PRETTY_FUNCTION__ , "Failed to initialize Pileup Reweighting Tool" );
 	  return EL::StatusCode::FAILURE;
 	}
@@ -518,10 +522,6 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	jets_copy->setStore(jets_copyaux);
 	CHECK( m_store->record( jets_copy, jetCalibCollectionName ) );
 	CHECK( m_store->record( jets_copyaux, jetCalibCollectionName+"Aux." ) );
-
-
-
-
 
 	////////////////////////////////////////////////////////
 
@@ -898,6 +898,31 @@ EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
   if(truthJetCollectionName.empty())   truthJetCollectionName   = "AntiKt4TruthJets";
   if(truthMetCollectionName.empty())   truthMetCollectionName   = "Truth_MET";
   if(truthPrimaryVerticesName.empty()) truthPrimaryVerticesName = "TruthVertex";
+
+  Info(__PRETTY_FUNCTION__ ,   eventInfoName         .c_str() );//  = "EventInfo";
+  Info(__PRETTY_FUNCTION__ ,   primaryVerticesName      .c_str() );//  = "PrimaryVertices";
+
+  Info(__PRETTY_FUNCTION__ ,   muonCollectionName        .c_str() );//= "Muons";
+  Info(__PRETTY_FUNCTION__ ,   electronCollectionName    .c_str() );//= "Electrons";
+  Info(__PRETTY_FUNCTION__ ,   photonCollectionName     .c_str() );// = "Photons";
+  Info(__PRETTY_FUNCTION__ ,   jetCollectionName         .c_str() );// "AntiKt4LCTopoJets";
+  Info(__PRETTY_FUNCTION__ ,   metCollectionName         .c_str() );// "MET_RefFinal";
+  Info(__PRETTY_FUNCTION__ ,   tauCollectionName         .c_str() );// "TauJets";
+
+  Info(__PRETTY_FUNCTION__ ,   myEventInfoName    .c_str() );// "MyEventInfo";
+
+  Info(__PRETTY_FUNCTION__ ,   muonCalibCollectionName        .c_str() );// "CalibMuons";
+  Info(__PRETTY_FUNCTION__ ,   electronCalibCollectionName    .c_str() );// "CalibElectrons";
+  Info(__PRETTY_FUNCTION__ ,   photonCalibCollectionName      .c_str() );// "CalibPhotons";
+  Info(__PRETTY_FUNCTION__ ,   jetCalibCollectionName         .c_str() );// "CalibJets";
+  Info(__PRETTY_FUNCTION__ ,   metCalibCollectionName         .c_str() );// "CalibMET_RefFinal";
+  Info(__PRETTY_FUNCTION__ ,   tauCalibCollectionName         .c_str() );// "CalibTaus";
+
+  Info(__PRETTY_FUNCTION__ ,   truthEventName              .c_str() );// "TruthEvent";
+  Info(__PRETTY_FUNCTION__ ,   truthParticleName           .c_str() );// "TruthParticle";
+  Info(__PRETTY_FUNCTION__ ,   truthJetCollectionName      .c_str() );// "AntiKt4TruthJets";
+  Info(__PRETTY_FUNCTION__ ,   truthMetCollectionName      .c_str() );// "Truth_MET";
+  Info(__PRETTY_FUNCTION__ ,   truthPrimaryVerticesName    .c_str() );// "TruthVertex";
 
   return EL::StatusCode::SUCCESS;
 }
