@@ -29,13 +29,18 @@
 #include "Sklimmer/errorcheck.h"
 
 
-EventSelectionBBMet::EventSelectionBBMet(xAOD::TStore * store) // todo probably add a version which sets the collection names
+EventSelectionBBMet::EventSelectionBBMet(xAOD::TStore * store) : // todo probably add a version which sets the collection names
+  m_store = store
 {
-
 }
 
 std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
 	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
+
+  if(m_store == nullptr){
+    std::cout << "event store null, returning without doing event selection" << std::endl;
+    return std::string("");
+  }
 
 	xAOD::JetContainer* jets_copy(0);
 	//todo change these to checks
