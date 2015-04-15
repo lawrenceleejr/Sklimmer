@@ -276,8 +276,6 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 	eventInfo->auxdecor<float>("V1_N"              ) = VIS.GetNElementsInFrame(V1);
 	eventInfo->auxdecor<float>("V2_N"              ) = VIS.GetNElementsInFrame(V2);
 
-
-
     // // dphiR and Rptshat (formerly cosPT)
     // // for QCD rejection
     // double dphiR = SS.GetDeltaPhiBoostVisible();
