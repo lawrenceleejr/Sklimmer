@@ -61,15 +61,16 @@ public:
   float RJVars_I1_Depth          ; //!
   float RJVars_I2_Depth          ; //!
   float RJVars_V1_N              ; //!
-  float RJVars_V2_N              ; //!    
+  float RJVars_V2_N              ; //!
 
   //QCD Variables
-  float RJVars_QCD_dPhiR         ; //! 
-  float RJVars_QCD_Rpt           ; //! 
-  float RJVars_QCD_Rmsib         ; //! 
-  float RJVars_QCD_Rpsib         ; //! 
-  float RJVars_QCD_Delta1         ; //! 
-  float RJVars_QCD_Delta2         ; //! 
+  float RJVars_QCD_dPhiR         ; //!
+  float RJVars_QCD_Rpt           ; //!
+  float RJVars_QCD_Rmsib         ; //!
+  float RJVars_QCD_Rpsib         ; //!
+  float RJVars_QCD_Delta1         ; //!
+  float RJVars_QCD_Delta2         ; //!
+  int RJVars_TriggerBits          ; //!
 
   std::vector<float> * Jet_pT;    //!
   std::vector<float> * Jet_eta;   //!

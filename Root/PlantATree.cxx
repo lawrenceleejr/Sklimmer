@@ -135,6 +135,7 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_QCD_Rpsib" ,  &RJVars_QCD_Rpsib  );
   tree->Branch("RJVars_QCD_Delta1" ,  &RJVars_QCD_Delta1  );
   tree->Branch("RJVars_QCD_Delta2" ,  &RJVars_QCD_Delta2  );
+  tree->Branch("RJVars_TriggerBits" ,  &RJVars_TriggerBits  );
 
   tree->Branch("Jet_pT"       , &Jet_pT        );
   tree->Branch("Jet_eta"      , &Jet_eta       );
@@ -259,12 +260,14 @@ EL::StatusCode PlantATree :: execute ()
   RJVars_V1_N               = eventinfo->auxdata<float>("V1_N");
   RJVars_V2_N               = eventinfo->auxdata<float>("V2_N");
 
-  RJVars_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_dPhiR"); 
+  RJVars_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_dPhiR");
   RJVars_QCD_Rpt            = eventinfo->auxdata<float>("QCD_Rpt"  );
   RJVars_QCD_Rmsib          = eventinfo->auxdata<float>("QCD_Rmsib");
   RJVars_QCD_Rpsib          = eventinfo->auxdata<float>("QCD_Rpsib");
   RJVars_QCD_Delta1          = eventinfo->auxdata<float>("QCD_Delta1");
   RJVars_QCD_Delta2          = eventinfo->auxdata<float>("QCD_Delta2");
+
+  RJVars_TriggerBits = eventinfo->auxdecor<int>("triggerBitset");
 
   //////////////////////////////////////////////////////////////////////////////////////////
 
