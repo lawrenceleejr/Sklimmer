@@ -266,22 +266,24 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 
 	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
 
+
+	//todo reinclude
 	eventInfo->auxdecor<float>("SS_Mass"           ) = SS.GetMass();
 	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS.GetGammaInParentFrame();
-	eventInfo->auxdecor<float>("SS_dPhiBetaR"      ) = SS.GetDeltaPhiBoostVisible();
-	eventInfo->auxdecor<float>("SS_dPhiVis"        ) = SS.GetDeltaPhiVisible();
-	eventInfo->auxdecor<float>("SS_CosTheta"       ) = SS.GetCosDecayAngle();
-	eventInfo->auxdecor<float>("SS_dPhiDecayAngle" ) = SS.GetDeltaPhiDecayAngle();
-	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS.GetVisibleShape();
+	//	eventInfo->auxdecor<float>("SS_dPhiBetaR"      ) = SS.GetDeltaPhiBoostVisible();
+	//	eventInfo->auxdecor<float>("SS_dPhiVis"        ) = SS.GetDeltaPhiVisible();
+	//	eventInfo->auxdecor<float>("SS_CosTheta"       ) = SS.GetCosDecayAngle();
+	//	eventInfo->auxdecor<float>("SS_dPhiDecayAngle" ) = SS.GetDeltaPhiDecayAngle();
+	//	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS.GetVisibleShape();
 	eventInfo->auxdecor<float>("SS_MDeltaR"        ) = SS.GetVisibleShape() * SS.GetMass() ;
-	eventInfo->auxdecor<float>("S1_Mass"           ) = S1.GetMass();
-	eventInfo->auxdecor<float>("S1_CosTheta"       ) = S1.GetCosDecayAngle();
-	eventInfo->auxdecor<float>("S2_Mass"           ) = S2.GetMass();
-	eventInfo->auxdecor<float>("S2_CosTheta"       ) = S2.GetCosDecayAngle();
-	eventInfo->auxdecor<float>("I1_Depth"          ) = S1.GetFrameDepth(I1);
-	eventInfo->auxdecor<float>("I2_Depth"          ) = S2.GetFrameDepth(I2);
-	eventInfo->auxdecor<float>("V1_N"              ) = VIS.GetNElementsInFrame(V1);
-	eventInfo->auxdecor<float>("V2_N"              ) = VIS.GetNElementsInFrame(V2);
+	// eventInfo->auxdecor<float>("S1_Mass"           ) = S1.GetMass();
+	// eventInfo->auxdecor<float>("S1_CosTheta"       ) = S1.GetCosDecayAngle();
+	// eventInfo->auxdecor<float>("S2_Mass"           ) = S2.GetMass();
+	// eventInfo->auxdecor<float>("S2_CosTheta"       ) = S2.GetCosDecayAngle();
+	// eventInfo->auxdecor<float>("I1_Depth"          ) = S1.GetFrameDepth(I1);
+	// eventInfo->auxdecor<float>("I2_Depth"          ) = S2.GetFrameDepth(I2);
+	// eventInfo->auxdecor<float>("V1_N"              ) = VIS.GetNElementsInFrame(V1);
+	// eventInfo->auxdecor<float>("V2_N"              ) = VIS.GetNElementsInFrame(V2);
 
     // // dphiR and Rptshat (formerly cosPT)
     // // for QCD rejection
