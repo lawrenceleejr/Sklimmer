@@ -64,6 +64,7 @@ void runTrigSklimmer (const std::string& submitDir)
   alg->m_writeFullCollectionsToxAOD = false;
   alg->m_doPileupReweighting = false;
 
+  //  alg->m_Analysis = "triggerTurnOnCurves";
   alg->m_Analysis = "triggerTurnOnCurves";
 
 
@@ -81,7 +82,7 @@ void runTrigSklimmer (const std::string& submitDir)
   job.algsAdd (treeWriter);
 
   treeWriter->outputName = "treeOutput";
-
+  job.options()->setString (EL::Job::optXaodAccessMode, EL::Job::optXaodAccessMode_branch);
 
   // make the driver we want to use:
   // this one works by running the algorithm directly:
