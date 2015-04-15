@@ -66,6 +66,7 @@ SklimmerAnalysis :: SklimmerAnalysis() : h_nevents(nullptr),
   RJTool(nullptr),
   m_trigDecisionTool(nullptr),
   m_trigConfigTool(nullptr)
+
 {
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
@@ -346,22 +347,25 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 
 int SklimmerAnalysis :: applySUSYObjectDefinitions (){
-
 	xAOD::TEvent *event = wk()->xaodEvent();
 
 	//------------
 	// MUONS
 	//------------
-
-	const xAOD::MuonContainer* muons = 0;
+       	const xAOD::MuonContainer* muons = 0;
 	if ( !event->retrieve( muons, muonCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
 	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve "+ muonCollectionName+ " container. Exiting.").c_str() );
 	  return EL::StatusCode::FAILURE;
 	}
-
 	xAOD::MuonContainer* muons_copy(0);
 	xAOD::ShallowAuxContainer* muons_copyaux(0);
-	CHECK( m_susy_obj->GetMuons(muons_copy,muons_copyaux) );
+  CHECK( m_susy_obj->GetMuons(muons_copy,
+			      muons_copyaux,
+			      false,
+			      10000.,
+			      2.47,
+			      muonCollectionName)
+	 );
 
 	xAOD::MuonContainer::iterator mu_itr = (muons_copy)->begin();
 	xAOD::MuonContainer::iterator mu_end  = (muons_copy)->end();
@@ -372,13 +376,11 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 		//Info(__PRETTY_FUNCTION__, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< bool >("baseline") );
 	}
 
-
 	//------------
 	// ELECTRONS
 	//------------
 
 	const xAOD::ElectronContainer* electrons = 0;
-
 	if ( !event->retrieve( electrons, electronCollectionName).isSuccess() ){ // retrieve arguments: container type, container key
 	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve"+ electronCollectionName + " container. Exiting.").c_str()) ;
 
@@ -387,7 +389,14 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::ElectronContainer* electrons_copy(0);
 	xAOD::ShallowAuxContainer* electrons_copyaux(0);
-	CHECK( m_susy_obj->GetElectrons(electrons_copy,electrons_copyaux) );
+	CHECK( m_susy_obj->GetElectrons(electrons_copy,
+					electrons_copyaux,
+					false,
+					10000.,
+					2.47,
+					electronCollectionName
+					)
+	       );
 
 	// Print their properties, using the tools:
 	xAOD::ElectronContainer::iterator el_itr = (electrons_copy)->begin();
@@ -413,7 +422,14 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::PhotonContainer* photons_copy(0);
 	xAOD::ShallowAuxContainer* photons_copyaux(0);
-	CHECK( m_susy_obj->GetPhotons(photons_copy,photons_copyaux) );
+	CHECK( m_susy_obj->GetPhotons(photons_copy,
+				      photons_copyaux,
+				      false,
+				      25000.,
+				      2.37,
+				      photonCollectionName
+				      )
+	       );
 
 
 
@@ -430,7 +446,12 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::JetContainer* jets_copy(0);
 	xAOD::ShallowAuxContainer* jets_copyaux(0);
-	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux) );
+	CHECK( m_susy_obj->GetJets(jets_copy,
+				   jets_copyaux,
+				   false,
+				   20000.,2.8, jetCollectionName
+				   );
+	       );
 
 
 	//------------
@@ -444,7 +465,11 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::TauJetContainer* taus_copy(0);
 	xAOD::ShallowAuxContainer* taus_copyaux(0);
-	CHECK( m_susy_obj->GetTaus(taus_copy,taus_copyaux) );
+	 CHECK( m_susy_obj->GetTaus(taus_copy,
+				    taus_copyaux,
+				    false,
+				    tauCollectionName
+				    ) );
 
 
 	//------------
@@ -675,7 +700,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	if(isMC){
 		// Check if input file is mc14_13TeV to skip pileup reweighting
-		bool mc14_13TeV = false;
+	  bool mc14_13TeV = !m_doPileupReweighting;
 		if( RunNumber == 222222) mc14_13TeV = true;
 		if (!mc14_13TeV){ // Only reweight 8 TeV MC
 			CHECK( m_pileupReweightingTool->execute() );
@@ -852,6 +877,9 @@ TString SklimmerAnalysis :: eventSelectionRazorTrigger(xAOD::EventInfo * eventIn
     Error(__PRETTY_FUNCTION__, "can't do razor trigger eventSelection without eventInfo object" ) ;
     return TString("");
   }
+
+  // Info(__PRETTY_FUNCTION__, "Razor trigger print" ) ;
+  // m_store->print();
 
   RazorTriggerAnalysis evtSelection(m_store);//todo should probably be a tool owned up the analysis class? we wouldn't need this silly store pass
   evtSelection.jetCalibCollectionName      = jetCalibCollectionName;
