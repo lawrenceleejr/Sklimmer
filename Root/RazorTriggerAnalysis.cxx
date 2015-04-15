@@ -57,21 +57,21 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 
 	/////////////// Lepton Veto //////////////////////////////
 
-	int Nel=0;
-	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
-	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
-	for( ; el_itr != el_end; ++el_itr ) {
-		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
-	}
+	// int Nel=0;
+	// xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
+	// xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
+	// for( ; el_itr != el_end; ++el_itr ) {
+	// 	if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
+	// }
 
-	int Nmu=0;
-	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
-	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
-	for( ; mu_itr != mu_end; ++mu_itr ) {
-		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
-	}
+	// int Nmu=0;
+	// xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
+	// xAOD::MuonContainer::iterator mu_end = muons_copy->end();
+	// for( ; mu_itr != mu_end; ++mu_itr ) {
+	// 	if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
+	// }
 
-	if(Nel || Nmu) return "";
+	// if(Nel || Nmu) return "";
 
 	///////////////////////////////////////////////////////////
 
@@ -187,6 +187,7 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 	//////////////////////////////////////////////////////////////
 	// check to make sure that all the jigsaws etc. are correctly connected
 	//////////////////////////////////////////////////////////////
+	//todo make this check an assert probably
 	//	std::cout << "Is consistent analysis tree? : " << LAB.InitializeAnalysis() << std::endl;
 
 	LAB.ClearEvent();
@@ -267,14 +268,14 @@ std::string RazorTriggerAnalysis::run(xAOD::EventInfo * eventInfo){
 	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
 
 
-	//todo reinclude
+	//todo reinclude other variables
 	eventInfo->auxdecor<float>("SS_Mass"           ) = SS.GetMass();
 	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS.GetGammaInParentFrame();
 	//	eventInfo->auxdecor<float>("SS_dPhiBetaR"      ) = SS.GetDeltaPhiBoostVisible();
 	//	eventInfo->auxdecor<float>("SS_dPhiVis"        ) = SS.GetDeltaPhiVisible();
 	//	eventInfo->auxdecor<float>("SS_CosTheta"       ) = SS.GetCosDecayAngle();
 	//	eventInfo->auxdecor<float>("SS_dPhiDecayAngle" ) = SS.GetDeltaPhiDecayAngle();
-	//	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS.GetVisibleShape();
+	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS.GetVisibleShape();
 	eventInfo->auxdecor<float>("SS_MDeltaR"        ) = SS.GetVisibleShape() * SS.GetMass() ;
 	// eventInfo->auxdecor<float>("S1_Mass"           ) = S1.GetMass();
 	// eventInfo->auxdecor<float>("S1_CosTheta"       ) = S1.GetCosDecayAngle();
