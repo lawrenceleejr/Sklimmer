@@ -709,30 +709,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	  TString result = eventSelectionRazorTrigger(eventInfo_shallowCopy.first );
 	  (eventInfo_shallowCopy.first)->auxdecor< char >("selection") = *result.Data();
 
-	  std::bitset<32> triggers;
-	  triggers[0] = m_trigDecisionTool->isPassed("L1_XE50");
-	  triggers[1] = m_trigDecisionTool->isPassed("L1_XE70");
-	  triggers[2] = m_trigDecisionTool->isPassed("HLT_xe70");
-	  triggers[3] = m_trigDecisionTool->isPassed("HLT_xe70_pueta");
-	  triggers[4] = m_trigDecisionTool->isPassed("HLT_xe100");
-	  triggers[5] = m_trigDecisionTool->isPassed("HLT_xe100_pueta");
-	  triggers[6] = m_trigDecisionTool->isPassed("HLT_e28_tight_iloose");
-	  triggers[7] = m_trigDecisionTool->isPassed("HLT_e60_medium");
-	  triggers[8] = m_trigDecisionTool->isPassed("HLT_mu26_imedium");
-	  triggers[9] = m_trigDecisionTool->isPassed("HLT_mu50");
-	  triggers[10] = m_trigDecisionTool->isPassed("HLT_j30_xe10_razor170");
-	  triggers[11] = m_trigDecisionTool->isPassed("HLT_xe70_tc_em");
-	  triggers[12] = m_trigDecisionTool->isPassed("HLT_xe70_tc_lcw");
-	  triggers[13] = m_trigDecisionTool->isPassed("HLT_xe70_mht");
-	  triggers[14] = m_trigDecisionTool->isPassed("HLT_xe70_pufit");
-	  triggers[15] = m_trigDecisionTool->isPassed("HLT_xe100_tc_em");
-	  triggers[16] = m_trigDecisionTool->isPassed("HLT_xe100_tc_lcw");
-	  triggers[17] = m_trigDecisionTool->isPassed("HLT_xe100_mht");
-	  triggers[18] = m_trigDecisionTool->isPassed("HLT_xe100_pufit");
-
-	  int const triggerSet = triggers.to_ulong();
-
-	  (eventInfo_shallowCopy.first)->auxdecor<int>("triggerBitset") = triggerSet;
+	  addTrigDecisionInfo(eventInfo_shallowCopy.first );
 	}
 
 	//Info( __PRETTY_FUNCTION__,"About to access eventInfo "  );
@@ -757,6 +734,37 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	return EL::StatusCode::SUCCESS;
 }
 
+EL::StatusCode SklimmerAnalysis :: addTrigDecisionInfo ( xAOD::EventInfo * eventInfo)
+{
+  std::bitset<32> triggers;
+
+  //todo make this list configurable
+  triggers[0] = m_trigDecisionTool->isPassed("L1_XE50");
+  triggers[1] = m_trigDecisionTool->isPassed("L1_XE70");
+  triggers[2] = m_trigDecisionTool->isPassed("HLT_xe70");
+  triggers[3] = m_trigDecisionTool->isPassed("HLT_xe70_pueta");
+  triggers[4] = m_trigDecisionTool->isPassed("HLT_xe100");
+  triggers[5] = m_trigDecisionTool->isPassed("HLT_xe100_pueta");
+  triggers[6] = m_trigDecisionTool->isPassed("HLT_e28_tight_iloose");
+  triggers[7] = m_trigDecisionTool->isPassed("HLT_e60_medium");
+  triggers[8] = m_trigDecisionTool->isPassed("HLT_mu26_imedium");
+  triggers[9] = m_trigDecisionTool->isPassed("HLT_mu50");
+  triggers[10] = m_trigDecisionTool->isPassed("HLT_j30_xe10_razor170");
+  triggers[11] = m_trigDecisionTool->isPassed("HLT_xe70_tc_em");
+  triggers[12] = m_trigDecisionTool->isPassed("HLT_xe70_tc_lcw");
+  triggers[13] = m_trigDecisionTool->isPassed("HLT_xe70_mht");
+  triggers[14] = m_trigDecisionTool->isPassed("HLT_xe70_pufit");
+  triggers[15] = m_trigDecisionTool->isPassed("HLT_xe100_tc_em");
+  triggers[16] = m_trigDecisionTool->isPassed("HLT_xe100_tc_lcw");
+  triggers[17] = m_trigDecisionTool->isPassed("HLT_xe100_mht");
+  triggers[18] = m_trigDecisionTool->isPassed("HLT_xe100_pufit");
+
+  int const triggerSet = triggers.to_ulong();
+
+  eventInfo->auxdecor<int>("triggerBitset") = triggerSet;
+
+  return EL::StatusCode::SUCCESS;
+}
 
 
 EL::StatusCode SklimmerAnalysis :: postExecute ()

@@ -87,6 +87,8 @@ private:
   EL::StatusCode initializePileupReweightingTool();
   EL::StatusCode initializeTrigDecisionTool();
 
+
+  EL::StatusCode addTrigDecisionInfo(xAOD::EventInfo * eventInfo);
   TString eventSelectionBBMet(xAOD::EventInfo * eventInfo );
   TString eventSelectionRazorTrigger(xAOD::EventInfo * eventInfo );
 public:
