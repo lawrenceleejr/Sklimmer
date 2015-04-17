@@ -27,6 +27,7 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthEvent.h"
 #include "xAODCore/ShallowCopy.h"
@@ -34,6 +35,8 @@
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 //#include "xAODBTagging/BTagging.h"
+
+
 
 // GRL
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
@@ -363,7 +366,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	for( ; el_itr != el_end; ++el_itr ) {
 		m_susy_obj->IsSignalElectronExp( **el_itr , ST::SignalIsoExp::TightIso);
-		//Info( __PRETTY_FUNCTION__, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< bool >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
+		Info( __PRETTY_FUNCTION__, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< char >("baseline"), (int) (*el_itr)->auxdata< char >("signal") );
 	}
 
 
@@ -414,12 +417,12 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::ShallowAuxContainer* taus_copyaux(0);
 	CHECK( m_susy_obj->GetTaus(taus_copy,taus_copyaux) );
 
-
 	//------------
 	// OVERLAP REMOVAL (as in susytools tester)
+	// last argument is false for doHarmonization
 	//------------
+	CHECK( m_susy_obj->OverlapRemoval(electrons_copy, muons_copy, jets_copy, false) );
 
-	CHECK( m_susy_obj->OverlapRemoval(electrons_copy, muons_copy, jets_copy) );
 
 
 	//------------
@@ -496,8 +499,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	CHECK( m_store->record( jets_copyaux, jetCalibCollectionName+"Aux." ) );
 
 
-
-
+     //muons_copy->clear(); // try this?
+    
 
 	////////////////////////////////////////////////////////
 
@@ -674,10 +677,64 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// m_store->print();
 
 
+    //------------------
+    // Truth
+    //------------------
+    if(isMC){
+    	
+    	// for some reason need to do this here to be able to access containers (and aux data)
+        // in PlantATree ??
+        // Truth jets
+    	const xAOD::JetContainer* truthJets = 0;
+        if( ! event->retrieve( truthJets, "AntiKt4TruthJets").isSuccess() ){
+	      Error(__PRETTY_FUNCTION__, ("Failed to retrieve AntiKt4TruthJets")) ;
+	      return EL::StatusCode::FAILURE;
+	    }
+	    // for event selection, get from the store, I'm sure there is a better way
+	    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > truthJets_shallowCopy = xAOD::shallowCopyContainer( *truthJets );
+	   if( !m_store->record( truthJets_shallowCopy.first , "MyTruthJets" )){return EL::StatusCode::FAILURE;}
+	   if( !m_store->record( truthJets_shallowCopy.second, "MyTruthJetsAux." )) {return EL::StatusCode::FAILURE;}
+	   truthJets_shallowCopy.second->setShallowIO(true);
+
+
+        // truth met
+        const xAOD::MissingETContainer* truthMET = 0;
+        if( ! event->retrieve( truthMET, "MET_Truth").isSuccess() ){
+	      Error(__PRETTY_FUNCTION__, ("Failed to retrieve MET_Truth")) ;
+	      return EL::StatusCode::FAILURE;
+	    }
+	    // for event selection, get from the store, I'm sure there is a better way
+	    std::pair< xAOD::MissingETContainer*, xAOD::ShallowAuxContainer* > truthMET_shallowCopy = xAOD::shallowCopyContainer( *truthMET );
+	   if( !m_store->record( truthMET_shallowCopy.first , "MyTruthMET" )){return EL::StatusCode::FAILURE;}
+	   if( !m_store->record( truthMET_shallowCopy.second, "MyTruthMETAux." )) {return EL::StatusCode::FAILURE;}
+	   truthMET_shallowCopy.second->setShallowIO(true);
+
+
+
+
+        // truth particles
+    	const xAOD::TruthParticleContainer* truthParticles = 0;
+    	if( !event->retrieve( truthParticles, "TruthParticle" ) ){
+    	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve TruthParticle")) ;
+	      return EL::StatusCode::FAILURE;
+	    }
+	    
+    	    	
+    } // end if isMC	
+
+
+
+
+    //----------------------------
+    // Event selection
+    //-----------------------------
+    if(!isMC)(eventInfo_shallowCopy.first)->auxdecor< int >("IsMC") = 0;
+    else (eventInfo_shallowCopy.first)->auxdecor< int >("IsMC") = 1; 
 
 	if( m_doEventSelection && m_Analysis=="bbmet" ){
-		TString result = eventSelectionBBMet();
+		TString result = eventSelectionBBMet(eventInfo_shallowCopy.first);
 		(eventInfo_shallowCopy.first)->auxdecor< char >("selection") = *result.Data();
+                
 		//if(result=="") return EL::StatusCode::SUCCESS;
 	}
 
@@ -688,7 +745,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	//Info( __PRETTY_FUNCTION__,"RJigsaw Variables: gammainv_Rp1 %f",
 	//	(eventInfo_shallowCopy.first)->auxdata< float >("gammainv_Rp1") );
 
-	// m_store->clear();
+
 
 	//Info( __PRETTY_FUNCTION__,"About to write to xAOD "  );
 
@@ -699,6 +756,8 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	//Info( __PRETTY_FUNCTION__,"leaving execute "  );
 
+
+     // m_store->clear(); // not here because PlantATree needs it
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -770,11 +829,13 @@ EL::StatusCode SklimmerAnalysis :: histFinalize ()
 
 
 
-TString SklimmerAnalysis :: eventSelectionBBMet()
+TString SklimmerAnalysis :: eventSelectionBBMet(xAOD::EventInfo * eventInfo)
 {
-  xAOD::EventInfo* eventInfo = nullptr;
-  CHECK(m_store->retrieve(eventInfo, myEventInfoName));
-
+ if(eventInfo == nullptr ){
+   Error(__PRETTY_FUNCTION__, "can't do bbMET eventSelection without eventInfo object" ) ;
+   return TString("");
+ }
+ 
   EventSelectionBBMet evtSelection(m_store);//todo should probably be a tool owned up the analysis class? we wouldn't need this silly store pass
   evtSelection.jetCalibCollectionName      = jetCalibCollectionName;
   evtSelection.muonCalibCollectionName     = muonCalibCollectionName;
@@ -808,7 +869,7 @@ EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
   if(truthEventName.empty())           truthEventName           = "TruthEvent";
   if(truthParticleName.empty())        truthParticleName        = "TruthParticle";
   if(truthJetCollectionName.empty())   truthJetCollectionName   = "AntiKt4TruthJets";
-  if(truthMetCollectionName.empty())   truthMetCollectionName   = "Truth_MET";
+  if(truthMetCollectionName.empty())   truthMetCollectionName   = "MET_Truth";
   if(truthPrimaryVerticesName.empty()) truthPrimaryVerticesName = "TruthVertex";
 
   return EL::StatusCode::SUCCESS;

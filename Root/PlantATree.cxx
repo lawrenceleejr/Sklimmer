@@ -18,6 +18,7 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthEvent.h"
 #include "xAODCore/ShallowCopy.h"
@@ -94,7 +95,24 @@ EL::StatusCode PlantATree :: histInitialize ()
   Electron_phi = new std::vector<float>       ;   
   Electron_E = new std::vector<float>       ;     
   Electron_m = new std::vector<float>       ;     
+  TruthJet_pT = new std::vector<float>       ;    
+  TruthJet_eta = new std::vector<float>       ;   
+  TruthJet_phi = new std::vector<float>       ;   
+  TruthJet_E = new std::vector<float>       ;     
+  TruthJet_m = new std::vector<float>       ;     
+  //TruthJet_flavor = new std::vector<float>       ;     
+  TruthMuon_pT = new std::vector<float>       ;    
+  TruthMuon_eta = new std::vector<float>       ;   
+  TruthMuon_phi = new std::vector<float>       ;   
+  TruthMuon_E = new std::vector<float>       ;     
+  TruthMuon_m = new std::vector<float>       ;     
+  TruthElectron_pT = new std::vector<float>       ;    
+  TruthElectron_eta = new std::vector<float>       ;   
+  TruthElectron_phi = new std::vector<float>       ;   
+  TruthElectron_E = new std::vector<float>       ;     
+  TruthElectron_m = new std::vector<float>       ;     
 
+  
 
   //Set up branches here
 
@@ -127,14 +145,39 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_V1_N"              , &RJVars_V1_N              ); 
   tree->Branch("RJVars_V2_N"              , &RJVars_V2_N              ); 
 
-  //QCD Variables
+  tree->Branch("TruthRJVars_SS_Mass"           , &TruthRJVars_SS_Mass           ); 
+  tree->Branch("TruthRJVars_SS_InvGamma"       , &TruthRJVars_SS_InvGamma       ); 
+  tree->Branch("TruthRJVars_SS_dPhiBetaR"      , &TruthRJVars_SS_dPhiBetaR      ); 
+  tree->Branch("TruthRJVars_SS_dPhiVis"        , &TruthRJVars_SS_dPhiVis        ); 
+  tree->Branch("TruthRJVars_SS_CosTheta"       , &TruthRJVars_SS_CosTheta       ); 
+  tree->Branch("TruthRJVars_SS_dPhiDecayAngle" , &TruthRJVars_SS_dPhiDecayAngle ); 
+  tree->Branch("TruthRJVars_SS_VisShape"       , &TruthRJVars_SS_VisShape       ); 
+  tree->Branch("TruthRJVars_SS_MDeltaR"        , &TruthRJVars_SS_MDeltaR        ); 
+  tree->Branch("TruthRJVars_S1_Mass"           , &TruthRJVars_S1_Mass           ); 
+  tree->Branch("TruthRJVars_S1_CosTheta"       , &TruthRJVars_S1_CosTheta       ); 
+  tree->Branch("TruthRJVars_S2_Mass"           , &TruthRJVars_S2_Mass           ); 
+  tree->Branch("TruthRJVars_S2_CosTheta"       , &TruthRJVars_S2_CosTheta       ); 
+  tree->Branch("TruthRJVars_I1_Depth"          , &TruthRJVars_I1_Depth          ); 
+  tree->Branch("TruthRJVars_I2_Depth"          , &TruthRJVars_I2_Depth          ); 
+  tree->Branch("TruthRJVars_V1_N"              , &TruthRJVars_V1_N              ); 
+  tree->Branch("TruthRJVars_V2_N"              , &TruthRJVars_V2_N              ); 
 
+
+  //QCD Variables
+  
   tree->Branch("RJVars_QCD_dPhiR" ,  &RJVars_QCD_dPhiR  );
   tree->Branch("RJVars_QCD_Rpt"   ,  &RJVars_QCD_Rpt    );
   tree->Branch("RJVars_QCD_Rmsib" ,  &RJVars_QCD_Rmsib  );
   tree->Branch("RJVars_QCD_Rpsib" ,  &RJVars_QCD_Rpsib  );
   tree->Branch("RJVars_QCD_Delta1" ,  &RJVars_QCD_Delta1  );
   tree->Branch("RJVars_QCD_Delta2" ,  &RJVars_QCD_Delta2  );
+
+  tree->Branch("TruthRJVars_QCD_dPhiR" ,  &TruthRJVars_QCD_dPhiR  );
+  tree->Branch("TruthRJVars_QCD_Rpt"   ,  &TruthRJVars_QCD_Rpt    );
+  tree->Branch("TruthRJVars_QCD_Rmsib" ,  &TruthRJVars_QCD_Rmsib  );
+  tree->Branch("TruthRJVars_QCD_Rpsib" ,  &TruthRJVars_QCD_Rpsib  );
+  tree->Branch("TruthRJVars_QCD_Delta1" ,  &TruthRJVars_QCD_Delta1  );
+  tree->Branch("TruthRJVars_QCD_Delta2" ,  &TruthRJVars_QCD_Delta2  );
 
   tree->Branch("Jet_pT"       , &Jet_pT        );
   tree->Branch("Jet_eta"      , &Jet_eta       );
@@ -152,6 +195,23 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("Electron_phi" , &Electron_phi  );
   tree->Branch("Electron_E"   , &Electron_E    );
   tree->Branch("Electron_m"   , &Electron_m    );
+  tree->Branch("TruthJet_pT"       , &TruthJet_pT        );
+  tree->Branch("TruthJet_eta"      , &TruthJet_eta       );
+  tree->Branch("TruthJet_phi"      , &TruthJet_phi       );
+  tree->Branch("TruthJet_E"        , &TruthJet_E         );
+  tree->Branch("TruthJet_m"        , &TruthJet_m         );
+  //tree->Branch("TruthJet_flavor"      , &TruthJet_flavor       );
+  tree->Branch("TruthMuon_pT"      , &TruthMuon_pT       );
+  tree->Branch("TruthMuon_eta"     , &TruthMuon_eta      );
+  tree->Branch("TruthMuon_phi"     , &TruthMuon_phi      );
+  tree->Branch("TruthMuon_E"       , &TruthMuon_E        );
+  tree->Branch("TruthMuon_m"       , &TruthMuon_m        );
+  tree->Branch("TruthElectron_pT"  , &TruthElectron_pT   );
+  tree->Branch("TruthElectron_eta" , &TruthElectron_eta  );
+  tree->Branch("TruthElectron_phi" , &TruthElectron_phi  );
+  tree->Branch("TruthElectron_E"   , &TruthElectron_E    );
+  tree->Branch("TruthElectron_m"   , &TruthElectron_m    );
+
 
   tree->Branch("MET_x"   , &MET_x    );
   tree->Branch("MET_y"   , &MET_y    );
@@ -221,12 +281,12 @@ EL::StatusCode PlantATree :: execute ()
   std::cout << "PlantATree :: execute ()" << std::endl;
   // std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
 
-  // m_store->print();
+  //m_store->print();
 
   xAOD::EventInfo* eventinfo = 0;
   CHECK( m_store->retrieve(eventinfo, "MyEventInfo") );
 
-  if( eventinfo->auxdata<char>("selection") == (char) 0 ){
+  if( eventinfo->auxdata<char>("selection") == (char) 0 ){ //if not an event passing your 'selection' don't save to ttree
       m_store->clear(); 
       return EL::StatusCode::SUCCESS;
   }
@@ -266,6 +326,32 @@ EL::StatusCode PlantATree :: execute ()
   RJVars_QCD_Delta1          = eventinfo->auxdata<float>("QCD_Delta1");
   RJVars_QCD_Delta2          = eventinfo->auxdata<float>("QCD_Delta2");
 
+
+
+  TruthRJVars_SS_Mass            = eventinfo->auxdata<float>("TruthSS_Mass");
+  TruthRJVars_SS_InvGamma        = eventinfo->auxdata<float>("TruthSS_InvGamma");
+  TruthRJVars_SS_dPhiBetaR       = eventinfo->auxdata<float>("TruthSS_dPhiBetaR");
+  TruthRJVars_SS_dPhiVis         = eventinfo->auxdata<float>("TruthSS_dPhiVis");
+  TruthRJVars_SS_CosTheta        = eventinfo->auxdata<float>("TruthSS_CosTheta");
+  TruthRJVars_SS_dPhiDecayAngle  = eventinfo->auxdata<float>("TruthSS_dPhiDecayAngle");
+  TruthRJVars_SS_VisShape        = eventinfo->auxdata<float>("TruthSS_VisShape");
+  TruthRJVars_SS_MDeltaR         = eventinfo->auxdata<float>("TruthSS_MDeltaR");
+  TruthRJVars_S1_Mass            = eventinfo->auxdata<float>("TruthS1_Mass");
+  TruthRJVars_S1_CosTheta        = eventinfo->auxdata<float>("TruthS1_CosTheta");
+  TruthRJVars_S2_Mass            = eventinfo->auxdata<float>("TruthS2_Mass");
+  TruthRJVars_S2_CosTheta        = eventinfo->auxdata<float>("TruthS2_CosTheta");
+  TruthRJVars_I1_Depth           = eventinfo->auxdata<float>("TruthI1_Depth");
+  TruthRJVars_I2_Depth           = eventinfo->auxdata<float>("TruthI2_Depth");
+  TruthRJVars_V1_N               = eventinfo->auxdata<float>("TruthV1_N");
+  TruthRJVars_V2_N               = eventinfo->auxdata<float>("TruthV2_N");
+
+  TruthRJVars_QCD_dPhiR          = eventinfo->auxdata<float>("TruthQCD_dPhiR"); 
+  TruthRJVars_QCD_Rpt            = eventinfo->auxdata<float>("TruthQCD_Rpt"  );
+  TruthRJVars_QCD_Rmsib          = eventinfo->auxdata<float>("TruthQCD_Rmsib");
+  TruthRJVars_QCD_Rpsib          = eventinfo->auxdata<float>("TruthQCD_Rpsib");
+  TruthRJVars_QCD_Delta1          = eventinfo->auxdata<float>("TruthQCD_Delta1");
+  TruthRJVars_QCD_Delta2          = eventinfo->auxdata<float>("TruthQCD_Delta2");
+
   //////////////////////////////////////////////////////////////////////////////////////////
 
   Jet_pT        ->clear();
@@ -284,6 +370,28 @@ EL::StatusCode PlantATree :: execute ()
   Electron_phi  ->clear();
   Electron_E    ->clear();
   Electron_m    ->clear();
+  TruthJet_pT        ->clear();
+  TruthJet_eta       ->clear();
+  TruthJet_phi       ->clear();
+  TruthJet_E         ->clear();
+  TruthJet_m         ->clear();
+  //TruthJet_flavor  ->clear();
+  TruthMuon_pT       ->clear();
+  TruthMuon_eta      ->clear();
+  TruthMuon_phi      ->clear();
+  TruthMuon_E        ->clear();
+  TruthMuon_m        ->clear();
+  TruthElectron_pT   ->clear();
+  TruthElectron_eta  ->clear();
+  TruthElectron_phi  ->clear();
+  TruthElectron_E    ->clear();
+  TruthElectron_m    ->clear();
+
+
+
+
+
+
 
   /////////////////////////////////////////////////////////////////////////////////////
 
@@ -293,9 +401,9 @@ EL::StatusCode PlantATree :: execute ()
   xAOD::JetContainer::iterator jet_itr = (jets)->begin();
   xAOD::JetContainer::iterator jet_end = (jets)->end();
   for( ; jet_itr != jet_end; ++jet_itr ) {
-    if( (*jet_itr)->auxdata< char >("baseline")==1  &&
-        (*jet_itr)->auxdata< char >("passOR")==1  &&
-        (*jet_itr)->pt() > 20000.  && ( fabs( (*jet_itr)->eta()) < 2.5)  ) {
+    if( ((int)((*jet_itr)->auxdata< char >("baseline")))==1  &&
+        ((int)((*jet_itr)->auxdata< char >("passOR")))==1  &&
+        (*jet_itr)->pt() > 20000.  && ( fabs( (*jet_itr)->eta()) < 2.8)  ) { // changing from 2.5 to 2.8 to match baseline
 
         Jet_pT  ->push_back( (*jet_itr)->pt()  );
         Jet_eta ->push_back( (*jet_itr)->eta()  );
@@ -316,8 +424,9 @@ EL::StatusCode PlantATree :: execute ()
   xAOD::MuonContainer::iterator muon_itr = (muons)->begin();
   xAOD::MuonContainer::iterator muon_end = (muons)->end();
   for( ; muon_itr != muon_end; ++muon_itr ) {
-    if( (*muon_itr)->auxdata< char >("baseline")==1  &&
-        (*muon_itr)->auxdata< char >("passOR")==1   ) {
+
+    if( ((int)((*muon_itr)->auxdata< char >("baseline")))==1  &&
+        ((int)((*muon_itr)->auxdata< char >("passOR")))==1   ) {
 
         Muon_pT  ->push_back( (*muon_itr)->pt()  );
         Muon_eta ->push_back( (*muon_itr)->eta()  );
@@ -336,8 +445,9 @@ EL::StatusCode PlantATree :: execute ()
   xAOD::ElectronContainer::iterator electron_itr = (electrons)->begin();
   xAOD::ElectronContainer::iterator electron_end = (electrons)->end();
   for( ; electron_itr != electron_end; ++electron_itr ) {
-    if( (*electron_itr)->auxdata< char >("baseline")==1  &&
-        (*electron_itr)->auxdata< char >("passOR")==1   ) {
+  	
+    if( ((int) ((*electron_itr)->auxdata< char >("baseline"))) ==1  &&
+        ((int) ((*electron_itr)->auxdata< char >("passOR")))==1   ) {
 
         Electron_pT  ->push_back( (*electron_itr)->pt()  );
         Electron_eta ->push_back( (*electron_itr)->eta()  );
@@ -362,6 +472,90 @@ EL::StatusCode PlantATree :: execute ()
     MET_x = (*met_it)->mpx();
     MET_y = (*met_it)->mpy();
   }
+
+
+
+  /////////////////////////////////////////////////////////////////////////////////////
+
+  //----------------
+  // Truth particles
+  // Currently not doing any overlap removal
+  //----------------
+  
+ if( eventinfo->auxdata<int>("IsMC") == 1 ){
+
+	  // instance of xAOD::TEvent to access truth info from input xAOD
+	  xAOD::TEvent* event = wk()->xaodEvent();
+	
+	  const xAOD::JetContainer* truthJets = 0;
+	  CHECK( event->retrieve( truthJets, "AntiKt4TruthJets" ) );
+	  
+	  xAOD::JetContainer::const_iterator truthJet_itr = (truthJets)->begin();
+	  xAOD::JetContainer::const_iterator truthJet_end = (truthJets)->end();
+	  for( ; truthJet_itr != truthJet_end; ++truthJet_itr ) {
+	    if(  (*truthJet_itr)->pt() > 20000.  && ( fabs( (*truthJet_itr)->eta()) < 2.8)  ) { // geometrical cuts matching reco. (should probably not hard-code)
+	
+	        TruthJet_pT  ->push_back( (*truthJet_itr)->pt()  );
+	        TruthJet_eta ->push_back( (*truthJet_itr)->eta()  );
+	        TruthJet_phi ->push_back( (*truthJet_itr)->phi()  );
+	        TruthJet_E   ->push_back( (*truthJet_itr)->e()  );
+	        TruthJet_m   ->push_back( (*truthJet_itr)->m()  );
+	        //TruthJet_flavor ->push_back( (*truthJet_itr)->auxdata< float >("MV1")   ); // flavor tagging
+	
+	    } // end if passing kinematical cuts
+	
+	  
+	  } // end loop over truth jets
+
+    
+   	//-------------------------------------------------
+   	// Truth particles to get truth electrons and muons
+   	//-------------------------------------------------
+   	const xAOD::TruthParticleContainer* truthParticles = 0;
+   	CHECK(event->retrieve( truthParticles, "TruthParticle" ));
+           
+    xAOD::TruthParticleContainer::const_iterator tp_itr = truthParticles->begin();
+    xAOD::TruthParticleContainer::const_iterator tp_end = truthParticles->end();
+    for( ; tp_itr != tp_end; ++tp_itr ) {
+       	// status == 1 && barcode < 100,000 for stable particles from generator
+       	if ( ((*tp_itr)->status() == 1) && ((*tp_itr)->barcode() < 100000) ) {
+       		
+       		// electrons
+       		if((fabs( (*tp_itr)->pdgId() ) == 11)){
+       			// kinematic cuts, To do: don't make hardcoded! these are SUSYTools baseline electrons selection
+       			if( ((*tp_itr)->pt() > 10000) && (fabs((*tp_itr)->eta()) < 2.47)  ){ 
+       			    TruthElectron_pT  ->push_back( (*tp_itr)->pt()  );
+                    TruthElectron_eta ->push_back( (*tp_itr)->eta()  );
+                    TruthElectron_phi ->push_back( (*tp_itr)->phi()  );
+                    TruthElectron_E   ->push_back( (*tp_itr)->e()  );
+                    TruthElectron_m   ->push_back( (*tp_itr)->m()  );
+       			} // end if passing electron kinematic cuts    
+       		}// end if electrons	
+       		       		
+       		// muons
+       		if((fabs( (*tp_itr)->pdgId() ) == 13)){
+       			// kinematic cuts, To do: don't make hardcoded! these are SUSYTools baseline electrons selection
+       			if( ((*tp_itr)->pt() > 10000) && (fabs((*tp_itr)->eta()) < 2.4)  ){ 
+       			    TruthMuon_pT  ->push_back( (*tp_itr)->pt()  );
+                    TruthMuon_eta ->push_back( (*tp_itr)->eta()  );
+                    TruthMuon_phi ->push_back( (*tp_itr)->phi()  );
+                    TruthMuon_E   ->push_back( (*tp_itr)->e()  );
+                    TruthMuon_m   ->push_back( (*tp_itr)->m()  );
+       			} // end if passing electron kinematic cuts    
+       		}// end if muons	
+       	      		
+       	}	
+       	
+     } // end for loop over truth particles	
+     
+
+       
+
+  } // end if MC
+
+
+  /////////////////////////////////////////////////////////////////////////////////////
+
 
 
 

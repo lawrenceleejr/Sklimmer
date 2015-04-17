@@ -71,6 +71,36 @@ public:
   float RJVars_QCD_Delta1         ; //! 
   float RJVars_QCD_Delta2         ; //! 
 
+
+
+
+  float TruthRJVars_SS_Mass           ; //!
+  float TruthRJVars_SS_InvGamma       ; //!
+  float TruthRJVars_SS_dPhiBetaR      ; //!
+  float TruthRJVars_SS_dPhiVis        ; //!
+  float TruthRJVars_SS_CosTheta       ; //!
+  float TruthRJVars_SS_dPhiDecayAngle ; //!
+  float TruthRJVars_SS_VisShape       ; //!
+  float TruthRJVars_SS_MDeltaR        ; //!
+  float TruthRJVars_S1_Mass           ; //!
+  float TruthRJVars_S1_CosTheta       ; //!
+  float TruthRJVars_S2_Mass           ; //!
+  float TruthRJVars_S2_CosTheta       ; //!
+  float TruthRJVars_I1_Depth          ; //!
+  float TruthRJVars_I2_Depth          ; //!
+  float TruthRJVars_V1_N              ; //!
+  float TruthRJVars_V2_N              ; //!    
+
+  //QCD Variables
+  float TruthRJVars_QCD_dPhiR         ; //! 
+  float TruthRJVars_QCD_Rpt           ; //! 
+  float TruthRJVars_QCD_Rmsib         ; //! 
+  float TruthRJVars_QCD_Rpsib         ; //! 
+  float TruthRJVars_QCD_Delta1         ; //! 
+  float TruthRJVars_QCD_Delta2         ; //! 
+
+
+
   std::vector<float> * Jet_pT;    //!
   std::vector<float> * Jet_eta;   //!
   std::vector<float> * Jet_phi;   //!
@@ -90,6 +120,26 @@ public:
   std::vector<float> * Electron_phi;   //!
   std::vector<float> * Electron_E;     //!
   std::vector<float> * Electron_m;     //!
+
+  std::vector<float> * TruthJet_pT;    //!
+  std::vector<float> * TruthJet_eta;   //!
+  std::vector<float> * TruthJet_phi;   //!
+  std::vector<float> * TruthJet_E;     //!
+  std::vector<float> * TruthJet_m;     //!
+  //std::vector<float> * TruthJet_flavor;     //!
+
+  std::vector<float> * TruthMuon_pT;    //!
+  std::vector<float> * TruthMuon_eta;   //!
+  std::vector<float> * TruthMuon_phi;   //!
+  std::vector<float> * TruthMuon_E;     //!
+  std::vector<float> * TruthMuon_m;     //!
+
+  std::vector<float> * TruthElectron_pT;    //!
+  std::vector<float> * TruthElectron_eta;   //!
+  std::vector<float> * TruthElectron_phi;   //!
+  std::vector<float> * TruthElectron_E;     //!
+  std::vector<float> * TruthElectron_m;     //!
+
 
   float MET_x; //!
   float MET_y; //!

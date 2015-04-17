@@ -51,7 +51,7 @@ elif options.inputDS != "none":
   ROOT.SH.scanDQ2 (sh_all, options.inputDS);
 else :
   search_directories = []
-  search_directories = ("/afs/cern.ch/atlas/project/PAT/xAODs/r5591/",)
+  search_directories = ("/afs/cern.ch/atlas/project/PAT/xAODs/r5787/",)
     
   # scan for datasets in the given directories
   for directory in search_directories:

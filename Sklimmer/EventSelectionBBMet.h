@@ -23,6 +23,8 @@ public:
 private:
   EventSelectionBBMet();//need a store to work
 
+  void calculateRJigsaw(xAOD::JetContainer* goodJets, std::string varPrefix, xAOD::EventInfo * eventInfo, std::string metContainerName, std::string metString);
+
   xAOD::TStore *m_store;
 };
 #endif

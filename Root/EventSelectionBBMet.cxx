@@ -28,88 +28,19 @@
 #include "Sklimmer/EventSelectionBBMet.h"
 #include "Sklimmer/errorcheck.h"
 
-
+//----------------------------------------------------
+// Constructor
+//----------------------------------------------------
 EventSelectionBBMet::EventSelectionBBMet(xAOD::TStore * store) //probably add a version which sets the collection names
 {
    m_store = store;
 }
 
-std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
-	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
-
-
-	xAOD::JetContainer* jets_copy(0);
-	assert( m_store->retrieve( jets_copy, jetCalibCollectionName ) );
-
-	xAOD::MuonContainer* muons_copy(0);
-	assert( m_store->retrieve( muons_copy, muonCalibCollectionName ) );
-
-	xAOD::ElectronContainer* electrons_copy(0);
-	assert( m_store->retrieve( electrons_copy, electronCalibCollectionName ) );
-
-
-	/////////////// Lepton Veto //////////////////////////////
-
-	int Nel=0;
-	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
-	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
-	for( ; el_itr != el_end; ++el_itr ) {
-		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
-	}
-
-	int Nmu=0;
-	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
-	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
-	for( ; mu_itr != mu_end; ++mu_itr ) {
-		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
-	}
-
-	if(Nel || Nmu) return "";
-
-	///////////////////////////////////////////////////////////
-
-
-	xAOD::JetContainer* goodJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
-	// assert( m_store->record(goodJets, "MySelJets") );
-
-	xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
-	xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
-
-	for( ; jet_itr != jet_end; ++jet_itr ) {
-
-		if( (*jet_itr)->auxdata< char >("baseline")==1 &&
-		    (*jet_itr)->auxdata< char >("passOR")  ==1 &&
-		    (*jet_itr)->pt() > 30000.                  &&
-		    ( fabs( (*jet_itr)->eta()) < 2.8)
-		    ) {
-			goodJets->push_back (*jet_itr);
-		}
-
-		(*jet_itr)->auxdecor<float>("MV1") =  ((*jet_itr)->btagging())->MV1_discriminant() ;
-
-    }
-
-	//need two jets
-    if(goodJets->size() < 2){
-
-
-		// eventInfo->auxdecor<float>("SS_Mass"         ) = 0.;
-		// eventInfo->auxdecor<float>("SS_Phi"          ) = 0.;
-		// eventInfo->auxdecor<float>("SS_CosTheta"     ) = 0.;
-		// eventInfo->auxdecor<float>("S1_Mass"         ) = 0.;
-		// eventInfo->auxdecor<float>("S1_Phi"          ) = 0.;
-		// eventInfo->auxdecor<float>("S1_CosTheta"     ) = 0.;
-		// eventInfo->auxdecor<float>("S2_Mass"         ) = 0.;
-		// eventInfo->auxdecor<float>("S2_Phi"          ) = 0.;
-		// eventInfo->auxdecor<float>("S2_CosTheta"     ) = 0.;
-		// eventInfo->auxdecor<float>("I1_Depth"        ) = 0.;
-		// eventInfo->auxdecor<float>("I2_Depth"        ) = 0.;
-		// eventInfo->auxdecor<float>("V1_N"            ) = 0.;
-		// eventInfo->auxdecor<float>("V2_N"            ) = 0.;
-
-		return "";
-
-    }
+//----------------------------------------------------
+// Calculate the RJigsaw variables for this analysis
+//----------------------------------------------------
+void EventSelectionBBMet::calculateRJigsaw(xAOD::JetContainer* goodJets, std::string varPrefix, xAOD::EventInfo * eventInfo, std::string metCollectionName, std::string metString){
+	
 
 	std::sort(goodJets->begin(), goodJets->end(),
     [](xAOD::Jet  *a, xAOD::Jet  *b){return a->pt() > b->pt();});
@@ -222,31 +153,29 @@ std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
 
 	TLorentzVector jet;
 
-	jet_itr = (jets_copy)->begin();
-	for( ; jet_itr != jet_end; ++jet_itr ) {
+    // loop over good jets (they pass baseline, passOR, and have some extra kinematic cuts)
+	xAOD::JetContainer::iterator goodJet_itr = (goodJets)->begin();
+	xAOD::JetContainer::iterator goodJet_end = (goodJets)->end();
+	for( ; goodJet_itr != goodJet_end; ++goodJet_itr ) {
+        const xAOD::Jet* ajet = (*goodJet_itr);
+        VIS.AddLabFrameFourVector( (*goodJet_itr)->p4()  );
+		jet.SetPtEtaPhiM( (*goodJet_itr)->pt(), 0., (*goodJet_itr)->phi(), (*goodJet_itr)->m()  );
+		VIS_alt.AddLabFrameFourVector(jet);
+    } 
 
-		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
-			(*jet_itr)->auxdata< char >("passOR")==1  &&
-			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
-			VIS.AddLabFrameFourVector( (*jet_itr)->p4()  );
-
-			jet.SetPtEtaPhiM( (*jet_itr)->pt(), 0., (*jet_itr)->phi(), (*jet_itr)->m()  );
-			VIS_alt.AddLabFrameFourVector(jet);
-		}
-
-    }
 
 
 	// Get MET Collection to hand to Rest Frames////////////////////////////////////////////////////
 
 	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-	assert( m_store->retrieve( MET, metCalibCollectionName ) );
+	assert( m_store->retrieve( MET, metCollectionName ) );
 
 	TVector3 MET_TV3;
 
-	xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");//todo?
+	xAOD::MissingETContainer::const_iterator met_it = MET->find(metString);//todo? "Final" for reco, "NonInt" for truth
+	
 	if (met_it == MET->end()) {
-		Error( __PRETTY_FUNCTION__, "No RefFinal inside MET container" );
+		Error( __PRETTY_FUNCTION__, "Could not find final met inside MET container" );
 	} else {
 		INV.SetLabFrameThreeVector(  TVector3( (*met_it)->mpx(), (*met_it)->mpy(), 0 ) );
 		MET_TV3.SetZ(0.);
@@ -262,24 +191,22 @@ std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
 
 	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
 
-	eventInfo->auxdecor<float>("SS_Mass"           ) = SS.GetMass();
-	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS.GetGammaInParentFrame();
-	eventInfo->auxdecor<float>("SS_dPhiBetaR"      ) = SS.GetDeltaPhiBoostVisible();
-	eventInfo->auxdecor<float>("SS_dPhiVis"        ) = SS.GetDeltaPhiVisible();
-	eventInfo->auxdecor<float>("SS_CosTheta"       ) = SS.GetCosDecayAngle();
-	eventInfo->auxdecor<float>("SS_dPhiDecayAngle" ) = SS.GetDeltaPhiDecayAngle();
-	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS.GetVisibleShape();
-	eventInfo->auxdecor<float>("SS_MDeltaR"        ) = SS.GetVisibleShape() * SS.GetMass() ;
-	eventInfo->auxdecor<float>("S1_Mass"           ) = S1.GetMass();
-	eventInfo->auxdecor<float>("S1_CosTheta"       ) = S1.GetCosDecayAngle();
-	eventInfo->auxdecor<float>("S2_Mass"           ) = S2.GetMass();
-	eventInfo->auxdecor<float>("S2_CosTheta"       ) = S2.GetCosDecayAngle();
-	eventInfo->auxdecor<float>("I1_Depth"          ) = S1.GetFrameDepth(I1);
-	eventInfo->auxdecor<float>("I2_Depth"          ) = S2.GetFrameDepth(I2);
-	eventInfo->auxdecor<float>("V1_N"              ) = VIS.GetNElementsInFrame(V1);
-	eventInfo->auxdecor<float>("V2_N"              ) = VIS.GetNElementsInFrame(V2);
-
-
+	eventInfo->auxdecor<float>(varPrefix+"SS_Mass"           ) = SS.GetMass();
+	eventInfo->auxdecor<float>(varPrefix+"SS_InvGamma"       ) = 1./SS.GetGammaInParentFrame();
+	eventInfo->auxdecor<float>(varPrefix+"SS_dPhiBetaR"      ) = SS.GetDeltaPhiBoostVisible();
+	eventInfo->auxdecor<float>(varPrefix+"SS_dPhiVis"        ) = SS.GetDeltaPhiVisible();
+	eventInfo->auxdecor<float>(varPrefix+"SS_CosTheta"       ) = SS.GetCosDecayAngle();
+	eventInfo->auxdecor<float>(varPrefix+"SS_dPhiDecayAngle" ) = SS.GetDeltaPhiDecayAngle();
+	eventInfo->auxdecor<float>(varPrefix+"SS_VisShape"       ) = SS.GetVisibleShape();
+	eventInfo->auxdecor<float>(varPrefix+"SS_MDeltaR"        ) = SS.GetVisibleShape() * SS.GetMass() ;
+	eventInfo->auxdecor<float>(varPrefix+"S1_Mass"           ) = S1.GetMass();
+	eventInfo->auxdecor<float>(varPrefix+"S1_CosTheta"       ) = S1.GetCosDecayAngle();
+	eventInfo->auxdecor<float>(varPrefix+"S2_Mass"           ) = S2.GetMass();
+	eventInfo->auxdecor<float>(varPrefix+"S2_CosTheta"       ) = S2.GetCosDecayAngle();
+	eventInfo->auxdecor<float>(varPrefix+"I1_Depth"          ) = S1.GetFrameDepth(I1);
+	eventInfo->auxdecor<float>(varPrefix+"I2_Depth"          ) = S2.GetFrameDepth(I2);
+	eventInfo->auxdecor<float>(varPrefix+"V1_N"              ) = VIS.GetNElementsInFrame(V1);
+	eventInfo->auxdecor<float>(varPrefix+"V2_N"              ) = VIS.GetNElementsInFrame(V2);
 
     // dphiR and Rptshat (formerly cosPT)
     // for QCD rejection
@@ -311,13 +238,184 @@ std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
     double DeltaQCD1 = (cosPsibM-RpsibM)/(cosPsibM+RpsibM);
     double DeltaQCD2 = (cosPsibM-RmsibM)/(cosPsibM+RmsibM);
 
-    eventInfo->auxdecor<float>("QCD_dPhiR"              ) = dphiR;
-    eventInfo->auxdecor<float>("QCD_Rpt"                ) = Rptshat;
-    eventInfo->auxdecor<float>("QCD_Rmsib"              ) = RmsibM;
-    eventInfo->auxdecor<float>("QCD_Delta"              ) = DeltaQCD2;
+    eventInfo->auxdecor<float>(varPrefix+"QCD_dPhiR"              ) = dphiR;
+    eventInfo->auxdecor<float>(varPrefix+"QCD_Rpt"                ) = Rptshat;
+    eventInfo->auxdecor<float>(varPrefix+"QCD_Rmsib"              ) = RmsibM;
+    eventInfo->auxdecor<float>(varPrefix+"QCD_Delta"              ) = DeltaQCD2;
 
 	// Info( __PRETTY_FUNCTION__,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
 	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
+	
+	
+} // end 	
+
+
+//----------------------------------------------------
+// The primary function
+//----------------------------------------------------
+std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
+	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
+
+     
+    bool truthRun = true;
+    std::string varPrefix = "";
+    if (truthRun) varPrefix = "Truth";
+
+
+    //----------------------------
+    // reco-level
+    //----------------------------        
+	xAOD::JetContainer* jets_copy(0);
+	assert( m_store->retrieve( jets_copy, jetCalibCollectionName ) );
+
+	xAOD::MuonContainer* muons_copy(0);
+	assert( m_store->retrieve( muons_copy, muonCalibCollectionName ) );
+
+	xAOD::ElectronContainer* electrons_copy(0);
+	assert( m_store->retrieve( electrons_copy, electronCalibCollectionName ) );
+
+
+	/////////////// Lepton Veto //////////////////////////////
+
+	int Nel=0;
+	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
+	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
+	for( ; el_itr != el_end; ++el_itr ) {
+		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
+	}
+
+	int Nmu=0;
+	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
+	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
+	for( ; mu_itr != mu_end; ++mu_itr ) {
+		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
+	}
+
+	if(Nel || Nmu) return "";
+
+	///////////////////////////////////////////////////////////
+
+
+	xAOD::JetContainer* goodJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
+	// assert( m_store->record(goodJets, "MySelJets") );
+
+	xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
+	xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
+
+	for( ; jet_itr != jet_end; ++jet_itr ) {
+        
+		if( (*jet_itr)->auxdata< char >("baseline")==1 &&
+		    (*jet_itr)->auxdata< char >("passOR")  ==1 &&
+		    (*jet_itr)->pt() > 30000.                  &&
+		    ( fabs( (*jet_itr)->eta()) < 2.8)
+		    ) {
+			goodJets->push_back (*jet_itr);
+		}
+
+		(*jet_itr)->auxdecor<float>("MV1") =  ((*jet_itr)->btagging())->MV1_discriminant() ; // LH: should this be above if statement?
+
+    }
+
+
+    //--------------------------------------------------------
+	// need two jets
+	//--------------------------------------------------------
+    if(goodJets->size() < 2){
+
+
+		// eventInfo->auxdecor<float>("SS_Mass"         ) = 0.;
+		// eventInfo->auxdecor<float>("SS_Phi"          ) = 0.;
+		// eventInfo->auxdecor<float>("SS_CosTheta"     ) = 0.;
+		// eventInfo->auxdecor<float>("S1_Mass"         ) = 0.;
+		// eventInfo->auxdecor<float>("S1_Phi"          ) = 0.;
+		// eventInfo->auxdecor<float>("S1_CosTheta"     ) = 0.;
+		// eventInfo->auxdecor<float>("S2_Mass"         ) = 0.;
+		// eventInfo->auxdecor<float>("S2_Phi"          ) = 0.;
+		// eventInfo->auxdecor<float>("S2_CosTheta"     ) = 0.;
+		// eventInfo->auxdecor<float>("I1_Depth"        ) = 0.;
+		// eventInfo->auxdecor<float>("I2_Depth"        ) = 0.;
+		// eventInfo->auxdecor<float>("V1_N"            ) = 0.;
+		// eventInfo->auxdecor<float>("V2_N"            ) = 0.;
+
+		return "";
+
+    }
+
+    //---------------------------------------------------------------------
+    // calculate the rjigsaw variables (with reco) for this topology
+    //---------------------------------------------------------------------
+    calculateRJigsaw(goodJets, "", eventInfo, metCalibCollectionName, "Final");
+
+    //---------------------------------------------
+    // truth level
+    // only compute if event has no *reco* leptons, 
+    // (ignore how many truth leptons there are)
+    // -> note the check and return statement is above
+    // compute truthGoodJets
+    // note: only including true jets in truthGoodJets
+    // check there are two good truth jets for rjigsaw
+    // if <2 do *not* return anything (just fill in Truth variables with zeros?? )
+    //---------------------------------------------
+    
+    // only do truth if it's MC
+    if( eventInfo->auxdata<int>("IsMC") == 1 ){
+    	xAOD::JetContainer* truthGoodJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
+
+	    xAOD::JetContainer* truthJets = 0;
+	    assert(m_store->retrieve( truthJets, "MyTruthJets" )) ; 
+	  
+	    xAOD::JetContainer::iterator truthJet_itr = (truthJets)->begin();
+	    xAOD::JetContainer::iterator truthJet_end = (truthJets)->end();
+
+	    for( ; truthJet_itr != truthJet_end; ++truthJet_itr ) {
+	    	//std::cout << "LH test: (*truthJet_itr)->pt() =" << (*truthJet_itr)->pt()  << std::endl;
+            // kinematic cuts to match reco good jets
+		    if( (*truthJet_itr)->pt() > 30000.   &&
+		    ( fabs( (*truthJet_itr)->eta()) < 2.8)
+		    ) {
+		    	//std::cout << "LH test: (*truthJet_itr)->pt() =" << (*truthJet_itr)->pt()  << std::endl;
+			   truthGoodJets->push_back (*truthJet_itr);
+		    } // end if inside kinematical cuts
+
+        } // end loop over truth jets
+
+
+        //---------------------------------------------------------------------
+        // calculate the rjigsaw variables (with truth) for this topology
+        //---------------------------------------------------------------------
+        std::string truthRJigVarPrefix = "Truth";
+        if(truthGoodJets->size()>1) calculateRJigsaw(truthGoodJets, truthRJigVarPrefix, eventInfo, "MyTruthMET", "NonInt");
+        
+        else{ // need to fill var for this event (this event which is passing reco requirements)
+		    eventInfo->auxdecor<float>(truthRJigVarPrefix+"SS_Mass"           ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"SS_InvGamma"       ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"SS_dPhiBetaR"      ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"SS_dPhiVis"        ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"SS_CosTheta"       ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"SS_dPhiDecayAngle" ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"SS_VisShape"       ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"SS_MDeltaR"        ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"S1_Mass"           ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"S1_CosTheta"       ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"S2_Mass"           ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"S2_CosTheta"       ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"I1_Depth"          ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"I2_Depth"          ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"V1_N"              ) = -999.;
+			eventInfo->auxdecor<float>(truthRJigVarPrefix+"V2_N"              ) = -999.;
+		    eventInfo->auxdecor<float>(truthRJigVarPrefix+"QCD_dPhiR"              ) = -999.;
+		    eventInfo->auxdecor<float>(truthRJigVarPrefix+"QCD_Rpt"                ) = -999.;
+		    eventInfo->auxdecor<float>(truthRJigVarPrefix+"QCD_Rmsib"              ) = -999.;
+		    eventInfo->auxdecor<float>(truthRJigVarPrefix+"QCD_Delta"              ) = -999.;
+	
+        	
+        } // end else (not enough jets to do calculation)	
+    	
+    } // end if MC	
+  
+
+
+
 
 
 
