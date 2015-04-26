@@ -293,9 +293,9 @@ EL::StatusCode PlantATree :: execute ()
   xAOD::JetContainer::iterator jet_itr = (jets)->begin();
   xAOD::JetContainer::iterator jet_end = (jets)->end();
   for( ; jet_itr != jet_end; ++jet_itr ) {
-    if( (*jet_itr)->auxdata< char >("baseline")==1  &&
-        (*jet_itr)->auxdata< char >("passOR")==1  &&
-        (*jet_itr)->pt() > 20000.  && ( fabs( (*jet_itr)->eta()) < 2.5)  ) {
+    if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
+        (*jet_itr)->auxdata< bool >("passOR")==1  &&
+        (*jet_itr)->pt() > 20000.  && ( fabs( (*jet_itr)->eta()) < 2.8)  ) {
 
         Jet_pT  ->push_back( (*jet_itr)->pt()  );
         Jet_eta ->push_back( (*jet_itr)->eta()  );
@@ -316,8 +316,8 @@ EL::StatusCode PlantATree :: execute ()
   xAOD::MuonContainer::iterator muon_itr = (muons)->begin();
   xAOD::MuonContainer::iterator muon_end = (muons)->end();
   for( ; muon_itr != muon_end; ++muon_itr ) {
-    if( (*muon_itr)->auxdata< char >("baseline")==1  &&
-        (*muon_itr)->auxdata< char >("passOR")==1   ) {
+    if( //(*muon_itr)->auxdata< bool >("baseline")==1  &&
+        (*muon_itr)->auxdata< bool >("passOR")==1   ) {
 
         Muon_pT  ->push_back( (*muon_itr)->pt()  );
         Muon_eta ->push_back( (*muon_itr)->eta()  );
@@ -336,8 +336,8 @@ EL::StatusCode PlantATree :: execute ()
   xAOD::ElectronContainer::iterator electron_itr = (electrons)->begin();
   xAOD::ElectronContainer::iterator electron_end = (electrons)->end();
   for( ; electron_itr != electron_end; ++electron_itr ) {
-    if( (*electron_itr)->auxdata< char >("baseline")==1  &&
-        (*electron_itr)->auxdata< char >("passOR")==1   ) {
+    if( //(*electron_itr)->auxdata< bool >("baseline")==1  &&
+        (*electron_itr)->auxdata< bool >("passOR")==1   ) {
 
         Electron_pT  ->push_back( (*electron_itr)->pt()  );
         Electron_eta ->push_back( (*electron_itr)->eta()  );

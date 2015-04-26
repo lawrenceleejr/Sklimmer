@@ -24,12 +24,24 @@ void ATestRun (const std::string& submitDir)
   // containing all the files, not the subdirectories.
 
   // MC single file:
-  const char* inputFilePath = gSystem->ExpandPathName ("$ALRB_TutorialData/r5591"); // using $ALRB_TutorialData previously defined
+  //const char* inputFilePath = gSystem->ExpandPathName ("$ALRB_TutorialData/r5591"); // using $ALRB_TutorialData previously defined
+  //SH::DiskListLocal list (inputFilePath);
+  //SH::scanDir (sh, list, "AOD.01494882._113691.pool.root.1"); // specifying one particular file for testing
+
+
+
+  // MC single file:
+  const char* inputFilePath = gSystem->ExpandPathName ("$HOME/work/public/xAOD/mc14_13TeV.167788.Sherpa_CT10_WenuMassiveCBPt500_BFilter.merge.AOD.e2822_s1982_s2008_r5787_r5853/");
   SH::DiskListLocal list (inputFilePath);
-  SH::scanDir (sh, list, "AOD.01494882._113691.pool.root.1"); // specifying one particular file for testing
+  SH::scanDir (sh, list, "AOD.01598133._000002.pool.root.1"); // specifying one particular file for testing
+
+  //const char* inputFilePath = "/afs/cern.ch/work/l/leejr/public/xAOD/mc14_13TeV.167788.Sherpa_CT10_WenuMassiveCBPt500_BFilter.merge.AOD.e2822_s1982_s2008_r5787_r5853/";
+  //SH::scanDir (sh, inputFilePath); // specifying one particular file for testing
+
+
 
   // or for data, finding and running over all data "datasets" within the $ALRB_TutorialData/r5597 directory:
-  // const char* inputFilePath = gSystem->ExpandPathName ("$ALRB_TutorialData/r5597");
+  //const char* inputFilePath = "/afs/cern.ch/user/l/leejr/mySklimmerTest/Sklimmer/Run/";
   //SH::scanDir (sh, inputFilePath);
 
   // set the name of the tree in our files
@@ -51,8 +63,8 @@ void ATestRun (const std::string& submitDir)
   alg->m_doSklimming = true;
   alg->m_doSUSYObjDef = true;
   alg->m_doEventSelection = true;
-  alg->m_writexAOD = true;
-  alg->m_writeFullCollectionsToxAOD = true;
+  alg->m_writexAOD = false;
+  alg->m_writeFullCollectionsToxAOD = false;
 
   alg->m_Analysis = "bbmet";
 

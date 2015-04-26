@@ -18,8 +18,6 @@
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 #endif
 
-#include <RJigsaw/TRJigsaw.h>
-
 
 // GRL
 class GoodRunsListSelectionTool;
@@ -71,6 +69,8 @@ public:
 private:
 	TString eventSelectionBBMet();
 
+	int sherpaWZInclVeto(int MCChannelNumber);
+
 	int copyFullxAODContainers ();
 	int applySUSYObjectDefinitions ();
 	int putStuffInStore ();
@@ -92,8 +92,6 @@ public:
 		SUSYObjDef_xAOD *m_susy_obj; //!
 	#endif // not __CINT__
 
-
-	Root::TRJigsaw* RJTool; //!
 
 	// this is a standard constructor
 	SklimmerAnalysis ();

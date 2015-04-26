@@ -94,9 +94,11 @@ EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 	xAOD::Init( "SklimmerAnalysis" ).ignore(); // call before opening first file
 
 	// tell EventLoop about our output xAOD:
-	EL::OutputStream out ("outputxAOD");
-	job.outputAdd (out);
-	
+	if( m_writexAOD){
+		EL::OutputStream out ("outputxAOD");
+		job.outputAdd (out);
+	}
+
 	return EL::StatusCode::SUCCESS;
 }
 
@@ -244,19 +246,6 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		return EL::StatusCode::FAILURE;
 	}
 
-	// RJigsaw Tool ///////////////////////////////////////////////////////////////////
-
-	RJTool = new Root::TRJigsaw();
-
-	if (!RJTool){
-		throw std::string ("No RJTool configured");
-	}
-
-	RJTool->initialize( gSystem->ExpandPathName("$ROOTCOREBIN/data/RJigsaw/RJigsawConfig/hemisphere1"),
-						gSystem->ExpandPathName("$ROOTCOREBIN/data/RJigsaw/RJigsawConfig/hemisphere2") );
-
-	RJTool->resetHists();
-
 	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
 
 	return EL::StatusCode::SUCCESS;
@@ -268,10 +257,12 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 	const char* APP_NAME = "SklimmerAnalysis";
 
+	Info("copyFullxAODContainers()", "starting function");
+
 
 	// copy full container(s) to new xAOD
 	// without modifying the contents of it: 
-        CHECK(m_event->copy("EventInfo"));
+    CHECK(m_event->copy("EventInfo"));
 	CHECK(m_event->copy("TruthEvent"));
 
 	CHECK(m_event->copy("TruthParticle"));
@@ -289,6 +280,7 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 	CHECK(m_event->copy("Muons"));
 	// CHECK(m_event->copy("PhotonCollection"));
 
+	Info("copyFullxAODContainers()", "ending function");
 
 	return 0;
 
@@ -318,9 +310,20 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::MuonContainer::iterator mu_end  = (muons_copy)->end();
 
 	for( ; mu_itr != mu_end; ++mu_itr ) {
-		m_susy_obj->IsSignalMuonExp( **mu_itr,  ST::SignalIsoExp::TightIso ) ;
+		m_susy_obj->IsSignalMuonExp( **mu_itr ,  ST::SignalIsoExp::TightIso) ;
 		m_susy_obj->IsCosmicMuon( **mu_itr );
 		//Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< char >("baseline") );
+
+
+		// kill non baseline muon by setting 4-vector to small value
+		if ( ((*mu_itr)->muonType() != xAOD::Muon::Combined &&
+		   (*mu_itr)->muonType() != xAOD::Muon::MuonStandAlone &&
+		    (*mu_itr)->muonType() != xAOD::Muon::SegmentTagged) ||
+		   !(*mu_itr)->auxdecor<bool>("baseline") )
+		{
+			(*mu_itr)->setP4(1.,(*mu_itr)->eta(),(*mu_itr)->phi());
+		}
+
 	}
 
 
@@ -336,7 +339,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::ElectronContainer* electrons_copy(0);
 	xAOD::ShallowAuxContainer* electrons_copyaux(0);
-	CHECK( m_susy_obj->GetElectrons(electrons_copy,electrons_copyaux) );
+	CHECK( m_susy_obj->GetElectrons(electrons_copy,electrons_copyaux, true, 10000., 2.47) ); //EMULATING ZERO LEPTON PACKAGE
 
 	// Print their properties, using the tools:
 	xAOD::ElectronContainer::iterator el_itr = (electrons_copy)->begin();
@@ -344,10 +347,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	for( ; el_itr != el_end; ++el_itr ) {
 		m_susy_obj->IsSignalElectronExp( **el_itr , ST::SignalIsoExp::TightIso);
-		//Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< char >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
+		Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< bool >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
 	}
-
-
 
 
 	//------------
@@ -378,7 +379,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::JetContainer* jets_copy(0);
 	xAOD::ShallowAuxContainer* jets_copyaux(0);
-	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux) );
+	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux, true, 20000. , 10. ) ); //EMULATING ZEROLEPTON COLLECTION
 
 
 	//------------
@@ -399,7 +400,10 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	// OVERLAP REMOVAL (as in susytools tester)
 	//------------
 
-	CHECK( m_susy_obj->OverlapRemoval(electrons_copy, muons_copy, jets_copy) );
+
+	Info(APP_NAME, "  nel, nmu, njets = %i, %i, %i",(int) electrons_copy->size(),(int) muons_copy->size(),(int) jets_copy->size() );
+
+	CHECK( m_susy_obj->OverlapRemoval(electrons_copy, muons_copy, jets_copy, false, 0.2, 0.4, 0.4) );
 
 
 	//------------
@@ -423,12 +427,19 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	}
 	///// TEMPORARY CODE ONLY
 
+	// CHECK( m_susy_obj->GetMET(*MET,
+	// 		  jets_copy,
+	// 		  electrons_copy,
+	// 		  &muons_copy_met,
+	// 		  photons_copy,
+	// 		  taus_copy) );  ///////// PUB NOTE DOESN'T USE TAUS HERE - WHY????
+
 	CHECK( m_susy_obj->GetMET(*MET,
 			  jets_copy,
 			  electrons_copy,
 			  &muons_copy_met,
 			  photons_copy,
-			  taus_copy) );
+			  0) );
 
 
 	//////////////////////////////////////////////////////
@@ -476,9 +487,6 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	CHECK( m_store->record( jets_copyaux, "CalibJetsAux." ) );
 
 
-
-
-
 	////////////////////////////////////////////////////////
 
 
@@ -496,10 +504,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	const char* APP_NAME = "SklimmerAnalysis";
 
-
-
 	int passEvent = 1;
-
 
 	//if(m_doSklimming) copyFullxAODContainers();
         // LH update, should the above instead be this:
@@ -522,87 +527,10 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	int MCChannelNumber = eventInfo->mcChannelNumber(); 
 
 
-
-
 	h_nevents->Fill(0.);
 	h_nevents_weighted->Fill(0.,EventWeight);
 
-	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
-	if ( 
-		MCChannelNumber == 167740 ||
-		MCChannelNumber == 167741 ||
-		MCChannelNumber == 167742 ||
-		MCChannelNumber == 167743 ||
-		MCChannelNumber == 167744 ||
-		MCChannelNumber == 167745 ||
-		MCChannelNumber == 167746 ||
-		MCChannelNumber == 167747 ||
-		MCChannelNumber == 167748 ||
-		MCChannelNumber == 167749 ||
-		MCChannelNumber == 167750 ||
-		MCChannelNumber == 167751 ||
-		MCChannelNumber == 167752 ||
-		MCChannelNumber == 167753 ||
-		MCChannelNumber == 167754 ||
-		MCChannelNumber == 167755 ||
-		MCChannelNumber == 167756 ||
-		MCChannelNumber == 167757 ||
-		MCChannelNumber == 167758 ||
-		MCChannelNumber == 167759 ||
-		MCChannelNumber == 167760 ){
-
-
-
-		const xAOD::TruthParticleContainer* truthParticles = 0;
-		if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
-			Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
-			return EL::StatusCode::FAILURE;
-		}
-
-
-		TLorentzVector V;
-		TLorentzVector l1;
-		TLorentzVector l2;
-
-		bool foundFirst  = false;
-		bool foundSecond = false;
-		bool foundMore   = false;
-
-
-
-		for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
-		  // const TruthParticle* p = *tpi;
-		  // In general for Sherpa,  you have to select particles with status==3 and barcode<100,000 to get get the Matrix element in and out
-		  if ( ((*tpi)->status() == 3) && (fabs( (*tpi)->pdgId() ) >= 11) && (fabs( (*tpi)->pdgId() ) <= 16) && ((*tpi)->barcode() < 100000) ) {
-		    if ( !foundFirst ) {
-		      l1.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
-		      foundFirst = true;
-		    } else if ( !foundSecond ) {
-		      l2.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
-		      foundSecond = true;
-		    } else {
-		      foundMore = true;
-		      break;
-		    }
-		  }
-		}
-
-		if ( !foundSecond )
-		  std::cout << "doSherpaPtFilterCheck: Unable to find 2 leptons" << std::endl;
-		else if ( foundMore )
-		  std::cout << "doSherpaPtFilterCheck: Found more than 2 leptons" << std::endl;
-		else {
-		  V = l1 + l2;
-		  // m_h_sherpaPt->Fill( V.Pt() / GeV, m_eventWeight );
-
-	  		if(V.Pt()>70000.) return EL::StatusCode::SUCCESS;
-
-		}
-
-	}
-	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
-
-
+	if(sherpaWZInclVeto(MCChannelNumber)) return EL::StatusCode::SUCCESS;
 
 
 	// check if the event is data or MC
@@ -661,7 +589,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 
-	if( m_doEventSelection && m_Analysis=="bbmet" ){
+	if( m_doEventSelection && m_Analysis=="bbmet" || 1){
 		TString result = eventSelectionBBMet();
 		(eventInfo_shallowCopy.first)->auxdecor< char >("selection") = *result.Data();
 		//if(result=="") return EL::StatusCode::SUCCESS;
@@ -757,11 +685,99 @@ EL::StatusCode SklimmerAnalysis :: histFinalize ()
 
 
 
+int SklimmerAnalysis :: sherpaWZInclVeto(int MCChannelNumber){
+
+	const char* APP_NAME = "SklimmerAnalysis";
+
+
+	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
+	if ( 
+		MCChannelNumber == 167740 ||
+		MCChannelNumber == 167741 ||
+		MCChannelNumber == 167742 ||
+		MCChannelNumber == 167743 ||
+		MCChannelNumber == 167744 ||
+		MCChannelNumber == 167745 ||
+		MCChannelNumber == 167746 ||
+		MCChannelNumber == 167747 ||
+		MCChannelNumber == 167748 ||
+		MCChannelNumber == 167749 ||
+		MCChannelNumber == 167750 ||
+		MCChannelNumber == 167751 ||
+		MCChannelNumber == 167752 ||
+		MCChannelNumber == 167753 ||
+		MCChannelNumber == 167754 ||
+		MCChannelNumber == 167755 ||
+		MCChannelNumber == 167756 ||
+		MCChannelNumber == 167757 ||
+		MCChannelNumber == 167758 ||
+		MCChannelNumber == 167759 ||
+		MCChannelNumber == 167760 ){
+
+		const xAOD::TruthParticleContainer* truthParticles = 0;
+		if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
+			Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
+			return EL::StatusCode::FAILURE;
+		}
+
+
+		TLorentzVector V;
+		TLorentzVector l1;
+		TLorentzVector l2;
+
+		bool foundFirst  = false;
+		bool foundSecond = false;
+		bool foundMore   = false;
+
+
+
+		for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
+		  // const TruthParticle* p = *tpi;
+		  // In general for Sherpa,  you have to select particles with status==3 and barcode<100,000 to get get the Matrix element in and out
+		  if ( ((*tpi)->status() == 3) && (fabs( (*tpi)->pdgId() ) >= 11) && (fabs( (*tpi)->pdgId() ) <= 16) && ((*tpi)->barcode() < 100000) ) {
+		    if ( !foundFirst ) {
+		      l1.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
+		      foundFirst = true;
+		    } else if ( !foundSecond ) {
+		      l2.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
+		      foundSecond = true;
+		    } else {
+		      foundMore = true;
+		      break;
+		    }
+		  }
+		}
+
+		if ( !foundSecond )
+		  // std::cout << "doSherpaPtFilterCheck: Unable to find 2 leptons" << std::endl;
+			return 0;
+		else if ( foundMore )
+		  // std::cout << "doSherpaPtFilterCheck: Found more than 2 leptons" << std::endl;
+			return 0;
+		else {
+		  V = l1 + l2;
+		  // m_h_sherpaPt->Fill( V.Pt() / GeV, m_eventWeight );
+	  		if(V.Pt()>70000.) return 1;
+	  		else return 0;
+		}
+
+	} else {
+		return 0;
+	}
+	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
+
+
+}
+
+
+
+
+
+
 TString SklimmerAnalysis :: eventSelectionBBMet()
 {
 
 	const char* APP_NAME = "SklimmerAnalysis";
-
 
 	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
 
@@ -774,30 +790,9 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	xAOD::ElectronContainer* electrons_copy(0);
 	CHECK( m_store->retrieve( electrons_copy, "CalibElectrons" ) );
 
-
 	xAOD::EventInfo* eventInfo = 0;
 	CHECK(m_store->retrieve(eventInfo, "myEventInfo"));
-
-	/////////////// Lepton Veto //////////////////////////////
-
-	int Nel=0;
-	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
-	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
-	for( ; el_itr != el_end; ++el_itr ) {
-		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
-	}
 	
-	int Nmu=0;
-	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
-	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
-	for( ; mu_itr != mu_end; ++mu_itr ) {
-		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
-	}
-
-	if(Nel || Nmu) return "";
-
-	///////////////////////////////////////////////////////////
-
 
 	xAOD::JetContainer* goodJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
 	// CHECK( m_store->record(goodJets, "MySelJets") );
@@ -807,8 +802,8 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	for( ; jet_itr != jet_end; ++jet_itr ) {
 
-		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
-			(*jet_itr)->auxdata< char >("passOR")==1  &&
+		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
+			(*jet_itr)->auxdata< bool >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
 			goodJets->push_back (*jet_itr); 
 		}
@@ -818,31 +813,165 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
     }
 
     if(goodJets->size() < 2){
-
-
-		// eventInfo->auxdecor<float>("SS_Mass"         ) = 0.;
-		// eventInfo->auxdecor<float>("SS_Phi"          ) = 0.;
-		// eventInfo->auxdecor<float>("SS_CosTheta"     ) = 0.;
-		// eventInfo->auxdecor<float>("S1_Mass"         ) = 0.;
-		// eventInfo->auxdecor<float>("S1_Phi"          ) = 0.;
-		// eventInfo->auxdecor<float>("S1_CosTheta"     ) = 0.;
-		// eventInfo->auxdecor<float>("S2_Mass"         ) = 0.;
-		// eventInfo->auxdecor<float>("S2_Phi"          ) = 0.;
-		// eventInfo->auxdecor<float>("S2_CosTheta"     ) = 0.;
-		// eventInfo->auxdecor<float>("I1_Depth"        ) = 0.;
-		// eventInfo->auxdecor<float>("I2_Depth"        ) = 0.;
-		// eventInfo->auxdecor<float>("V1_N"            ) = 0.;
-		// eventInfo->auxdecor<float>("V2_N"            ) = 0.;
-
 		return "";
-
     } 
 
 	std::sort(goodJets->begin(), goodJets->end(),
     [](xAOD::Jet  *a, xAOD::Jet  *b){return a->pt() > b->pt();});
 
 
-	// Set up RestFrames topology ///////////////////////////////////
+
+	// Get MET Collection to hand to Rest Frames////////////////////////////////////////////////////
+
+	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
+	CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
+
+	TVector3 MET_TV3;
+	// TVector2 MET_TV2;
+
+	Info( APP_NAME, "1 --------------------------------- MET %f", (float) MET_TV3.Mag() );
+
+    xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
+	if (met_it == MET->end()) {
+		Error( APP_NAME, "No RefFinal inside MET container" );
+	} else {
+		MET_TV3.SetZ(0.);
+		MET_TV3.SetX((*met_it)->mpx() );
+		MET_TV3.SetY((*met_it)->mpy() );
+		// MET_TV2.SetX((*met_it)->mpx() );
+		// MET_TV2.SetY((*met_it)->mpy() );
+	}
+
+
+	//Info( APP_NAME, "1 ---------------------------------" );
+
+
+	//////////////////////////////////////////
+	// Event Cleaning Cuts
+	//
+	// Primary Vertex Cuts __________________________________________________
+	// const xAOD::VertexContainer* vertices(0);
+
+	// bool hasGoodVertex = 0;
+	// if( m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ) {
+	//   for( const auto& vx : *vertices ) {
+	//     if(vx->vertexType() == xAOD::VxType::PriVtx){
+	//     	if( vx->nTrackParticles() > 4 ) hasGoodVertex = 1;
+	// 		break;
+	//     }
+	//   }
+	//   if(hasGoodVertex==0) return "";
+	// } else {
+	// 	return "";
+	// }
+
+	Info( APP_NAME, "2 ---------------------------------" );
+
+
+
+	// Cosmic muon veto __________________________________________________
+	bool hasCosmicMuon=0;
+	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
+	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
+	// for( ; mu_itr != mu_end; ++mu_itr ) {
+	// 	if( ( *mu_itr )->auxdata<bool>("passOR") && 
+	// 		( *mu_itr )->auxdata<bool>("baseline") && m_susy_obj->IsCosmicMuon( **mu_itr ) ){
+	// 		hasCosmicMuon=1;
+	// 		break;
+	// 	}
+	// }
+	// if(hasCosmicMuon) return "";
+
+
+	Info( APP_NAME, "3 ---------------------------------" );
+
+
+	// Bad Tile Veto __________________________________________________
+	// bool isDeadTile=0;
+	// float BCH_CORR_JET = 0;
+
+	// jet_itr = goodJets->begin();
+	// jet_end = goodJets->end();
+	// for( ; jet_itr != jet_end; ++jet_itr ) {
+	// 	if( (*jet_itr)->pt() < 40000.  ) continue;
+ //    	(*jet_itr)->getAttribute(xAOD::JetAttribute::BchCorrJet,BCH_CORR_JET);
+ //    	if(std::acos(std::cos( (*jet_itr)->phi()-MET_TV3.Phi() ))<0.3 && BCH_CORR_JET>0.05 ) isDeadTile=1;
+ //    }
+ //    if(isDeadTile) return "";
+
+	//	Info( APP_NAME, "3 ---------------------------------" );
+
+	// NegCellCleaning _________________________________________________
+
+	// xAOD::MissingETContainer::const_iterator met_softclus = MET->find("SoftClus");
+	// if ( ( (*met_softclus)->met() / MET_TV3.Mag() ) * \
+	// 	std::cos( (*met_softclus)->phi()-MET_TV3.Phi() ) >= 0.5 ) return "";
+
+	//Info( APP_NAME, "4 ---------------------------------" );
+
+ //    // Jet Timing Cut __________________________________________________
+	// std::vector<float> time;
+	// time.resize(5,-999.f);
+	// double denom = 0.;
+	// double num = 0.;
+	// // int size = goodJets.size();
+
+	// jet_itr = goodJets->begin();
+	// jet_end = goodJets->end();
+	// int i = 0;
+	// for( ; jet_itr != jet_end; ++jet_itr ) {
+	// 	denom = denom + (*jet_itr)->e();
+	// 	float tmptime = -99999.f;
+	// 	(*jet_itr)->getAttribute(xAOD::JetAttribute::Timing,tmptime);
+	// 	num = num + (*jet_itr)->e() * tmptime;
+	// 	if(i==1) time[0] = num/denom;
+	// 	if(i==2) time[1] = num/denom;
+	// 	if(i==3) time[2] = num/denom;
+	// 	if(i==4) time[3] = num/denom;
+	// 	if(i==5) time[4] = num/denom;
+	// }
+
+	// if ((goodJets->size()>=2) && (fabs(time[0])>5)) { return ""; }
+	// if ((goodJets->size()>=2) && (fabs(time[0])>5)) { return ""; }
+	// if ((goodJets->size()>=3) && (fabs(time[1])>5)) { return ""; }
+	// if ((goodJets->size()>=4) && (fabs(time[2])>5)) { return ""; }
+	// if ((goodJets->size()>=5) && (fabs(time[3])>5)) { return ""; }
+	// if ((goodJets->size()>=6) && (fabs(time[4])>5)) { return ""; }
+
+
+	//
+	//////////////////////////////////////////////
+
+
+	/////////////// Lepton Veto //////////////////////////////
+
+	int Nel=0;
+	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
+	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
+	for( ; el_itr != el_end; ++el_itr ) {
+		if( ( *el_itr )->auxdata<bool>("passOR") && 
+			( *el_itr )->auxdata<bool>("baseline") &&  
+			( *el_itr )->pt()>10000. ) Nel++;
+	}
+
+	int Nmu=0;
+	mu_itr = muons_copy->begin();
+	mu_end = muons_copy->end();
+	for( ; mu_itr != mu_end; ++mu_itr ) {
+		if( ( *mu_itr )->auxdata<bool>("passOR") && 
+			( *mu_itr )->auxdata<bool>("baseline") &&  
+			( *mu_itr )->pt()>10000. ) Nmu++;
+	}
+
+	if(Nel || Nmu) return "";
+
+	///////////////////////////////////////////////////////////
+
+
+	// Set up RestFrames topology - Squarks ////////////////////////////////////////////
+
+	// These topologies should be set up in functions outside of the eventloop. To Do. 
+
 
 	RestFrames::RLabFrame LAB("LAB","lab");
 	RestFrames::RDecayFrame SS("SS","SS");
@@ -857,6 +986,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	RestFrames::InvisibleGroup INV("INV","Invisible State Jigsaws");
 	INV.AddFrame(I1);
 	INV.AddFrame(I2);
+
 
 	// the combinatoric group is the list of visible objects
 	// that go into our hemispheres 
@@ -878,8 +1008,6 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	std::cout << "Is consistent tree topology? " << LAB.InitializeTree() << std::endl; 
 
-
-	// MT2 etc
  
 	//////////////////////////////////////////////////////////////
 	// now we define 'jigsaw rules' that tell the tree
@@ -945,15 +1073,15 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	LAB_alt.InitializeAnalysis(); 
 
 
-
+	INV.SetLabFrameThreeVector(  MET_TV3 );
 
 	TLorentzVector jet;
 
 	jet_itr = (jets_copy)->begin();
 	for( ; jet_itr != jet_end; ++jet_itr ) {
 
-		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
-			(*jet_itr)->auxdata< char >("passOR")==1  &&
+		if( (*jet_itr)->auxdata< bool >("baseline")==1  &&
+			(*jet_itr)->auxdata< bool >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
 			VIS.AddLabFrameFourVector( (*jet_itr)->p4()  );  
 			
@@ -963,31 +1091,13 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
     
     }
 
-
-	// Get MET Collection to hand to Rest Frames////////////////////////////////////////////////////
-
-	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-	CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
-
-	TVector3 MET_TV3;
-
-    xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
-	if (met_it == MET->end()) {
-		Error( APP_NAME, "No RefFinal inside MET container" );
-	} else {
-		INV.SetLabFrameThreeVector(  TVector3( (*met_it)->mpx(), (*met_it)->mpy(), 0 ) );
-		MET_TV3.SetZ(0.);
-		MET_TV3.SetX((*met_it)->mpx() );
-		MET_TV3.SetY((*met_it)->mpy() );
-	}
-
 	LAB.AnalyzeEvent();
 
 	
     INV_alt.SetLabFrameThreeVector(MET_TV3);
     LAB_alt.AnalyzeEvent();
 
-	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
+	std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
 
 	eventInfo->auxdecor<float>("SS_Mass"           ) = SS.GetMass();
 	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS.GetGammaInParentFrame();
@@ -1045,18 +1155,67 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
     eventInfo->auxdecor<float>("QCD_Rpsib"              ) = RpsibM;
     eventInfo->auxdecor<float>("QCD_Delta1"              ) = DeltaQCD1;
 
-	// Info( APP_NAME,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
-	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
+
+
+    // Now I want to repeat for gluinos if it works.... /////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+
+
+	// // Set up 'signal-like' analysis tree
+	// RLabFrame LAB_R("LAB_R","LAB");
+	// RDecayFrame GG_R("GG_R","#tilde{g}#tilde{g}");
+	// RDecayFrame Ga_R("Ga_R","#tilde{g}_{a}");
+	// RDecayFrame Gb_R("Gb_R","#tilde{g}_{b}");
+	// RDecayFrame Ca_R("Ca_R","C_{a}");
+	// RDecayFrame Cb_R("Cb_R","C_{b}");
+	// RVisibleFrame V1a_R("V1a_R","j_{1a}");
+	// RVisibleFrame V2a_R("V2a_R","j_{2a}");
+	// RInvisibleFrame Xa_R("Xa_R","#tilde{#chi}_{a}");
+	// RVisibleFrame V1b_R("V1b_R","j_{1b}");
+	// RVisibleFrame V2b_R("V2b_R","j_{2b}");
+	// RInvisibleFrame Xb_R("Xb_R","#tilde{#chi}_{b}");
+	// LAB_R.SetChildFrame(GG_R);
+	// GG_R.AddChildFrame(Ga_R);
+	// GG_R.AddChildFrame(Gb_R);
+	// Ga_R.AddChildFrame(V1a_R);
+	// Ga_R.AddChildFrame(Ca_R);
+	// Ca_R.AddChildFrame(V2a_R);
+	// Ca_R.AddChildFrame(Xa_R);
+	// Gb_R.AddChildFrame(V1b_R);
+	// Gb_R.AddChildFrame(Cb_R);
+	// Cb_R.AddChildFrame(V2b_R);
+	// Cb_R.AddChildFrame(Xb_R);
+
+	// if(!LAB_R.InitializeTree()) cout << "Problem with signal-like reconstruction tree" << endl; 
+
+
+	// // define groups for the reconstruction trees
+
+	// InvisibleGroup INV_R("INV_R","WIMP Jigsaws");
+	// INV_R.AddFrame(Xa_R);
+	// INV_R.AddFrame(Xb_R);
+	// CombinatoricGroup VIS_R("VIS","Visible Object Jigsaws");
+	// // visible frames in first decay step must always have at least one element
+	// VIS_R.AddFrame(V1a_R);
+	// VIS_R.AddFrame(V1b_R);
+	// VIS_R.SetNElementsForFrame(V1a_R,1,false);
+	// VIS_R.SetNElementsForFrame(V1b_R,1,false);
+	// // visible frames in second decay step can have zero elements
+	// VIS_R.AddFrame(V2a_R);
+	// VIS_R.AddFrame(V2b_R);
+	// VIS_R.SetNElementsForFrame(V2a_R,0,false);
+	// VIS_R.SetNElementsForFrame(V2b_R,0,false);
+
+
+
+
 
 
 
 	/////////////////////////////////////////////////////////////////
 
 	if(goodJets->at(0)->pt() >  20000 &&
-		goodJets->at(1)->pt() > 20000 
-		// (goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
-		// (goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 
-		)
+		goodJets->at(1)->pt() > 20000 )
 	{
 			return "SRA";
 		

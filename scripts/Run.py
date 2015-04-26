@@ -76,8 +76,9 @@ if options.skip_events:
     logging.info("skipping first %d events", options.skip_events)
     job.options().setDouble(ROOT.EL.Job.optSkipEvents, options.skip_events)
 
-job.options().setDouble(ROOT.EL.Job.optCacheSize, 50*1024*1024)
-job.options().setDouble(ROOT.EL.Job.optCacheLearnEntries, 50)
+#if options.driver=="direct":
+job.options().setDouble(ROOT.EL.Job.optCacheSize, 10*1024*1024)
+job.options().setDouble(ROOT.EL.Job.optCacheLearnEntries, 20)
 
 # add our algorithm to the job
 logging.info("creating algorithms")
