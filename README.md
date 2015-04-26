@@ -22,7 +22,6 @@ Works in a RootCore setup. Requires SUSYTools and Ext_RestFrames. Current workin
 setupATLAS
 rcSetup Base,2.1.28
 svn co https://github.com/lawrenceleejr/Sklimmer/trunk Sklimmer
-svn co https://github.com/lawrenceleejr/RJigsaw/trunk RJigsaw
 svn co https://github.com/lawrenceleejr/Ext_RestFrames/trunk/ Ext_RestFrames
 cp Sklimmer/Run/packages.txt .
 rc checkout packages.txt
