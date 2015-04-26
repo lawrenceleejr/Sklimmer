@@ -12,7 +12,7 @@ PACKAGE_OBJFLAGS =
 PACKAGE_LDFLAGS  = 
 PACKAGE_BINFLAGS = 
 PACKAGE_LIBFLAGS = 
-PACKAGE_DEP = EventLoop EventLoopGrid EventLoopAlgs xAODRootAccess EventLoopAlgs Ext_RestFrames RJigsaw SUSYTools 
+PACKAGE_DEP = EventLoop EventLoopGrid EventLoopAlgs xAODRootAccess EventLoopAlgs Ext_RestFrames SUSYTools 
 #JetSelectorTools ApplyJetCalibration 
 PACKAGE_TRYDEP   = 
 PACKAGE_CLEAN    = 
