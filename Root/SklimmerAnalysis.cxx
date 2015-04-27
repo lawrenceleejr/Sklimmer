@@ -244,18 +244,6 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		return EL::StatusCode::FAILURE;
 	}
 
-	// RJigsaw Tool ///////////////////////////////////////////////////////////////////
-
-	RJTool = new Root::TRJigsaw();
-
-	if (!RJTool){
-		throw std::string ("No RJTool configured");
-	}
-
-	RJTool->initialize( gSystem->ExpandPathName("$ROOTCOREBIN/data/RJigsaw/RJigsawConfig/hemisphere1"),
-						gSystem->ExpandPathName("$ROOTCOREBIN/data/RJigsaw/RJigsawConfig/hemisphere2") );
-
-	RJTool->resetHists();
 
 	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
 
