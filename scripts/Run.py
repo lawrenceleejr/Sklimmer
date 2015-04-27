@@ -123,7 +123,7 @@ elif (options.driver == "prooflite"):
 elif (options.driver == "grid"):
     logging.info("running on Grid") 
     driver = ROOT.EL.PrunDriver()   
-    driver.options().setString("nc_outputSampleName", "user.leejr.%%in:name[2]%%.%%in:name[3]%%.%s"%options.runTag)
+    driver.options().setString("nc_outputSampleName", "user.leejr.%%in:name[2]%%.%%in:name[3]%%.%%in:name[6]%%.%s"%options.runTag)
     #driver.options().setDouble("nc_disableAutoRetry", 1)
     driver.options().setDouble("nc_nFilesPerJob", 1)
     driver.options().setDouble(ROOT.EL.Job.optGridMergeOutput, 1);
