@@ -63,6 +63,20 @@ public:
   float RJVars_V1_N              ; //!
   float RJVars_V2_N              ; //!    
 
+  // Gluino Variables
+  float RJVars_G_0_CosTheta      ; //!      
+  float RJVars_C_0_CosTheta      ; //!      
+  float RJVars_G_0_dPhiGC        ; //!    
+  float RJVars_G_0_MassRatioGC   ; //!  
+  float RJVars_G_0_Jet1_pT       ; //!
+  float RJVars_G_0_Jet2_pT       ; //!       
+  float RJVars_G_1_CosTheta      ; //!      
+  float RJVars_C_1_CosTheta      ; //!      
+  float RJVars_G_1_dPhiGC        ; //!    
+  float RJVars_G_1_MassRatioGC   ; //!     
+  float RJVars_G_1_Jet1_pT       ; //!
+  float RJVars_G_1_Jet2_pT       ; //!
+
   //QCD Variables
   float RJVars_QCD_dPhiR         ; //! 
   float RJVars_QCD_Rpt           ; //! 

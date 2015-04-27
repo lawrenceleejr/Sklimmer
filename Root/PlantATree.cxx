@@ -127,6 +127,21 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_V1_N"              , &RJVars_V1_N              ); 
   tree->Branch("RJVars_V2_N"              , &RJVars_V2_N              ); 
 
+
+  tree->Branch("RJVars_G_0_CosTheta"    , &RJVars_G_0_CosTheta    ); 
+  tree->Branch("RJVars_C_0_CosTheta"    , &RJVars_C_0_CosTheta    ); 
+  tree->Branch("RJVars_G_0_dPhiGC"      , &RJVars_G_0_dPhiGC      ); 
+  tree->Branch("RJVars_G_0_MassRatioGC" , &RJVars_G_0_MassRatioGC ); 
+  tree->Branch("RJVars_G_0_Jet1_pT"     , &RJVars_G_0_Jet1_pT     );
+  tree->Branch("RJVars_G_0_Jet2_pT"     , &RJVars_G_0_Jet2_pT     );
+  tree->Branch("RJVars_G_1_CosTheta"    , &RJVars_G_1_CosTheta    ); 
+  tree->Branch("RJVars_C_1_CosTheta"    , &RJVars_C_1_CosTheta    ); 
+  tree->Branch("RJVars_G_1_dPhiGC"      , &RJVars_G_1_dPhiGC      ); 
+  tree->Branch("RJVars_G_1_MassRatioGC" , &RJVars_G_1_MassRatioGC ); 
+  tree->Branch("RJVars_G_1_Jet1_pT"     , &RJVars_G_1_Jet1_pT     );
+  tree->Branch("RJVars_G_1_Jet2_pT"     , &RJVars_G_1_Jet2_pT     );
+
+
   //QCD Variables
 
   tree->Branch("RJVars_QCD_dPhiR" ,  &RJVars_QCD_dPhiR  );
@@ -259,6 +274,25 @@ EL::StatusCode PlantATree :: execute ()
   RJVars_V1_N               = eventinfo->auxdata<float>("V1_N");
   RJVars_V2_N               = eventinfo->auxdata<float>("V2_N");
 
+
+  RJVars_G_0_CosTheta       = eventinfo->auxdata<float>("G_0_CosTheta");
+  RJVars_C_0_CosTheta       = eventinfo->auxdata<float>("C_0_CosTheta");
+  RJVars_G_0_dPhiGC         = eventinfo->auxdata<float>("G_0_dPhiGC");
+  RJVars_G_0_MassRatioGC    = eventinfo->auxdata<float>("G_0_MassRatioGC");
+  RJVars_G_1_CosTheta       = eventinfo->auxdata<float>("G_1_CosTheta");
+  RJVars_C_1_CosTheta       = eventinfo->auxdata<float>("C_1_CosTheta");
+  RJVars_G_1_dPhiGC         = eventinfo->auxdata<float>("G_1_dPhiGC");
+  RJVars_G_1_MassRatioGC    = eventinfo->auxdata<float>("G_1_MassRatioGC");
+
+  RJVars_G_0_Jet1_pT        = eventinfo->auxdata<float>("G_0_Jet1_pT");
+  RJVars_G_0_Jet2_pT        = eventinfo->auxdata<float>("G_0_Jet2_pT");
+
+  RJVars_G_1_Jet1_pT        = eventinfo->auxdata<float>("G_1_Jet1_pT");
+  RJVars_G_1_Jet2_pT        = eventinfo->auxdata<float>("G_1_Jet2_pT");
+
+  std::cout << "In PlantATree: " << eventinfo->auxdata<float>("G_1_Jet2_pT") << std::endl;
+
+
   RJVars_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_dPhiR"); 
   RJVars_QCD_Rpt            = eventinfo->auxdata<float>("QCD_Rpt"  );
   RJVars_QCD_Rmsib          = eventinfo->auxdata<float>("QCD_Rmsib");
@@ -295,7 +329,7 @@ EL::StatusCode PlantATree :: execute ()
   for( ; jet_itr != jet_end; ++jet_itr ) {
     if( (*jet_itr)->auxdata< char >("baseline")==1  &&
         (*jet_itr)->auxdata< char >("passOR")==1  &&
-        (*jet_itr)->pt() > 20000.  && ( fabs( (*jet_itr)->eta()) < 2.5)  ) {
+        (*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8)  ) {
 
         Jet_pT  ->push_back( (*jet_itr)->pt()  );
         Jet_eta ->push_back( (*jet_itr)->eta()  );
