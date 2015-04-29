@@ -93,6 +93,7 @@ private:
   EL::StatusCode initializeSUSYTools();
   EL::StatusCode initializeGRLTool();
   EL::StatusCode initializePileupReweightingTool();
+  EL::StatusCode initializeRJigsawVariables();
 
   TString eventSelectionBBMet(xAOD::EventInfo * eventInfo );
 public:

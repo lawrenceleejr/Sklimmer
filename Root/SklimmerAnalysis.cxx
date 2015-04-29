@@ -47,7 +47,9 @@ ClassImp(SklimmerAnalysis)
 
 
 
-SklimmerAnalysis :: SklimmerAnalysis() : h_nevents(nullptr),
+SklimmerAnalysis :: SklimmerAnalysis() :
+  h_nevents(nullptr),
+  h_nevents_weighted(nullptr),
   m_store(nullptr),
 #ifndef __CINT__
   m_grl(nullptr),
@@ -147,6 +149,133 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	h_nevents_weighted = new TH1F("h_nevents_weighted", "h_nevents_weighted", 10, 0, 10);
 	wk()->addOutput (h_nevents);
 	wk()->addOutput (h_nevents_weighted);
+
+	if(initializeRJigsawVariables()!= StatusCode::SUCCESS){
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize SUSY Tools" );
+	  return EL::StatusCode::FAILURE;
+	}
+
+	return EL::StatusCode::SUCCESS;
+}
+
+
+
+EL::StatusCode SklimmerAnalysis :: fileExecute ()
+{
+	// Here you do everything that needs to be done exactly once for every
+	// single file, e.g. collect a list of all lumi-blocks processed
+	return EL::StatusCode::SUCCESS;
+}
+
+
+
+EL::StatusCode SklimmerAnalysis :: changeInput (bool firstFile)
+{
+	// Here you do everything you need to do when we change input files,
+	// e.g. resetting branch addresses on trees.  If you are using
+	// D3PDReader or a similar service this method is not needed.
+	return EL::StatusCode::SUCCESS;
+}
+
+
+
+EL::StatusCode SklimmerAnalysis :: initialize ()
+{
+	// Here you do everything that you need to do after the first input
+	// file has been connected and before the first event is processed,
+	// e.g. create additional histograms based on which variables are
+	// available in the input files.  You can also create all of your
+	// histograms and trees in here, but be aware that this method
+	// doesn't get called if no events are processed.  So any objects
+	// you create here won't be available in the output if you have no
+	// input events.
+
+	// This will get moved to submission at some point... //////////////////////
+        if(m_writexAOD == false) m_writeFullCollectionsToxAOD = false; // logic and fail-safe
+
+	Info("initialize()", "m_doSklimming = %i"               , m_doSklimming                 );
+	Info("initialize()", "m_doSUSYObjDef = %i"              , m_doSUSYObjDef                );
+	Info("initialize()", "m_doEventSelection = %i"          , m_doEventSelection            );
+	// Info("initialize()", "m_writeNtuple = %i"               , m_writeNtuple                 );
+	Info("initialize()", "m_writexAOD = %i"                 , m_writexAOD                   );
+	Info("initialize()", "m_writeFullCollectionsToxAOD = %i", m_writeFullCollectionsToxAOD  );
+	Info("initialize()", "m_Analysis = %s"                  , m_Analysis.Data()             );
+
+
+	// m_doSklimming = true;
+	// m_doSUSYObjDef = true;
+	// m_doEventSelection = true;
+	// m_writeNtuple = false;
+	// m_writexAOD = true;
+	// m_writeFullCollectionsToxAOD = true;
+
+	// m_Analysis = "bbmet";
+
+
+	////////////////////////////////////////////////////////////////////////////
+
+	xAOD::TEvent *event = wk()->xaodEvent();
+	m_store = wk()->xaodStore();
+
+	if(fillEmptyCollectionNames() != StatusCode::SUCCESS){
+	  Error( __PRETTY_FUNCTION__, "Failed to fill empty collection names" );
+	  return EL::StatusCode::FAILURE;
+	}
+
+	// as a check, let's see the number of events in our xAOD
+	Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
+
+	// Output xAOD ///////////////////////////////////////////////////////////////////
+
+	if(m_writexAOD){
+		TFile *file = wk()->getOutputFile (outputxAODName);
+		CHECK(event->writeTo(file));
+	}
+
+	// SUSYTools ///////////////////////////////////////////////////////////////////
+
+	if(m_doSUSYObjDef &&
+	   (initializeSUSYTools() != StatusCode::SUCCESS)){
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize SUSY Tools" );
+	  return EL::StatusCode::FAILURE;
+	}
+
+	// GRL ///////////////////////////////////////////////////////////////////
+	if( initializeGRLTool()  != StatusCode::SUCCESS){
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize GRL Tool" );
+	  return EL::StatusCode::FAILURE;
+	}
+
+	// Pile Up Reweighting ///////////////////////////////////////////////////////////////////
+	if( initializePileupReweightingTool() != StatusCode::SUCCESS) {
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize Pileup Reweighting Tool" );
+	  return EL::StatusCode::FAILURE;
+	}
+
+
+	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
+
+	return EL::StatusCode::SUCCESS;
+}
+
+EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
+  m_pileupReweightingTool= new PileupReweightingTool("PileupReweightingTool");
+  CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );//todo should this EventInfo be the eventInfoName member?
+  std::vector<std::string> prwFiles;
+  prwFiles.push_back("PileupReweighting/mc14v1_defaults.prw.root");
+  CHECK( m_pileupReweightingTool->setProperty("ConfigFiles",prwFiles) );
+  std::vector<std::string> lumicalcFiles;
+  lumicalcFiles.push_back("SUSYTools/susy_data12_avgintperbx.root");
+  CHECK( m_pileupReweightingTool->setProperty("LumiCalcFiles",lumicalcFiles) );
+  if(!m_pileupReweightingTool->initialize().isSuccess()){
+    Error(__PRETTY_FUNCTION__, "Failed to properly initialize the Pile Up Reweighting. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+
+  return EL::StatusCode::SUCCESS;
+}
+
+EL::StatusCode initializeRJigsawVariables(){
 
 	// BACKGROUND TREE FOR QCD VARIABLES //////////////////////////
 	///////////////////////////////////////////////////////////////
@@ -333,126 +462,16 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	CbHemiJigsaw_R->AddFrame(V2b_R,1);
 	CbHemiJigsaw_R->AddFrame(Xb_R,1);
 
-	if(!LAB_R->InitializeAnalysis()) cout << "Problem with signal-tree jigsaws" << endl;
+	if(!LAB_R->InitializeAnalysis()){
+	  Error(__PRETTY_FUNCTION__, "Failred to properly initialize RJigsaw Analysis");
+	  return EL::StatusCode::FAILURE;
+	}
 
 	return EL::StatusCode::SUCCESS;
 }
 
 
 
-EL::StatusCode SklimmerAnalysis :: fileExecute ()
-{
-	// Here you do everything that needs to be done exactly once for every
-	// single file, e.g. collect a list of all lumi-blocks processed
-	return EL::StatusCode::SUCCESS;
-}
-
-
-
-EL::StatusCode SklimmerAnalysis :: changeInput (bool firstFile)
-{
-	// Here you do everything you need to do when we change input files,
-	// e.g. resetting branch addresses on trees.  If you are using
-	// D3PDReader or a similar service this method is not needed.
-	return EL::StatusCode::SUCCESS;
-}
-
-
-
-EL::StatusCode SklimmerAnalysis :: initialize ()
-{
-	// Here you do everything that you need to do after the first input
-	// file has been connected and before the first event is processed,
-	// e.g. create additional histograms based on which variables are
-	// available in the input files.  You can also create all of your
-	// histograms and trees in here, but be aware that this method
-	// doesn't get called if no events are processed.  So any objects
-	// you create here won't be available in the output if you have no
-	// input events.
-
-	// This will get moved to submission at some point... //////////////////////
-        if(m_writexAOD == false) m_writeFullCollectionsToxAOD = false; // logic and fail-safe
-
-	Info("initialize()", "m_doSklimming = %i"               , m_doSklimming                 );
-	Info("initialize()", "m_doSUSYObjDef = %i"              , m_doSUSYObjDef                );
-	Info("initialize()", "m_doEventSelection = %i"          , m_doEventSelection            );
-	// Info("initialize()", "m_writeNtuple = %i"               , m_writeNtuple                 );
-	Info("initialize()", "m_writexAOD = %i"                 , m_writexAOD                   );
-	Info("initialize()", "m_writeFullCollectionsToxAOD = %i", m_writeFullCollectionsToxAOD  );
-	Info("initialize()", "m_Analysis = %s"                  , m_Analysis.Data()             );
-
-
-	// m_doSklimming = true;
-	// m_doSUSYObjDef = true;
-	// m_doEventSelection = true;
-	// m_writeNtuple = false;
-	// m_writexAOD = true;
-	// m_writeFullCollectionsToxAOD = true;
-
-	// m_Analysis = "bbmet";
-
-
-	////////////////////////////////////////////////////////////////////////////
-
-	xAOD::TEvent *event = wk()->xaodEvent();
-	m_store = wk()->xaodStore();
-
-	if(fillEmptyCollectionNames() != StatusCode::SUCCESS){
-	  Error( __PRETTY_FUNCTION__, "Failed to fill empty collection names" );
-	  return EL::StatusCode::FAILURE;
-	}
-
-	// as a check, let's see the number of events in our xAOD
-	Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
-
-	// Output xAOD ///////////////////////////////////////////////////////////////////
-
-	if(m_writexAOD){
-		TFile *file = wk()->getOutputFile (outputxAODName);
-		CHECK(event->writeTo(file));
-	}
-
-	// SUSYTools ///////////////////////////////////////////////////////////////////
-
-	if(m_doSUSYObjDef &&
-	   (initializeSUSYTools() != StatusCode::SUCCESS)){
-	  Error(__PRETTY_FUNCTION__ , "Failed to initialize SUSY Tools" );
-	  return EL::StatusCode::FAILURE;
-	}
-
-	// GRL ///////////////////////////////////////////////////////////////////
-	if( initializeGRLTool()  != StatusCode::SUCCESS){
-	  Error(__PRETTY_FUNCTION__ , "Failed to initialize GRL Tool" );
-	  return EL::StatusCode::FAILURE;
-	}
-
-	// Pile Up Reweighting ///////////////////////////////////////////////////////////////////
-	if( initializePileupReweightingTool() != StatusCode::SUCCESS) {
-	  Error(__PRETTY_FUNCTION__ , "Failed to initialize Pileup Reweighting Tool" );
-	  return EL::StatusCode::FAILURE;
-	}
-
-
-	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
-
-	return EL::StatusCode::SUCCESS;
-}
-
-EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
-  m_pileupReweightingTool= new PileupReweightingTool("PileupReweightingTool");
-  CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );//todo should this EventInfo be the eventInfoName member?
-  std::vector<std::string> prwFiles;
-  prwFiles.push_back("PileupReweighting/mc14v1_defaults.prw.root");
-  CHECK( m_pileupReweightingTool->setProperty("ConfigFiles",prwFiles) );
-  std::vector<std::string> lumicalcFiles;
-  lumicalcFiles.push_back("SUSYTools/susy_data12_avgintperbx.root");
-  CHECK( m_pileupReweightingTool->setProperty("LumiCalcFiles",lumicalcFiles) );
-  if(!m_pileupReweightingTool->initialize().isSuccess()){
-    Error(__PRETTY_FUNCTION__, "Failed to properly initialize the Pile Up Reweighting. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
-
-  return EL::StatusCode::SUCCESS;
 }
 
 EL::StatusCode SklimmerAnalysis :: initializeSUSYTools(){
@@ -952,13 +971,8 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 		m_pileupReweightingTool = 0;
 	}
 
-	// finalize and close our output xAOD file:
-
-	if(m_writexAOD){
-
-		TFile *file = wk()->getOutputFile (outputxAODName);
-		CHECK(event->finishWritingTo( file ));
-	}
+	delete h_nevents;
+	delete h_nevents_weighted;
 
 	delete LAB_alt;
 	delete S_alt;
@@ -1003,7 +1017,13 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 	delete CaHemiJigsaw_R;
 	delete CbHemiJigsaw_R;
 
+	// finalize and close our output xAOD file:
 
+	if(m_writexAOD){
+
+		TFile *file = wk()->getOutputFile (outputxAODName);
+		CHECK(event->finishWritingTo( file ));
+	}
 
 	return EL::StatusCode::SUCCESS;
 }
