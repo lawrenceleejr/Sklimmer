@@ -56,7 +56,7 @@ SklimmerAnalysis :: SklimmerAnalysis() :
   m_pileupReweightingTool(nullptr),
   m_susy_obj(nullptr)
 #endif // not __CINT__
-{
+{  std::cout << __PRETTY_FUNCTION__ << std::endl;
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
 	// the most basic initialization here, since this method will be
@@ -69,7 +69,7 @@ SklimmerAnalysis :: SklimmerAnalysis() :
 
 
 EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
-{
+{  std::cout << __PRETTY_FUNCTION__ << std::endl;
 	// Here you put code that sets up the job on the submission object
 	// so that it is ready to work with your algorithm, e.g. you can
 	// request the D3PDReader service or add output files.  Any code you
@@ -98,6 +98,7 @@ EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 
 EL::StatusCode SklimmerAnalysis :: histInitialize ()
 {
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
 	// Here you do everything that needs to be done at the very
 	// beginning on each worker node, e.g. create histograms and output
 	// trees.  This method gets called before any input files are
@@ -109,18 +110,13 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	  Error( __PRETTY_FUNCTION__, "Failed to fill empty collection names" );
 	  return EL::StatusCode::FAILURE;
 	}
-
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
 
 
 	h_nevents = new TH1F("h_nevents", "h_nevents", 10, 0, 10);
 	h_nevents_weighted = new TH1F("h_nevents_weighted", "h_nevents_weighted", 10, 0, 10);
 	wk()->addOutput (h_nevents);
 	wk()->addOutput (h_nevents_weighted);
-
-	if(initializeEventSelectionBBMet() != EL::StatusCode::SUCCESS){
-	  Error(__PRETTY_FUNCTION__ , "Failed to initialize RJigsaw variables" );
-	  return EL::StatusCode::FAILURE;
-	}
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -215,6 +211,13 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	  return EL::StatusCode::FAILURE;
 	}
 
+	if(initializeEventSelectionBBMet() != EL::StatusCode::SUCCESS){
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize RJigsaw variables" );
+	  return EL::StatusCode::FAILURE;
+	}
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
+
+
 	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
 
 	return EL::StatusCode::SUCCESS;
@@ -239,6 +242,7 @@ EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
 
 EL::StatusCode SklimmerAnalysis :: initializeEventSelectionBBMet()
 {
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
   xAOD::TStore *store = wk()->xaodStore();
 
   eventSelectionBBMet = new EventSelectionBBMet(store);
@@ -247,16 +251,19 @@ EL::StatusCode SklimmerAnalysis :: initializeEventSelectionBBMet()
     return EL::StatusCode::FAILURE;
   }
 
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
   eventSelectionBBMet->jetCalibCollectionName      = jetCalibCollectionName;
   eventSelectionBBMet->muonCalibCollectionName     = muonCalibCollectionName;
   eventSelectionBBMet->electronCalibCollectionName = electronCalibCollectionName;
   eventSelectionBBMet->metCalibCollectionName      = metCalibCollectionName;
 
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
   if(  eventSelectionBBMet->initialize() != EL::StatusCode::SUCCESS){
     Error(__PRETTY_FUNCTION__, "failed to initialize bbmet event selection");
     return EL::StatusCode::FAILURE;
   }
-
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
   return EL::StatusCode::SUCCESS;
 }
 
@@ -315,7 +322,7 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 	CHECK(event->copy(truthJetCollectionName));
 
 	CHECK(event->copy(metCollectionName));
-	CHECK(event->copy(truthMetCollectionName));
+	//	CHECK(event->copy(truthMetCollectionName));
 
 	CHECK(event->copy(truthPrimaryVerticesName));
 	CHECK(event->copy(primaryVerticesName));
@@ -365,16 +372,19 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	const xAOD::ElectronContainer* electrons = 0;
 
+	std::cout << __PRETTY_FUNCTION__ << " at line : " << std::endl;
+
 	if ( !event->retrieve( electrons, electronCollectionName).isSuccess() ){ // retrieve arguments: container type, container key
 	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve"+ electronCollectionName + " container. Exiting.").c_str()) ;
 
 	  return EL::StatusCode::FAILURE;
 	}
 
+	std::cout << __PRETTY_FUNCTION__ << " at line : " << std::endl;
 	xAOD::ElectronContainer* electrons_copy(0);
 	xAOD::ShallowAuxContainer* electrons_copyaux(0);
 	CHECK( m_susy_obj->GetElectrons(electrons_copy,electrons_copyaux) );
-
+	std::cout << __PRETTY_FUNCTION__ << " at line : " << std::endl;
 	// Print their properties, using the tools:
 	xAOD::ElectronContainer::iterator el_itr = (electrons_copy)->begin();
 	xAOD::ElectronContainer::iterator el_end = (electrons_copy)->end();

@@ -74,9 +74,12 @@ EventSelectionBBMet::EventSelectionBBMet(xAOD::TStore * store) : // todo probabl
   ContraBoostJigsaw_R(nullptr),
   HemiJigsaw_R(nullptr),
   CaHemiJigsaw_R(nullptr),
-  CbHemiJigsaw_R(nullptr)
+  CbHemiJigsaw_R(nullptr),
+  m_store(store)
 {
-
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
+  //todo do this better?
+  //  m_store = store;
 }
 
 EventSelectionBBMet::~EventSelectionBBMet()
@@ -127,7 +130,7 @@ EventSelectionBBMet::~EventSelectionBBMet()
 
 EL::StatusCode EventSelectionBBMet::initialize()
 {
-
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
 	// BACKGROUND TREE FOR QCD VARIABLES //////////////////////////
 	///////////////////////////////////////////////////////////////
 	//
