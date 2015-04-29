@@ -354,7 +354,14 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::MuonContainer* muons_copy(0);
 	xAOD::ShallowAuxContainer* muons_copyaux(0);
-	CHECK( m_susy_obj->GetMuons(muons_copy,muons_copyaux) );
+	//	CHECK( m_susy_obj->GetMuons(muons_copy,muons_copyaux) );
+	CHECK( m_susy_obj->GetMuons(muons_copy,
+				    muons_copyaux,
+				    false,
+				    10000.,
+				    2.47,
+				    muonCollectionName)
+	       );
 
 	xAOD::MuonContainer::iterator mu_itr = (muons_copy)->begin();
 	xAOD::MuonContainer::iterator mu_end  = (muons_copy)->end();
@@ -383,7 +390,16 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	std::cout << __PRETTY_FUNCTION__ << " at line : " << std::endl;
 	xAOD::ElectronContainer* electrons_copy(0);
 	xAOD::ShallowAuxContainer* electrons_copyaux(0);
-	CHECK( m_susy_obj->GetElectrons(electrons_copy,electrons_copyaux) );
+	CHECK( m_susy_obj->GetElectrons(electrons_copy,
+                                        electrons_copyaux,
+                                        false,
+                                        10000.,
+                                        2.47,
+                                        electronCollectionName
+                                        )
+               );
+
+
 	std::cout << __PRETTY_FUNCTION__ << " at line : " << std::endl;
 	// Print their properties, using the tools:
 	xAOD::ElectronContainer::iterator el_itr = (electrons_copy)->begin();
@@ -409,7 +425,15 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::PhotonContainer* photons_copy(0);
 	xAOD::ShallowAuxContainer* photons_copyaux(0);
-	CHECK( m_susy_obj->GetPhotons(photons_copy,photons_copyaux) );
+	//	CHECK( m_susy_obj->GetPhotons(photons_copy,photons_copyaux) );
+	CHECK( m_susy_obj->GetPhotons(photons_copy,
+                                      photons_copyaux,
+                                      false,
+                                      25000.,
+                                      2.37,
+                                      photonCollectionName
+                                      )
+               );
 
 
 
@@ -426,7 +450,15 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::JetContainer* jets_copy(0);
 	xAOD::ShallowAuxContainer* jets_copyaux(0);
-	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux) );
+	//	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux) );
+	CHECK( m_susy_obj->GetJets(jets_copy,
+                                   jets_copyaux,
+                                   false,
+                                   20000.,
+				   2.8,
+				   jetCollectionName
+                                   )
+	       );
 
 
 	//------------
@@ -440,8 +472,13 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::TauJetContainer* taus_copy(0);
 	xAOD::ShallowAuxContainer* taus_copyaux(0);
-	CHECK( m_susy_obj->GetTaus(taus_copy,taus_copyaux) );
-
+	//	CHECK( m_susy_obj->GetTaus(taus_copy,taus_copyaux) );
+	CHECK( m_susy_obj->GetTaus(taus_copy,
+				   taus_copyaux,
+				   false,
+                                    tauCollectionName
+				   )
+	       );
 
 	//------------
 	// OVERLAP REMOVAL (as in susytools tester)
