@@ -54,7 +54,48 @@ SklimmerAnalysis :: SklimmerAnalysis() : h_nevents(nullptr),
   m_pileupReweightingTool(nullptr),
   m_susy_obj(nullptr),
 #endif // not __CINT__
-  RJTool(nullptr)
+  LAB_alt(nullptr),
+  S_alt(nullptr),
+  V_alt(nullptr),
+  I_alt(nullptr),
+  INV_alt(nullptr),
+  VIS_alt(nullptr),
+  MinMass_alt(nullptr),
+  Rapidity_alt(nullptr),
+  LAB(nullptr),
+  SS(nullptr),
+  S1(nullptr),
+  S2(nullptr),
+  V1(nullptr),
+  V2(nullptr),
+  I1(nullptr),
+  I2(nullptr),
+  INV(nullptr),
+  VIS(nullptr),
+  MinMassJigsaw(nullptr),
+  RapidityJigsaw(nullptr),
+  ContraBoostJigsaw(nullptr),
+  HemiJigsaw(nullptr),
+  LAB_R(nullptr),
+  GG_R(nullptr),
+  Ga_R(nullptr),
+  Gb_R(nullptr),
+  Ca_R(nullptr),
+  Cb_R(nullptr),
+  V1a_R(nullptr),
+  V2a_R(nullptr),
+  Xa_R(nullptr),
+  V1b_R(nullptr),
+  V2b_R(nullptr),
+  Xb_R(nullptr),
+  INV_R(nullptr),
+  VIS_R(nullptr),
+  MinMassJigsaw_R(nullptr),
+  RapidityJigsaw_R(nullptr),
+  ContraBoostJigsaw_R(nullptr),
+  HemiJigsaw_R(nullptr),
+  CaHemiJigsaw_R(nullptr),
+  CbHemiJigsaw_R(nullptr)
 {
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
@@ -918,6 +959,52 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 		TFile *file = wk()->getOutputFile (outputxAODName);
 		CHECK(event->finishWritingTo( file ));
 	}
+
+	delete LAB_alt;
+	delete S_alt;
+	delete V_alt;
+	delete I_alt;
+	delete INV_alt;
+	delete VIS_alt;
+	delete MinMass_alt;
+	delete Rapidity_alt;
+	delete LAB;
+	delete SS;
+	delete S1;
+	delete S2;
+	delete V1;
+	delete V2;
+	delete I1;
+	delete I2;
+	delete INV;
+	delete VIS;
+	delete MinMassJigsaw;
+	delete RapidityJigsaw;
+	delete ContraBoostJigsaw;
+	delete HemiJigsaw;
+	delete LAB_R;
+	delete GG_R;
+	delete Ga_R;
+	delete Gb_R;
+	delete Ca_R;
+	delete Cb_R;
+	delete V1a_R;
+	delete V2a_R;
+	delete Xa_R;
+	delete V1b_R;
+	delete V2b_R;
+	delete Xb_R;
+	delete INV_R;
+	delete VIS_R;
+	delete MinMassJigsaw_R;
+	delete RapidityJigsaw_R;
+	delete ContraBoostJigsaw_R;
+	delete HemiJigsaw_R;
+	delete CaHemiJigsaw_R;
+	delete CbHemiJigsaw_R;
+
+
+
 	return EL::StatusCode::SUCCESS;
 }
 
