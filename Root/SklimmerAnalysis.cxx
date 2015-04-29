@@ -1045,13 +1045,11 @@ EL::StatusCode SklimmerAnalysis :: histFinalize ()
 	return EL::StatusCode::SUCCESS;
 }
 
-
-
 TString SklimmerAnalysis :: eventSelectionBBMet(xAOD::EventInfo * eventInfo )
 {
   if(eventInfo == nullptr ){
     Error(__PRETTY_FUNCTION__, "can't do bbMET eventSelection without eventInfo object" ) ;
-    return TString("");
+    return TString("");//todo should this return something else if it fails?
   }
 
   EventSelectionBBMet evtSelection(m_store);//todo should probably be a tool owned up the analysis class? we wouldn't need this silly store pass
