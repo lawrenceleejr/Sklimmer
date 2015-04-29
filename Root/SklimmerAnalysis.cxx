@@ -774,6 +774,8 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	for( ; el_itr != el_end; ++el_itr ) {
 		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
 	}
+
+	if (Nel != NElCut) return "";
 	
 	int Nmu=0;
 	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
@@ -782,7 +784,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
 	}
 
-	if(Nel || Nmu) return "";
+	if (Nmu != NMuCut) return "";
 
 	///////////////////////////////////////////////////////////
 

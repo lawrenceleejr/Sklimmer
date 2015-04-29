@@ -90,6 +90,8 @@ alg.m_writexAOD = True;
 alg.m_writeFullCollectionsToxAOD = True;
 
 alg.m_Analysis = "bbmet";
+alg.NElCut = 0;
+alg.NMuCut = 0;
 
 output = ROOT.EL.OutputStream("treeOutput")
 job.outputAdd(output)

@@ -119,6 +119,9 @@ public:
 	int useLeptonTrigger;
 	int doSyst;
 
+	int NElCut;
+	int NMuCut;
+
 	// These are the switches to steer the analysis code, depending on what step you want to do
 
 	bool m_doSklimming; 
