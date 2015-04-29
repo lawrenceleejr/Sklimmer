@@ -56,7 +56,7 @@ SklimmerAnalysis :: SklimmerAnalysis() :
   m_pileupReweightingTool(nullptr),
   m_susy_obj(nullptr)
 #endif // not __CINT__
-{  std::cout << __PRETTY_FUNCTION__ << std::endl;
+{
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
 	// the most basic initialization here, since this method will be
@@ -69,7 +69,7 @@ SklimmerAnalysis :: SklimmerAnalysis() :
 
 
 EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
-{  std::cout << __PRETTY_FUNCTION__ << std::endl;
+{
 	// Here you put code that sets up the job on the submission object
 	// so that it is ready to work with your algorithm, e.g. you can
 	// request the D3PDReader service or add output files.  Any code you
@@ -98,7 +98,7 @@ EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 
 EL::StatusCode SklimmerAnalysis :: histInitialize ()
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
 	// Here you do everything that needs to be done at the very
 	// beginning on each worker node, e.g. create histograms and output
 	// trees.  This method gets called before any input files are
@@ -110,7 +110,7 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	  Error( __PRETTY_FUNCTION__, "Failed to fill empty collection names" );
 	  return EL::StatusCode::FAILURE;
 	}
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
 
 
 	h_nevents = new TH1F("h_nevents", "h_nevents", 10, 0, 10);
@@ -215,7 +215,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	  Error(__PRETTY_FUNCTION__ , "Failed to initialize RJigsaw variables" );
 	  return EL::StatusCode::FAILURE;
 	}
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
+
 
 
 	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
@@ -242,7 +242,7 @@ EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
 
 EL::StatusCode SklimmerAnalysis :: initializeEventSelectionBBMet()
 {
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
   xAOD::TStore *store = wk()->xaodStore();
 
   eventSelectionBBMet = new EventSelectionBBMet(store);
@@ -251,19 +251,17 @@ EL::StatusCode SklimmerAnalysis :: initializeEventSelectionBBMet()
     return EL::StatusCode::FAILURE;
   }
 
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
-
   eventSelectionBBMet->jetCalibCollectionName      = jetCalibCollectionName;
   eventSelectionBBMet->muonCalibCollectionName     = muonCalibCollectionName;
   eventSelectionBBMet->electronCalibCollectionName = electronCalibCollectionName;
   eventSelectionBBMet->metCalibCollectionName      = metCalibCollectionName;
 
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
   if(  eventSelectionBBMet->initialize() != EL::StatusCode::SUCCESS){
     Error(__PRETTY_FUNCTION__, "failed to initialize bbmet event selection");
     return EL::StatusCode::FAILURE;
   }
-  std::cout << __PRETTY_FUNCTION__ << std::endl;
+
   return EL::StatusCode::SUCCESS;
 }
 
@@ -466,7 +464,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	//------------
 	const xAOD::TauJetContainer* taus = 0;
 	if ( !event->retrieve( taus, tauCollectionName ).isSuccess() ){ // retrieve arguments: container type, container key
-	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve"+ tauCollectionName+ "   container. Exiting.").c_str()) ;
+	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve "+ tauCollectionName+ "   container. Exiting.").c_str()) ;
 	  return EL::StatusCode::FAILURE;
 	}
 
@@ -476,7 +474,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	CHECK( m_susy_obj->GetTaus(taus_copy,
 				   taus_copyaux,
 				   false,
-                                    tauCollectionName
+				   tauCollectionName
 				   )
 	       );
 
