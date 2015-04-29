@@ -35,9 +35,7 @@
 #endif
 
 
-namespace Root{
-  class TRJigsaw;
-}
+
 // GRL
 class GoodRunsListSelectionTool;
 namespace CP{
@@ -148,12 +146,6 @@ public:
 	RestFrames::MinimizeMassesCombinatoricJigsaw * HemiJigsaw_R; //!
 	RestFrames::MinimizeMassesCombinatoricJigsaw * CaHemiJigsaw_R; //!
 	RestFrames::MinimizeMassesCombinatoricJigsaw * CbHemiJigsaw_R; //!
-
-
-
-
-	xAOD::TEvent *m_event;  //!
-  //	xAOD::TEvent *m_event;  //!
 
 	xAOD::TStore *m_store;  //!
 
