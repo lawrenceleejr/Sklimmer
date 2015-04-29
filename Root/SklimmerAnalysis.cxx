@@ -833,36 +833,49 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	// Set up RestFrames topology ///////////////////////////////////
 
 	RestFrames::RLabFrame LAB("LAB","lab");
-	RestFrames::RDecayFrame SS("SS","SS");
-	RestFrames::RSelfAssemblingFrame S1("S1","#tilde{S}_{a}");
-	RestFrames::RSelfAssemblingFrame S2("S2","#tilde{S}_{b}");
-	RestFrames::RVisibleFrame V1("V1","V_{a}");
-	RestFrames::RVisibleFrame V2("V2","V_{b}");
-	RestFrames::RInvisibleFrame I1("I1","I_{a}");
-	RestFrames::RInvisibleFrame I2("I2","I_{b}");
+	RestFrames::RDecayFrame GG("GG","GG");
+	RestFrames::RSelfAssemblingFrame Ga("Ga","#tilde{G}_{a}");
+	RestFrames::RSelfAssemblingFrame Gb("Gb","#tilde{G}_{b}");
+	RestFrames::RSelfAssemblingFrame Ca("Ca","C_{a}");
+	RestFrames::RSelfAssemblingFrame Cb("Cb","C_{b}");
+	RestFrames::RVisibleFrame Va1("Va1","V_{a1}");
+	RestFrames::RVisibleFrame Va2("Va2","V_{a2}");
+	RestFrames::RVisibleFrame Vb1("Vb1","V_{b1}");
+	RestFrames::RVisibleFrame Vb2("Vb2","V_{b2}");
+	RestFrames::RInvisibleFrame Ia("Ia","I_{a}");
+	RestFrames::RInvisibleFrame Ib("Ib","I_{b}");
 
 	// The invisible group is all of the weakly interacting particles
 	RestFrames::InvisibleGroup INV("INV","Invisible State Jigsaws");
-	INV.AddFrame(I1);
-	INV.AddFrame(I2);
+	INV.AddFrame(Ia);
+	INV.AddFrame(Ib);
 
 	// the combinatoric group is the list of visible objects
 	// that go into our hemispheres 
 	RestFrames::CombinatoricGroup VIS("VIS","Visible Object Jigsaws");
-	VIS.AddFrame(V1);
-	VIS.SetNElementsForFrame(V1,1,false);
-	VIS.AddFrame(V2);
-	VIS.SetNElementsForFrame(V2,1,false);
+	VIS.AddFrame(Va1);
+	VIS.SetNElementsForFrame(Va1,1,false);
+	VIS.AddFrame(Va2);
+	VIS.SetNElementsForFrame(Va2,1,false);
+	VIS.AddFrame(Vb1);
+	VIS.SetNElementsForFrame(Vb1,0,false);
+	VIS.AddFrame(Vb2);
+	VIS.SetNElementsForFrame(Vb2,0,false);
 
-	LAB.SetChildFrame(SS);
+	LAB.SetChildFrame(GG);
 
-	SS.AddChildFrame(S1);
-	SS.AddChildFrame(S2);
+	GG.AddChildFrame(Ga);
+	GG.AddChildFrame(Gb);
 
-	S1.AddChildFrame(V1);
-	S1.AddChildFrame(I1);
-	S2.AddChildFrame(V2);
-	S2.AddChildFrame(I2);
+	Ga.AddChildFrame(Ca);
+	Ga.AddChildFrame(Va1);
+	Ca.AddChildFrame(Va2);
+	Ca.AddChildFrame(Ia);
+
+	Gb.AddChildFrame(Cb);
+	Gb.AddChildFrame(Vb1);
+	Cb.AddChildFrame(Vb2);
+	Cb.AddChildFrame(Ib);
 
 	std::cout << "Is consistent tree topology? " << LAB.InitializeTree() << std::endl; 
 
@@ -882,16 +895,30 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	RestFrames::ContraBoostInvariantJigsaw ContraBoostJigsaw("CB_JIGSAW","Contraboost invariant Jigsaw");
 	INV.AddJigsaw(ContraBoostJigsaw);
-	ContraBoostJigsaw.AddVisibleFrame((S1.GetListVisibleFrames()), 0);
-	ContraBoostJigsaw.AddVisibleFrame((S2.GetListVisibleFrames()), 1);
-	ContraBoostJigsaw.AddInvisibleFrame((S1.GetListInvisibleFrames()), 0);
-	ContraBoostJigsaw.AddInvisibleFrame((S2.GetListInvisibleFrames()), 1);
+	ContraBoostJigsaw.AddVisibleFrame((Ga.GetListVisibleFrames()), 0);
+	ContraBoostJigsaw.AddVisibleFrame((Gb.GetListVisibleFrames()), 1);
+	ContraBoostJigsaw.AddInvisibleFrame((Ga.GetListInvisibleFrames()), 0);
+	ContraBoostJigsaw.AddInvisibleFrame((Gb.GetListInvisibleFrames()), 1);
 
 	RestFrames::MinimizeMassesCombinatoricJigsaw HemiJigsaw("HEM_JIGSAW","Minimize m _{V_{a,b}} Jigsaw");
 	VIS.AddJigsaw(HemiJigsaw);
-	HemiJigsaw.AddFrame(V1,0);
-	HemiJigsaw.AddFrame(V2,1);
+	HemiJigsaw.AddFrame(Va1,0);
+	HemiJigsaw.AddFrame(Va2,1);
+	HemiJigsaw.AddFrame(Vb1,0);
+	HemiJigsaw.AddFrame(Vb2,1);
 
+	RestFrames::MinimizeMassesCombinatoricJigsaw CaHemiJigsaw("abHEM_JIGSAW","Minimize m _{C_{a}} Jigsaw");
+	VIS.AddJigsaw(CaHemiJigsaw);
+	CaHemiJigsaw.AddFrame(Va1,0);
+	CaHemiJigsaw.AddFrame(Va2,1);
+	CaHemiJigsaw.AddFrame(Ia,1);
+
+	RestFrames::MinimizeMassesCombinatoricJigsaw CbHemiJigsaw("CbHem_JIGSAW","Minimize m _{C_{b}} Jigsaw");
+	VIS.AddJigsaw(CbHemiJigsaw);
+	CbHemiJigsaw.AddFrame(Vb1,0);
+	CbHemiJigsaw.AddFrame(Vb2,1);
+	CbHemiJigsaw.AddFrame(Ib,1);
+	
 	//////////////////////////////////////////////////////////////
 	// check to make sure that all the jigsaws etc. are correctly connected
 	//////////////////////////////////////////////////////////////
@@ -903,39 +930,40 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	//////////////////////////////////////////////////////////////
 	// Now, we make a 'background'-like, transverse momentum only, tree
 	//////////////////////////////////////////////////////////////
-	RestFrames::RLabFrame LAB_alt("LAB","lab");
-	RestFrames::RSelfAssemblingFrame S_alt("CM","CM");
-	RestFrames::RVisibleFrame V_alt("V_alt","Vis");
-	RestFrames::RInvisibleFrame I_alt("I_alt","Iinv");
+	RestFrames::RLabFrame LAB_bkg("LAB_bkg","lab");
+	RestFrames::RSelfAssemblingFrame CM_bkg("CM_bkg","CM");
+	RestFrames::RVisibleFrame V_bkg("V_bkg","Vis");
+	RestFrames::RInvisibleFrame I_bkg("I_bkg","Iinv");
 
-	RestFrames::InvisibleGroup INV_alt("INV_alt","Invisible State Jigsaws");
-	INV_alt.AddFrame(I_alt);
+	RestFrames::InvisibleGroup INV_bkg("INV_bkg","Invisible State Jigsaws");
+	INV_bkg.AddFrame(I_bkg);
 
-	RestFrames::CombinatoricGroup VIS_alt("VIS_alt","Visible Object Jigsaws");
-	VIS_alt.AddFrame(V_alt);
-	VIS_alt.SetNElementsForFrame(V_alt,1,false);
+	RestFrames::CombinatoricGroup VIS_bkg("VIS_alt","Visible Object Jigsaws");
+	VIS_bkg.AddFrame(V_bkg);
+	VIS_bkg.SetNElementsForFrame(V_bkg,1,false);
 
-	LAB_alt.SetChildFrame(S_alt);
-	S_alt.AddChildFrame(V_alt);
-	S_alt.AddChildFrame(I_alt);
+	LAB_bkg.SetChildFrame(CM_bkg);
+	CM_bkg.AddChildFrame(V_bkg);
+	CM_bkg.AddChildFrame(I_bkg);
 
-	LAB_alt.InitializeTree(); 
+	LAB_bkg.InitializeTree(); 
 
 	// Will just set invisible mass to zero
-	RestFrames::InvisibleMassJigsaw MinMass_alt("MINMASS_JIGSAW_ALT", "Invisible system mass Jigsaw");
-	INV_alt.AddJigsaw(MinMass_alt);
+	RestFrames::InvisibleMassJigsaw MinMass_bkg("MINMASS_JIGSAW_BKG", "Invisible system mass Jigsaw");
+	INV_bkg.AddJigsaw(MinMass_bkg);
 
 	// will set rapidity to zero
-	RestFrames::InvisibleRapidityJigsaw Rapidity_alt("RAPIDITY_JIGSAW_ALT", "Invisible system rapidity Jigsaw");
-	INV_alt.AddJigsaw(Rapidity_alt);
-	Rapidity_alt.AddVisibleFrame((LAB_alt.GetListVisibleFrames()));
+	RestFrames::InvisibleRapidityJigsaw Rapidity_bkg("RAPIDITY_JIGSAW_BKG", "Invisible system rapidity Jigsaw");
+	INV_bkg.AddJigsaw(Rapidity_bkg);
+	Rapidity_bkg.AddVisibleFrame((LAB_bkg.GetListVisibleFrames()));
 
-	LAB_alt.InitializeAnalysis(); 
+	LAB_bkg.InitializeAnalysis(); 
 
 
 
 
 	TLorentzVector jet;
+	vector<GroupElementID> jetID;
 
 	jet_itr = (jets_copy)->begin();
 	for( ; jet_itr != jet_end; ++jet_itr ) {
@@ -943,10 +971,10 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
 			(*jet_itr)->auxdata< char >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
-			VIS.AddLabFrameFourVector( (*jet_itr)->p4()  );  
+                        jetID.push_back(VIS.AddLabFrameFourVector( (*jet_itr)->p4()  ) );
 			
 			jet.SetPtEtaPhiM( (*jet_itr)->pt(), 0., (*jet_itr)->phi(), (*jet_itr)->m()  );
-			VIS_alt.AddLabFrameFourVector(jet);
+			VIS_bkg.AddLabFrameFourVector(jet);
 		}
     
     }
@@ -972,66 +1000,164 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	LAB.AnalyzeEvent();
 
 	
-    INV_alt.SetLabFrameThreeVector(MET_TV3);
-    LAB_alt.AnalyzeEvent();
+    INV_bkg.SetLabFrameThreeVector(MET_TV3);
+    LAB_bkg.AnalyzeEvent();
 
-	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
+    // randomize hemispheres
+    RestFrames::RDecayFrame *GR[2];
+    RestFrames::RDecayFrame *CR[2];
+    RestFrames::RVisibleFrame *VSR[2];
+    RestFrames::RVisibleFrame *VCR[2];
+    RestFrames::RInvisibleFrame *IR[2];
+    int flip = (gRandom->Rndm() > 0.5);
+    GR[flip] = &Ga;
+    GR[(flip+1)%2] = &Gb;
+    CR[flip] = &Ca;
+    CR[(flip+1)%2] = &Cb;
+    VSR[flip] = &Va1;
+    VSR[(flip+1)%2] = &Vb1;
+    VCR[flip] = &Va2;
+    VC[(flip+1)%2] = &Vb2;
+    IR[flip] = &Ia;
+    IR[(flip+1)%2] = &Ib;
 
-	eventInfo->auxdecor<float>("SS_Mass"           ) = SS.GetMass();
-	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS.GetGammaInParentFrame();
-	eventInfo->auxdecor<float>("SS_dPhiBetaR"      ) = SS.GetDeltaPhiBoostVisible();
-	eventInfo->auxdecor<float>("SS_dPhiVis"        ) = SS.GetDeltaPhiVisible();
-	eventInfo->auxdecor<float>("SS_CosTheta"       ) = SS.GetCosDecayAngle();
-	eventInfo->auxdecor<float>("SS_dPhiDecayAngle" ) = SS.GetDeltaPhiDecayAngle();
-	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS.GetVisibleShape();
-	eventInfo->auxdecor<float>("SS_MDeltaR"        ) = SS.GetVisibleShape() * SS.GetMass() ;
-	eventInfo->auxdecor<float>("S1_Mass"           ) = S1.GetMass();
-	eventInfo->auxdecor<float>("S1_CosTheta"       ) = S1.GetCosDecayAngle();
-	eventInfo->auxdecor<float>("S2_Mass"           ) = S2.GetMass();
-	eventInfo->auxdecor<float>("S2_CosTheta"       ) = S2.GetCosDecayAngle();
-	eventInfo->auxdecor<float>("I1_Depth"          ) = S1.GetFrameDepth(I1);
-	eventInfo->auxdecor<float>("I2_Depth"          ) = S2.GetFrameDepth(I2);
-	eventInfo->auxdecor<float>("V1_N"              ) = VIS.GetNElementsInFrame(V1);
-	eventInfo->auxdecor<float>("V2_N"              ) = VIS.GetNElementsInFrame(V2);
+    // std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
 
+    // total CM mass
+    double shat = GG.GetMass();
+    // massless gluino gamma in CM frame
+    double gaminv = GG.GetVisibleShape();
 
+    TLorentzVector vV1 = GR[0]->GetVisibleFourVector(GR[0]);
+    TLorentzVector vV2 = GR[1].GetVisibleFourVector(GR[1]);
 
-    // dphiR and Rptshat (formerly cosPT)
-    // for QCD rejection
-    double dphiR = SS.GetDeltaPhiBoostVisible();
-    double PTCM = SS.GetFourVector(LAB).Pt();
-    double Rptshat = PTCM / (PTCM + SS.GetMass()/4.);
+    // gluino mass
+    double MG = (vV1.M2()-vV2.M2()) / (2.*(vV1.E()-vV2.E()));
+    double PG = GR[0].GetMomentum(GG);
+    double MGG = 2.*sqrt(PG*PG + MG*MG);
+    double gaminvGG = 2.*MG/MGG;
+    double beta = sqrt(1. - gaminv*gaminv);
+    double betaGG = sqrt(1. - gaminvGG*gaminvGG);
 
-    // QCD rejection using the 'background tree'
-    // MET 'sibling' in background tree auxillary calculations
-    TLorentzVector Psib = I_alt.GetSiblingFrame()->GetFourVector(LAB_alt);
-    TLorentzVector Pmet = I_alt.GetFourVector(LAB_alt);
-    double Psib_dot_METhat = max(0., Psib.Vect().Dot(MET_TV3.Unit()));
-    double Mpar2 = Psib.E()*Psib.E()-Psib.Vect().Dot(MET_TV3.Unit())*Psib.Vect().Dot(MET_TV3.Unit());
-    double Msib2 = Psib.M2();
-    double MB2 = 2.*(Pmet.E()*Psib.E()-MET_TV3.Dot(Psib.Vect()));
-    TVector3 boostPsibM = (Pmet+Psib).BoostVector();
+    // number of visible objects in hemisphere
+    double NV[2];
+    // cosine gluino decay angle
+    double cosG[2];
+    // cosine intermediate child decay angle
+    double cosC[2];
+    // delta phi between gluino and child decay planes
+    double dphiGC[2];
+    // ratio of child and gluino masses (WIMP masses subtracted)
+    double RCG[2];
+    // first leading jet PT associated with this hemisphere
+    double jet1PT[2];
+    // second leading jet pT associated with this hemisphere
+    double jet2PT[2];
 
+    for (int i=0; i<2; i++)
+      {
+	NV[i] = VIS.GetNElementsInFrame(VSR[i]);
+	NV[i] += VIS.GetNElementsInFrame(VCR[i]);
 
-    // QCD rejection variables from 'background tree'
-    double DepthBKG = S_alt.GetFrameDepth(I_alt);
-    int Nsib = I_alt.GetSiblingFrame()->GetNDescendants();
-    double cosBKG = I_alt.GetParentFrame()->GetCosDecayAngle();
-    double dphiMsib = fabs(MET_TV3.DeltaPhi(Psib.Vect()));
-    double RpsibM = Psib_dot_METhat / (Psib_dot_METhat + MET_TV3.Mag());
-    double RmsibM = 1. / ( MB2/(Mpar2-Msib2) + 1.);
-    Psib.Boost(-boostPsibM);
-    double cosPsibM = -1.*Psib.Vect().Unit().Dot(boostPsibM.Unit());
-    cosPsibM = (1.-cosPsibM)/2.;
-    double DeltaQCD1 = (cosPsibM-RpsibM)/(cosPsibM+RpsibM);
-    double DeltaQCD2 = (cosPsibM-RmsibM)/(cosPsibM+RmsibM);
+	cosG[i] = GR[i]->GetCosDecayAngle();
 
-    eventInfo->auxdecor<float>("QCD_dPhiR"              ) = dphiR;
-    eventInfo->auxdecor<float>("QCD_Rpt"                ) = Rptshat;
-    eventInfo->auxdecor<float>("QCD_Rmsib"              ) = RmsibM;
-    eventInfo->auxdecor<float>("QCD_Delta2"              ) = DeltaQCD2;
-    eventInfo->auxdecor<float>("QCD_Rpsib"              ) = RpsibM;
-    eventInfo->auxdecor<float>("QCD_Delta1"              ) = DeltaQCD1;
+	int N = jetID.size();
+	double pTmax[2];
+	pTmax[0] = -1.;
+	pTmax[1] = -1.;
+	for (int j=0; j<N; j++)
+	  {
+	    const RestFrames::RestFrame *frame = VIS.GetFrame(jetID[j]);
+	    if (VSR[i]->IsSame(frame) || VCR[i]->IsSame(frame))
+	      {
+		double pT = frame->GetFourVector(LAB).Pt();
+		if (pT > pTmax[0])
+		  {
+		    pTmax[1] = pTmax[0];
+		    pTmax[0] = pT;
+		  }
+		else
+		  {
+		    if (pT > pTmax[1]) pTmax[1] = pT;
+		  }
+	      }
+	  }
+	jet1Pt[i] = pTmax[0];
+	jet2Pt[i] = pTmax[1];
+
+	if (NV[i] > 1)
+	  {
+	    cosC[i] = CR[i]->GetCosDecayAngle();
+	    dphiGC[i] = GR[i]->GetDeltaPhiDecayPlanes(CR[i]);
+	    RCG[i] = (CR[i]->GetMas()-IR[i]->GetMass()) / (GR[i]->GetMass()-IR[i]->GetMass());
+	  }
+	else
+	  {
+	    cosC[i] = -2.;
+	    dphiGC[i] = -1.;
+	    RCG[i] = -1.;
+	    jet2PT[i] = -1.;
+	  }
+      }
+
+    // delta phi between lab and GG decay planes
+    eventInfo->auxdecor<float>("LAB_dPhi") = LAB.GetDeltaPhiDecayPlaes(GG);
+
+    // total CM mass
+    eventInfo->auxdecor<float>("GG_Mass") = shat;
+    // massless gluino gamma in CM frame
+    eventInfo->auxdecor<float>("GG_GammaInv") = gaminv;
+    // mass-splitting
+    eventInfo->auxdecor<float>("GG_MDeltaR") = shat * gaminv;
+    // cos decay angle of GG system
+    eventInfo->auxdecor<float>("GG_CosTheta") = GG.GetCosDecayAngle();
+    // velocity difference between massive and massless
+    eventInfo->auxdecor<float>("GG_DeltaBetaGG") = -(betaGG-beta) / (1.-betaGG*beta);
+    // delta phi between GG visible decay products and GG decay axis
+    eventInfo->auxdecor<float>("GG_dPhiVG") = GG.GetDeltaPhiDecayVisible();
+    // delta phi between GG visible decay products and GG momentum
+    eventInfo->auxdecor<float>("GG_dPhiVGM") = GG.GetDeltaPhiBoostVisible();
+
+    eventInfo->auxdecor<float>("Ga_Mass") = GR[0].GetMass();
+    eventInfo->auxdecor<float>("Ga_CosTheta") = GR[0].GetCosDecayAngle();
+
+    eventInfo->auxdecor<float>("Gb_Mass") = GR[1].GetMass();
+    eventInfo->auxdecor<float>("Gb_CosTheta") = GR[1].GetCosDecayAngle();
+
+    eventInfo->auxdecor<float>("Ia_Depth") = GR[0].GetFrameDepth(IR[0]);
+    eventInfo->auxdecor<float>("Ib_Depth") = GR[1].GetFrameDepth(IR[1]);
+
+    eventInfo->auxdecor<float>("Va_N") = VIS.GetNElementsInFrame(Va1);
+    eventInfo->auxdecor<float>("Ca_N") = VIS.GetNElementsInFrame(Va2);
+
+    eventInfo->auxdecor<float>("Vb_N") = VIS.GetNElementsInFrame(Vb1);
+    eventInfo->auxdecor<float>("Cb_N") = VIS.GetNElementsInFrame(Vb2);
+    
+    // background tree observables
+    TLorentzVecotr Psib = I_bkg.GetSiblingFrame()->GetFourVector(LAB_bkg);
+    TLorentzVector Pmet = I_bkg.GetFourVector(LAB_bkg);
+
+    TVector3 vPGG = GG.GetFourVector(LAB).Vect();
+
+    double RMsib = max(0., Psib.Vect().Dot(Pmet.Vect().Unit()));
+    RMsib = RMsib / (Pmet.Pt() + RMsib);
+    TVector boostQCD = (Pmet+Psib).BoostVector();
+    Psib.Boost(-boostQCD);
+    double cosQCD = -1.*Psib.Vect().Unit().Dot(boostQCD.Unit());
+    cosQCD = (1.-cosQCD)/2.;
+    //double DeltaQCD1 = (cosQCD-RPsib) / (cosQCD+RPsib)
+    double DeltaQCD2 = (cosQCD-RMsib) / (cosQCD+RMsib);
+
+    // ratio of CM pT to CM mass
+    eventInfo->auxdecor<float>("QCD_RPT") = vPGG.Pt() / (vPGG.Pt() + shat/4.);
+    // ratio fo CM pz to CM mass
+    eventInfo->auxdecor<float>("QCD_RPZ") = vPGG.Pz() / (vPGG.Pz() + shat/4.);
+    eventInfo->auxdecor<float>("QCD_RMsib") = RMsib;
+    //eventInfo->auxdecor<float>("QCD_RPsib") = RPsib;
+    eventInfo->auxdecor<float>("QCD_CosTheta") = cosQCD;
+    eventInfo->auxdecor<float>("QCD_dPhiR"        ) = GG.GetDeltaPhiBoostVisible();
+    //eventInfo->auxdecor<float>("QCD_Delta1"       ) = DeltaQCD1;
+    eventInfo->auxdecor<float>("QCD_Delta2"       ) = DeltaQCD2;
 
 	// Info( APP_NAME,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
 	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );

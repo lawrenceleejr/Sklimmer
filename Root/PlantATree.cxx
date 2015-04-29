@@ -109,32 +109,34 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("ActualInteractionsPerCrossing" , &ActualInteractionsPerCrossing  );
   tree->Branch("AverageInteractionsPerCrossing", &AverageInteractionsPerCrossing );
 
-
-  tree->Branch("RJVars_SS_Mass"           , &RJVars_SS_Mass           ); 
-  tree->Branch("RJVars_SS_InvGamma"       , &RJVars_SS_InvGamma       ); 
-  tree->Branch("RJVars_SS_dPhiBetaR"      , &RJVars_SS_dPhiBetaR      ); 
-  tree->Branch("RJVars_SS_dPhiVis"        , &RJVars_SS_dPhiVis        ); 
-  tree->Branch("RJVars_SS_CosTheta"       , &RJVars_SS_CosTheta       ); 
-  tree->Branch("RJVars_SS_dPhiDecayAngle" , &RJVars_SS_dPhiDecayAngle ); 
-  tree->Branch("RJVars_SS_VisShape"       , &RJVars_SS_VisShape       ); 
-  tree->Branch("RJVars_SS_MDeltaR"        , &RJVars_SS_MDeltaR        ); 
-  tree->Branch("RJVars_S1_Mass"           , &RJVars_S1_Mass           ); 
-  tree->Branch("RJVars_S1_CosTheta"       , &RJVars_S1_CosTheta       ); 
-  tree->Branch("RJVars_S2_Mass"           , &RJVars_S2_Mass           ); 
-  tree->Branch("RJVars_S2_CosTheta"       , &RJVars_S2_CosTheta       ); 
-  tree->Branch("RJVars_I1_Depth"          , &RJVars_I1_Depth          ); 
-  tree->Branch("RJVars_I2_Depth"          , &RJVars_I2_Depth          ); 
-  tree->Branch("RJVars_V1_N"              , &RJVars_V1_N              ); 
-  tree->Branch("RJVars_V2_N"              , &RJVars_V2_N              ); 
+  tree->Branch("RJVars_GG_Mass", &RJVars_GG_Mass);
+  tree->Branch("RJVars_GG_GammaInv", &RJVars_GG_GammaInv);
+  tree->Branch("RJVars_GG_MDeltaR", &RJVars_GG_MDeltaR);
+  tree->Branch("RJVars_GG_CosTheta", &RJVars_GG_CosTheta);
+  tree->Branch("RJVars_GG_DeltaBetaGG", &RJVars_GG_DeltaBetaGG);
+  tree->Branch("RJVars_GG_dPhiVG", &RJVars_GG_dPhiVG);
+  tree->Branch("RJVars_GG_dPhiVGM", &RJVars_GG_dPhiVGM);
+  tree->Branch("RJVars_Ga_Mass", &RJVars_Ga_Mass);
+  tree->Branch("RJVars_Ga_CosTheta", &RJVars_Ga_CosTheta);
+  tree->Branch("RJVars_Gb_Mass", &RJVars_Gb_Mass);
+  tree->Branch("RJVars_Gb_CosTheta", &RJVars_Gb_CosTheta);
+  tree->Branch("RJVars_Ia_Depth", &RJVars_Ia_Depth);
+  tree->Branch("RJVars_Ib_Depth", &RJVars_Ib_Depth);
+  tree->Branch("RJVars_Va_N", &RJVars_Va_N);
+  tree->Branch("RJVars_Ca_N", &RJVars_Ca_N);
+  tree->Branch("RJVars_Vb_N", &RJVars_Vb_N);
+  tree->Branch("RJVars_Cb_N", &RJVars_Cb_N);
 
   //QCD Variables
 
-  tree->Branch("RJVars_QCD_dPhiR" ,  &RJVars_QCD_dPhiR  );
-  tree->Branch("RJVars_QCD_Rpt"   ,  &RJVars_QCD_Rpt    );
-  tree->Branch("RJVars_QCD_Rmsib" ,  &RJVars_QCD_Rmsib  );
-  tree->Branch("RJVars_QCD_Rpsib" ,  &RJVars_QCD_Rpsib  );
-  tree->Branch("RJVars_QCD_Delta1" ,  &RJVars_QCD_Delta1  );
-  tree->Branch("RJVars_QCD_Delta2" ,  &RJVars_QCD_Delta2  );
+  tree->Branch("RJVars_QCD_RPT", &RJVars_QCD_RPT);
+  tree->Branch("RJVars_QCD_RPZ", &RJVars_QCD_RPZ);
+  tree->Branch("RJVars_QCD_RMsib", &RJVars_QCD_RMsib);
+  //tree->Branch("RJVars_QCD_RPsib", &RJVars_QCD_RPsib);
+  tree->Branch("RJVars_QCD_CosTheta", &RJVars_QCD_CosTheta);
+  tree->Branch("RJVars_QCD_dPhiR", &RJVars_QCD_dPhiR);
+  //tree->Branch("RJVars_QCD_Delta1", &RJVars_QCD_Delta1);
+  tree->Branch("RJVars_QCD_Detla2", &RJVars_QCD_Delta2);
 
   tree->Branch("Jet_pT"       , &Jet_pT        );
   tree->Branch("Jet_eta"      , &Jet_eta       );
@@ -242,29 +244,34 @@ EL::StatusCode PlantATree :: execute ()
   AverageInteractionsPerCrossing  = eventinfo->averageInteractionsPerCrossing(); 
 
 
-  RJVars_SS_Mass            = eventinfo->auxdata<float>("SS_Mass");
-  RJVars_SS_InvGamma        = eventinfo->auxdata<float>("SS_InvGamma");
-  RJVars_SS_dPhiBetaR       = eventinfo->auxdata<float>("SS_dPhiBetaR");
-  RJVars_SS_dPhiVis         = eventinfo->auxdata<float>("SS_dPhiVis");
-  RJVars_SS_CosTheta        = eventinfo->auxdata<float>("SS_CosTheta");
-  RJVars_SS_dPhiDecayAngle  = eventinfo->auxdata<float>("SS_dPhiDecayAngle");
-  RJVars_SS_VisShape        = eventinfo->auxdata<float>("SS_VisShape");
-  RJVars_SS_MDeltaR         = eventinfo->auxdata<float>("SS_MDeltaR");
-  RJVars_S1_Mass            = eventinfo->auxdata<float>("S1_Mass");
-  RJVars_S1_CosTheta        = eventinfo->auxdata<float>("S1_CosTheta");
-  RJVars_S2_Mass            = eventinfo->auxdata<float>("S2_Mass");
-  RJVars_S2_CosTheta        = eventinfo->auxdata<float>("S2_CosTheta");
-  RJVars_I1_Depth           = eventinfo->auxdata<float>("I1_Depth");
-  RJVars_I2_Depth           = eventinfo->auxdata<float>("I2_Depth");
-  RJVars_V1_N               = eventinfo->auxdata<float>("V1_N");
-  RJVars_V2_N               = eventinfo->auxdata<float>("V2_N");
+  RJVars_GG_Mass = eventinfo->auxdata<float>("GG_Mass");
+  RJVars_GG_GammaInv = eventinfo->auxdata<float>("GG_GammaInv");
+  RJVars_GG_MDeltaR = eventinfo->auxdata<float>("GG_MDeltaR");
+  RJVars_GG_CosTheta = eventinfo->auxdata<float>("GG_CosTheta");
+  RJVars_GG_DeltaBetaGG = eventinfo->auxdata<float>("GG_DeltaBetaGG");
+  RJVars_GG_dPhiVG = eventinfo->auxdata<float>("GG_dPhiVG");
+  RJVars_GG_dPhiVGM = eventinfo->auxdata<float>("GG_dPhiVGM");
+  RJVars_Ga_Mass = eventinfo->auxdata<float>("Ga_Mass");
+  RJVars_Ga_CosTheta = eventinfo->auxdata<float>("Gb_CosTheta");
+  RJVars_Gb_Mass = eventinfo->auxdata<float>("Gb_Mass");
+  RJVars_Gb_CosTheta = eventinfo->auxdata<float>("Gb_CosTheta");
+  RJVars_Ia_Depth = eventinfo->auxdata<float>("Ia_Depth");
+  RJVars_Ib_Depth = eventinfo->auxdata<float>("Ib_Depth");
+  RJVars_Va_N = eventinfo->auxdata<float>("Va_N");
+  RJVars_Ca_N = eventinfo->auxdata<float>("Ca_N");
+  RJVars_Vb_N = eventinfo->auxdata<float>("Vb_N");
+  RJVars_Cb_N = eventinfo->auxdata<float>("Cb_N");
 
-  RJVars_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_dPhiR"); 
-  RJVars_QCD_Rpt            = eventinfo->auxdata<float>("QCD_Rpt"  );
-  RJVars_QCD_Rmsib          = eventinfo->auxdata<float>("QCD_Rmsib");
-  RJVars_QCD_Rpsib          = eventinfo->auxdata<float>("QCD_Rpsib");
-  RJVars_QCD_Delta1          = eventinfo->auxdata<float>("QCD_Delta1");
-  RJVars_QCD_Delta2          = eventinfo->auxdata<float>("QCD_Delta2");
+  //QCD Variables
+
+  RJVars_QCD_RPT = eventinfo->auxdata<float>("QCD_RPT");
+  RJVars_QCD_RPZ = eventinfo->auxdata<float>("QCD_RPZ");
+  RJVars_QCD_RMsib = eventinfo->auxdata<float>("QCD_RMsib");
+  //RJVars_QCD_RPsib = eventinfo->auxdata<float>("QCD_RPsib");
+  RJVars_QCD_CosTheta = eventinfo->auxdata<float>("QCD_CosTheta");
+  RJVars_QCD_dPhiR = eventinfo->auxdata<float>("QCD_dPhiR");
+  //RJVars_QCD_Delta1 = eventinfo->auxdata<float>("QCD_Delta1");
+  RJVars_QCD_Delta2 = eventinfo->auxdata<float>("QCD_Delta2");
 
   //////////////////////////////////////////////////////////////////////////////////////////
 
