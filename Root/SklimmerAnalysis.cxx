@@ -49,55 +49,13 @@ ClassImp(SklimmerAnalysis)
 
 SklimmerAnalysis :: SklimmerAnalysis() :
   h_nevents(nullptr),
-  h_nevents_weighted(nullptr),
-  m_store(nullptr),
+  h_nevents_weighted(nullptr)
 #ifndef __CINT__
+  ,
   m_grl(nullptr),
   m_pileupReweightingTool(nullptr),
-  m_susy_obj(nullptr),
+  m_susy_obj(nullptr)
 #endif // not __CINT__
-  LAB_alt(nullptr),
-  S_alt(nullptr),
-  V_alt(nullptr),
-  I_alt(nullptr),
-  INV_alt(nullptr),
-  VIS_alt(nullptr),
-  MinMass_alt(nullptr),
-  Rapidity_alt(nullptr),
-  LAB(nullptr),
-  SS(nullptr),
-  S1(nullptr),
-  S2(nullptr),
-  V1(nullptr),
-  V2(nullptr),
-  I1(nullptr),
-  I2(nullptr),
-  INV(nullptr),
-  VIS(nullptr),
-  MinMassJigsaw(nullptr),
-  RapidityJigsaw(nullptr),
-  ContraBoostJigsaw(nullptr),
-  HemiJigsaw(nullptr),
-  LAB_R(nullptr),
-  GG_R(nullptr),
-  Ga_R(nullptr),
-  Gb_R(nullptr),
-  Ca_R(nullptr),
-  Cb_R(nullptr),
-  V1a_R(nullptr),
-  V2a_R(nullptr),
-  Xa_R(nullptr),
-  V1b_R(nullptr),
-  V2b_R(nullptr),
-  Xb_R(nullptr),
-  INV_R(nullptr),
-  VIS_R(nullptr),
-  MinMassJigsaw_R(nullptr),
-  RapidityJigsaw_R(nullptr),
-  ContraBoostJigsaw_R(nullptr),
-  HemiJigsaw_R(nullptr),
-  CaHemiJigsaw_R(nullptr),
-  CbHemiJigsaw_R(nullptr)
 {
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
@@ -144,14 +102,23 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	// beginning on each worker node, e.g. create histograms and output
 	// trees.  This method gets called before any input files are
 	// connected.
+	//this should be run first since other initializations depend on these collection names
+	//store = wk()->xaodStore();
+
+	if(fillEmptyCollectionNames() != StatusCode::SUCCESS){
+	  Error( __PRETTY_FUNCTION__, "Failed to fill empty collection names" );
+	  return EL::StatusCode::FAILURE;
+	}
+
+
 
 	h_nevents = new TH1F("h_nevents", "h_nevents", 10, 0, 10);
 	h_nevents_weighted = new TH1F("h_nevents_weighted", "h_nevents_weighted", 10, 0, 10);
 	wk()->addOutput (h_nevents);
 	wk()->addOutput (h_nevents_weighted);
 
-	if(initializeRJigsawVariables()!= StatusCode::SUCCESS){
-	  Error(__PRETTY_FUNCTION__ , "Failed to initialize SUSY Tools" );
+	if(initializeEventSelectionBBMet() != EL::StatusCode::SUCCESS){
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize RJigsaw variables" );
 	  return EL::StatusCode::FAILURE;
 	}
 
@@ -215,12 +182,8 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	////////////////////////////////////////////////////////////////////////////
 
 	xAOD::TEvent *event = wk()->xaodEvent();
-	m_store = wk()->xaodStore();
 
-	if(fillEmptyCollectionNames() != StatusCode::SUCCESS){
-	  Error( __PRETTY_FUNCTION__, "Failed to fill empty collection names" );
-	  return EL::StatusCode::FAILURE;
-	}
+
 
 	// as a check, let's see the number of events in our xAOD
 	Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
@@ -252,7 +215,6 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	  return EL::StatusCode::FAILURE;
 	}
 
-
 	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
 
 	return EL::StatusCode::SUCCESS;
@@ -275,203 +237,27 @@ EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
   return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode initializeRJigsawVariables(){
+EL::StatusCode SklimmerAnalysis :: initializeEventSelectionBBMet()
+{
+  xAOD::TStore *store = wk()->xaodStore();
 
-	// BACKGROUND TREE FOR QCD VARIABLES //////////////////////////
-	///////////////////////////////////////////////////////////////
-	//
-	//
+  eventSelectionBBMet = new EventSelectionBBMet(store);
+  if(!eventSelectionBBMet){
+    Error(__PRETTY_FUNCTION__, "failed to create bbmet event selection");
+    return EL::StatusCode::FAILURE;
+  }
 
-	LAB_alt = new RestFrames::RLabFrame("LAB","lab");
+  eventSelectionBBMet->jetCalibCollectionName      = jetCalibCollectionName;
+  eventSelectionBBMet->muonCalibCollectionName     = muonCalibCollectionName;
+  eventSelectionBBMet->electronCalibCollectionName = electronCalibCollectionName;
+  eventSelectionBBMet->metCalibCollectionName      = metCalibCollectionName;
 
-	S_alt = new RestFrames::RSelfAssemblingFrame("CM","CM");
-	V_alt = new RestFrames::RVisibleFrame("V_alt","Vis");
-	I_alt = new RestFrames::RInvisibleFrame("I_alt","Iinv");
-	INV_alt = new RestFrames::InvisibleGroup ("INV_alt","Invisible State Jigsaws");
-	VIS_alt = new RestFrames::CombinatoricGroup("VIS_alt","Visible Object Jigsaws");
+  if(  eventSelectionBBMet->initialize() != EL::StatusCode::SUCCESS){
+    Error(__PRETTY_FUNCTION__, "failed to initialize bbmet event selection");
+    return EL::StatusCode::FAILURE;
+  }
 
-
-	MinMass_alt = new RestFrames::InvisibleMassJigsaw("MINMASS_JIGSAW_ALT", "Invisible system mass Jigsaw");
-	Rapidity_alt = new RestFrames::InvisibleRapidityJigsaw("RAPIDITY_JIGSAW_ALT", "Invisible system rapidity Jigsaw");
-
-
-	LAB = new RestFrames::RLabFrame("LAB","lab");
-	SS = new RestFrames::RDecayFrame("SS","SS");
-	S1 = new RestFrames::RSelfAssemblingFrame("S1","#tilde{S}_{a}");
-	S2 = new RestFrames::RSelfAssemblingFrame("S2","#tilde{S}_{b}");
-	V1 = new RestFrames::RVisibleFrame("V1","V_{a}");
-	V2 = new RestFrames::RVisibleFrame("V2","V_{b}");
-	I1 = new RestFrames::RInvisibleFrame("I1","I_{a}");
-	I2 = new RestFrames::RInvisibleFrame("I2","I_{b}");
-	INV = new RestFrames::InvisibleGroup("INV","Invisible State Jigsaws");
-	VIS = new RestFrames::CombinatoricGroup("VIS","Visible Object Jigsaws");
-
-	MinMassJigsaw = new RestFrames::InvisibleMassJigsaw("MINMASS_JIGSAW", "Invisible system mass Jigsaw");
-	RapidityJigsaw = new RestFrames::InvisibleRapidityJigsaw("RAPIDITY_JIGSAW", "Invisible system rapidity Jigsaw");
-	ContraBoostJigsaw = new RestFrames::ContraBoostInvariantJigsaw("CB_JIGSAW","Contraboost invariant Jigsaw");
-	HemiJigsaw = new RestFrames::MinimizeMassesCombinatoricJigsaw("HEM_JIGSAW","Minimize m _{V_{a,b}} Jigsaw");
-
-	LAB_R = new RestFrames::RLabFrame("LAB_R","LAB");
-	GG_R = new RestFrames::RDecayFrame("GG_R","#tilde{g}#tilde{g}");
-	Ga_R = new RestFrames::RDecayFrame("Ga_R","#tilde{g}_{a}");
-	Gb_R = new RestFrames::RDecayFrame("Gb_R","#tilde{g}_{b}");
-	Ca_R = new RestFrames::RDecayFrame("Ca_R","C_{a}");
-	Cb_R = new RestFrames::RDecayFrame("Cb_R","C_{b}");
-	V1a_R = new RestFrames::RVisibleFrame("V1a_R","j_{1a}");
-	V2a_R = new RestFrames::RVisibleFrame("V2a_R","j_{2a}");
-	Xa_R = new RestFrames::RInvisibleFrame("Xa_R","#tilde{#chi}_{a}");
-	V1b_R = new RestFrames::RVisibleFrame("V1b_R","j_{1b}");
-	V2b_R = new RestFrames::RVisibleFrame("V2b_R","j_{2b}");
-	Xb_R = new RestFrames::RInvisibleFrame("Xb_R","#tilde{#chi}_{b}");
-	INV_R = new RestFrames::InvisibleGroup ("INV_R","WIMP Jigsaws");
-	VIS_R = new RestFrames::CombinatoricGroup("VIS","Visible Object Jigsaws");
-	MinMassJigsaw_R = new RestFrames::InvisibleMassJigsaw("MINMASS_R", "Invisible system mass Jigsaw");
-	RapidityJigsaw_R = new RestFrames::InvisibleRapidityJigsaw("RAPIDITY_R", "Invisible system rapidity Jigsaw");
-	ContraBoostJigsaw_R = new RestFrames::ContraBoostInvariantJigsaw("CONTRA_R","Contraboost invariant Jigsaw");
-	HemiJigsaw_R = new RestFrames::MinimizeMassesCombinatoricJigsaw ("HEM_JIGSAW_R","Minimize m _{V_{a,b}} Jigsaw");
-	CaHemiJigsaw_R = new RestFrames::MinimizeMassesCombinatoricJigsaw("CbHEM_JIGSAW_R","Minimize m _{C_{a}} Jigsaw");
-	CbHemiJigsaw_R = new RestFrames::MinimizeMassesCombinatoricJigsaw("CaHEM_JIGSAW_R","Minimize m _{C_{b}} Jigsaw");
-
-	INV_alt->AddFrame(I_alt);
-	VIS_alt->AddFrame(V_alt);
-	VIS_alt->SetNElementsForFrame(V_alt,1,false);
-
-	LAB_alt->SetChildFrame(S_alt);
-	S_alt->AddChildFrame(V_alt);
-	S_alt->AddChildFrame(I_alt);
-
-	LAB_alt->InitializeTree();
-
-	// Will just set invisible mass to zero
-	INV_alt->AddJigsaw(MinMass_alt);
-
-	// will set rapidity to zero
-	INV_alt->AddJigsaw(Rapidity_alt);
-	Rapidity_alt->AddVisibleFrame((LAB_alt->GetListVisibleFrames()));
-
-	LAB_alt->InitializeAnalysis();
-
-	//
-	//
-	////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////
-	// SQUARK TREE /////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////
-	//
-	//
-
-	// The invisible group is all of the weakly interacting particles
-	INV->AddFrame(I1);
-	INV->AddFrame(I2);
-
-	// the combinatoric group is the list of visible objects
-	// that go into our hemispheres
-	VIS->AddFrame(V1);
-	VIS->SetNElementsForFrame(V1,1,false);
-	VIS->AddFrame(V2);
-	VIS->SetNElementsForFrame(V2,1,false);
-
-	LAB->SetChildFrame(SS);
-
-	SS->AddChildFrame(S1);
-	SS->AddChildFrame(S2);
-
-	S1->AddChildFrame(V1);
-	S1->AddChildFrame(I1);
-	S2->AddChildFrame(V2);
-	S2->AddChildFrame(I2);
-
-	std::cout << "Is consistent tree topology? " << LAB->InitializeTree() << std::endl;
-
-	INV->AddJigsaw(MinMassJigsaw);
-
-	INV->AddJigsaw(RapidityJigsaw);
-	RapidityJigsaw->AddVisibleFrame((LAB->GetListVisibleFrames()));
-
-	INV->AddJigsaw(ContraBoostJigsaw);
-	ContraBoostJigsaw->AddVisibleFrame((S1->GetListVisibleFrames()), 0);
-	ContraBoostJigsaw->AddVisibleFrame((S2->GetListVisibleFrames()), 1);
-	ContraBoostJigsaw->AddInvisibleFrame((S1->GetListInvisibleFrames()), 0);
-	ContraBoostJigsaw->AddInvisibleFrame((S2->GetListInvisibleFrames()), 1);
-
-	VIS->AddJigsaw(HemiJigsaw);
-	HemiJigsaw->AddFrame(V1,0);
-	HemiJigsaw->AddFrame(V2,1);
-
-	std::cout << "Is consistent analysis tree? : " << LAB->InitializeAnalysis() << std::endl;
-
-	//
-	//
-	////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////
-	// GLUINO TREE /////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////
-	//
-	//
-
-
-	// Set up 'signal-like' analysis tree
-	LAB_R->SetChildFrame(GG_R);
-	GG_R->AddChildFrame(Ga_R);
-	GG_R->AddChildFrame(Gb_R);
-	Ga_R->AddChildFrame(V1a_R);
-	Ga_R->AddChildFrame(Ca_R);
-	Ca_R->AddChildFrame(V2a_R);
-	Ca_R->AddChildFrame(Xa_R);
-	Gb_R->AddChildFrame(V1b_R);
-	Gb_R->AddChildFrame(Cb_R);
-	Cb_R->AddChildFrame(V2b_R);
-	Cb_R->AddChildFrame(Xb_R);
-
-
-	if(!LAB_R->InitializeTree()) cout << "Problem with signal-like reconstruction tree" << endl;
-
-
-	INV_R->AddFrame(Xa_R);
-	INV_R->AddFrame(Xb_R);
-	// visible frames in first decay step must always have at least one element
-	VIS_R->AddFrame(V1a_R);
-	VIS_R->AddFrame(V1b_R);
-	VIS_R->SetNElementsForFrame(V1a_R,1,false);
-	VIS_R->SetNElementsForFrame(V1b_R,1,false);
-	// visible frames in second decay step can have zero elements
-	VIS_R->AddFrame(V2a_R);
-	VIS_R->AddFrame(V2b_R);
-	VIS_R->SetNElementsForFrame(V2a_R,0,false);
-	VIS_R->SetNElementsForFrame(V2b_R,0,false);
-
-	INV_R->AddJigsaw(MinMassJigsaw_R);
-	INV_R->AddJigsaw(RapidityJigsaw_R);
-	RapidityJigsaw_R->AddVisibleFrame((LAB_R->GetListVisibleFrames()));
-	INV_R->AddJigsaw(ContraBoostJigsaw_R);
-	ContraBoostJigsaw_R->AddVisibleFrame((Ga_R->GetListVisibleFrames()), 0);
-	ContraBoostJigsaw_R->AddVisibleFrame((Gb_R->GetListVisibleFrames()), 1);
-	ContraBoostJigsaw_R->AddInvisibleFrame((Ga_R->GetListInvisibleFrames()), 0);
-	ContraBoostJigsaw_R->AddInvisibleFrame((Gb_R->GetListInvisibleFrames()), 1);
-	VIS_R->AddJigsaw(HemiJigsaw_R);
-	HemiJigsaw_R->AddFrame(V1a_R,0);
-	HemiJigsaw_R->AddFrame(V1b_R,1);
-	HemiJigsaw_R->AddFrame(V2a_R,0);
-	HemiJigsaw_R->AddFrame(V2b_R,1);
-	VIS_R->AddJigsaw(CaHemiJigsaw_R);
-	CaHemiJigsaw_R->AddFrame(V1a_R,0);
-	CaHemiJigsaw_R->AddFrame(V2a_R,1);
-	CaHemiJigsaw_R->AddFrame(Xa_R,1);
-	VIS_R->AddJigsaw(CbHemiJigsaw_R);
-	CbHemiJigsaw_R->AddFrame(V1b_R,0);
-	CbHemiJigsaw_R->AddFrame(V2b_R,1);
-	CbHemiJigsaw_R->AddFrame(Xb_R,1);
-
-	if(!LAB_R->InitializeAnalysis()){
-	  Error(__PRETTY_FUNCTION__, "Failred to properly initialize RJigsaw Analysis");
-	  return EL::StatusCode::FAILURE;
-	}
-
-	return EL::StatusCode::SUCCESS;
-}
-
-
-
+  return EL::StatusCode::SUCCESS;
 }
 
 EL::StatusCode SklimmerAnalysis :: initializeSUSYTools(){
@@ -520,6 +306,7 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 	// without modifying the contents of it:
 	xAOD::TEvent *event = wk()->xaodEvent();
 
+
 	CHECK(event->copy(eventInfoName));
 	CHECK(event->copy(truthEventName));
 	CHECK(event->copy(truthParticleName));
@@ -546,6 +333,7 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::TEvent *event = wk()->xaodEvent();
+	xAOD::TStore *store = wk()->xaodStore();
 
 	//------------
 	// MUONS
@@ -659,8 +447,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::MissingETContainer*    MET = new xAOD::MissingETContainer;
 	xAOD::MissingETAuxContainer* METAux = new xAOD::MissingETAuxContainer;
 	MET->setStore(METAux);
-	CHECK( m_store->record( MET, metCalibCollectionName ) );
-	CHECK( m_store->record( METAux, metCalibCollectionName+"Aux." ) );
+	CHECK( store->record( MET, metCalibCollectionName ) );
+	CHECK( store->record( METAux, metCalibCollectionName+"Aux." ) );
 
 	///// TEMPORARY CODE ONLY
 	// Protection against bad muons (calo-tagged, si-associated forward)
@@ -710,20 +498,20 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	}
 
 	muons_copy->setStore(muons_copyaux);
-	CHECK( m_store->record( muons_copy, muonCalibCollectionName ) );
-	CHECK( m_store->record( muons_copyaux, muonCalibCollectionName+"Aux." ) );
+	CHECK( store->record( muons_copy, muonCalibCollectionName ) );
+	CHECK( store->record( muons_copyaux, muonCalibCollectionName+"Aux." ) );
 
 	electrons_copy->setStore(electrons_copyaux);
-	CHECK( m_store->record( electrons_copy, electronCalibCollectionName ) );
-	CHECK( m_store->record( electrons_copyaux, electronCalibCollectionName+"Aux." ) );
+	CHECK( store->record( electrons_copy, electronCalibCollectionName ) );
+	CHECK( store->record( electrons_copyaux, electronCalibCollectionName+"Aux." ) );
 
 	photons_copy->setStore(photons_copyaux);
-	CHECK( m_store->record( photons_copy, photonCalibCollectionName ) );
-	CHECK( m_store->record( photons_copyaux, photonCalibCollectionName+"Aux." ) );
+	CHECK( store->record( photons_copy, photonCalibCollectionName ) );
+	CHECK( store->record( photons_copyaux, photonCalibCollectionName+"Aux." ) );
 
 	jets_copy->setStore(jets_copyaux);
-	CHECK( m_store->record( jets_copy, jetCalibCollectionName ) );
-	CHECK( m_store->record( jets_copyaux, jetCalibCollectionName+"Aux." ) );
+	CHECK( store->record( jets_copy, jetCalibCollectionName ) );
+	CHECK( store->record( jets_copyaux, jetCalibCollectionName+"Aux." ) );
 
 
 
@@ -889,11 +677,11 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
 	else putStuffInStore();//todo this can't be used yet?
 
-
+	xAOD::TStore *store = wk()->xaodStore();
 
 	std::pair< xAOD::EventInfo*, xAOD::ShallowAuxInfo* > eventInfo_shallowCopy = xAOD::shallowCopyObject( *eventInfo );
-	if( !m_store->record( eventInfo_shallowCopy.first , myEventInfoName )){return EL::StatusCode::FAILURE;}
-	if( !m_store->record( eventInfo_shallowCopy.second, myEventInfoName+"Aux." )) {return EL::StatusCode::FAILURE;}
+	if( !store->record( eventInfo_shallowCopy.first , myEventInfoName )){return EL::StatusCode::FAILURE;}
+	if( !store->record( eventInfo_shallowCopy.second, myEventInfoName+"Aux." )) {return EL::StatusCode::FAILURE;}
 
 
 	eventInfo_shallowCopy.second->setShallowIO(true);
@@ -901,12 +689,12 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	if( !event->record( eventInfo_shallowCopy.first , myEventInfoName )){return EL::StatusCode::FAILURE;}
 	if( !event->record( eventInfo_shallowCopy.second, myEventInfoName+"Aux." )) {return EL::StatusCode::FAILURE;}
 
-	// m_store->print();
+	// store->print();
 
 
 
 	if( m_doEventSelection && m_Analysis=="bbmet" ){
-		TString result = eventSelectionBBMet(eventInfo_shallowCopy.first );
+		TString result = doEventSelectionBBMet(eventInfo_shallowCopy.first );
 		(eventInfo_shallowCopy.first)->auxdecor< char >("selection") = *result.Data();
 		//if(result=="") return EL::StatusCode::SUCCESS;
 	}
@@ -918,7 +706,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	//Info( __PRETTY_FUNCTION__,"RJigsaw Variables: gammainv_Rp1 %f",
 	//	(eventInfo_shallowCopy.first)->auxdata< float >("gammainv_Rp1") );
 
-	// m_store->clear();
+	store->clear();
 
 	//Info( __PRETTY_FUNCTION__,"About to write to xAOD "  );
 
@@ -974,49 +762,6 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 	delete h_nevents;
 	delete h_nevents_weighted;
 
-	delete LAB_alt;
-	delete S_alt;
-	delete V_alt;
-	delete I_alt;
-	delete INV_alt;
-	delete VIS_alt;
-	delete MinMass_alt;
-	delete Rapidity_alt;
-	delete LAB;
-	delete SS;
-	delete S1;
-	delete S2;
-	delete V1;
-	delete V2;
-	delete I1;
-	delete I2;
-	delete INV;
-	delete VIS;
-	delete MinMassJigsaw;
-	delete RapidityJigsaw;
-	delete ContraBoostJigsaw;
-	delete HemiJigsaw;
-	delete LAB_R;
-	delete GG_R;
-	delete Ga_R;
-	delete Gb_R;
-	delete Ca_R;
-	delete Cb_R;
-	delete V1a_R;
-	delete V2a_R;
-	delete Xa_R;
-	delete V1b_R;
-	delete V2b_R;
-	delete Xb_R;
-	delete INV_R;
-	delete VIS_R;
-	delete MinMassJigsaw_R;
-	delete RapidityJigsaw_R;
-	delete ContraBoostJigsaw_R;
-	delete HemiJigsaw_R;
-	delete CaHemiJigsaw_R;
-	delete CbHemiJigsaw_R;
-
 	// finalize and close our output xAOD file:
 
 	if(m_writexAOD){
@@ -1045,20 +790,15 @@ EL::StatusCode SklimmerAnalysis :: histFinalize ()
 	return EL::StatusCode::SUCCESS;
 }
 
-TString SklimmerAnalysis :: eventSelectionBBMet(xAOD::EventInfo * eventInfo )
+TString SklimmerAnalysis :: doEventSelectionBBMet(xAOD::EventInfo * eventInfo )
 {
   if(eventInfo == nullptr ){
     Error(__PRETTY_FUNCTION__, "can't do bbMET eventSelection without eventInfo object" ) ;
     return TString("");//todo should this return something else if it fails?
   }
+  //  EventSelectionBBMet evtSelection(store);//todo should probably be a tool owned up the analysis class? we wouldn't need this silly store passb
 
-  EventSelectionBBMet evtSelection(m_store);//todo should probably be a tool owned up the analysis class? we wouldn't need this silly store pass
-  evtSelection.jetCalibCollectionName      = jetCalibCollectionName;
-  evtSelection.muonCalibCollectionName     = muonCalibCollectionName;
-  evtSelection.electronCalibCollectionName = electronCalibCollectionName;
-  evtSelection.metCalibCollectionName      = metCalibCollectionName;
-
-  return TString( evtSelection.run(eventInfo));//todo check this is okay.  All the RJ variables are decorators to eventInfo (I think), so it should be? but check
+  return TString( eventSelectionBBMet->run(eventInfo));
 
 }
 
