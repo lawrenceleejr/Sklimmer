@@ -852,12 +852,17 @@ EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
   if(eventInfoName.empty())       eventInfoName       = "EventInfo";
   if(primaryVerticesName.empty()) primaryVerticesName = "PrimaryVertices";
 
+  //todo do this automatically?
   if(muonCollectionName.empty())     muonCollectionName     = "Muons";
-  if(electronCollectionName.empty()) electronCollectionName = "ElectronCollection";
-  if(photonCollectionName.empty())   photonCollectionName   = "PhotonCollection";
+  //  if(electronCollectionName.empty()) electronCollectionName = "ElectronCollection";
+  if(electronCollectionName.empty()) electronCollectionName = "Electrons";
+  if(photonCollectionName.empty())   photonCollectionName   = "Photons";
+  //  if(photonCollectionName.empty())   photonCollectionName   = "PhotonCollection";
   if(jetCollectionName.empty())      jetCollectionName      = "AntiKt4LCTopoJets";
-  if(metCollectionName.empty())      metCollectionName      = "MET_RefFinal";
-  if(tauCollectionName.empty())      tauCollectionName      = "TauRecContainer";
+  if(metCollectionName.empty())      metCollectionName      = "MET_Reference_AntiKt4LCTopoJets";
+  //  if(metCollectionName.empty())      metCollectionName      = "MET_RefFinal";
+  //  if(tauCollectionName.empty())      tauCollectionName      = "TauRecContainer";
+  if(tauCollectionName.empty())      tauCollectionName      = "TauJets";
 
   if(myEventInfoName.empty())  myEventInfoName = "MyEventInfo";
 
