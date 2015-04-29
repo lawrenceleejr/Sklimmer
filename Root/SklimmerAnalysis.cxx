@@ -40,10 +40,7 @@
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
-//RJigsaw
-#include <RJigsaw/TRJigsaw.h>
-
-//Still really need to implement a systematics framework
+//todo Still really need to implement a systematics framework
 
 // this is needed to distribute the algorithm to the workers
 ClassImp(SklimmerAnalysis)
