@@ -86,8 +86,8 @@ alg = ROOT.SklimmerAnalysis()
 alg.m_doSklimming = True;
 alg.m_doSUSYObjDef = True;
 alg.m_doEventSelection = True;
-alg.m_writexAOD = True;
-alg.m_writeFullCollectionsToxAOD = True;
+alg.m_writexAOD = False;
+alg.m_writeFullCollectionsToxAOD = False;
 
 alg.m_Analysis = "bbmet";
 
