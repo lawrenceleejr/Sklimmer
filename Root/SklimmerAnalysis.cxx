@@ -731,9 +731,10 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	eventInfo_shallowCopy.second->setShallowIO(true);
 
-	if( !event->record( eventInfo_shallowCopy.first , myEventInfoName )){return EL::StatusCode::FAILURE;}
-	if( !event->record( eventInfo_shallowCopy.second, myEventInfoName+"Aux." )) {return EL::StatusCode::FAILURE;}
-
+	if(m_writeFullCollectionsToxAOD){
+	  if( !event->record( eventInfo_shallowCopy.first , myEventInfoName )){return EL::StatusCode::FAILURE;}
+	  if( !event->record( eventInfo_shallowCopy.second, myEventInfoName+"Aux." )) {return EL::StatusCode::FAILURE;}
+	}
 	// store->print();
 
 
