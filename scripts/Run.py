@@ -16,6 +16,7 @@ parser.add_option("--isAtlfast", help="ATLFAST flag [0/1]", default=0)
 parser.add_option("--mc12b", help="mc12b flag [0/1]", default=1)
 parser.add_option("--useLeptonTrigger", help="Lepton Trigger flag [0/1]", default=0)
 parser.add_option("--doSyst", help="Create Trees with systemtic variations [0/1]", default=0)
+parser.add_option("--nlep", help="Number of leptons", type=int, default=0)
 
 parser.add_option("--runTag", help="", default="Test_XXYYZZa")
 
@@ -90,8 +91,7 @@ alg.m_writexAOD = True;
 alg.m_writeFullCollectionsToxAOD = True;
 
 alg.m_Analysis = "bbmet";
-alg.NElCut = 0;
-alg.NMuCut = 0;
+alg.NLepCut = options.nlep;
 
 output = ROOT.EL.OutputStream("treeOutput")
 job.outputAdd(output)

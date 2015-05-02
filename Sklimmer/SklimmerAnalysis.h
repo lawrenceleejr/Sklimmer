@@ -119,8 +119,7 @@ public:
 	int useLeptonTrigger;
 	int doSyst;
 
-	int NElCut;
-	int NMuCut;
+	int NLepCut;
 
 	// These are the switches to steer the analysis code, depending on what step you want to do
 
