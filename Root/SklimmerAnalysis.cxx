@@ -1141,11 +1141,15 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
     double RMsib = max(0., Psib.Vect().Dot(Pmet.Vect().Unit()));
     RMsib = RMsib / (Pmet.Pt() + RMsib);
+    double Mpar2 = Psib.E()*Psib.E() - Psib.Vect().Dot(Pmet.Vect().Unit())*Psib.Vect().Dot(Pmet.Vect().Unit());
+    double Msib2 = Psib.M2();
+    double MB2 = 2.*(Pmet.E()*Psib.E()-Pmet.Vecot().Dot(Psib.Vect()));
+    double RPsib = 1. / ( MB2/(Mpar2-Msib2) + 1.);
     TVector boostQCD = (Pmet+Psib).BoostVector();
     Psib.Boost(-boostQCD);
     double cosQCD = -1.*Psib.Vect().Unit().Dot(boostQCD.Unit());
     cosQCD = (1.-cosQCD)/2.;
-    //double DeltaQCD1 = (cosQCD-RPsib) / (cosQCD+RPsib)
+    double DeltaQCD1 = (cosQCD-RPsib) / (cosQCD+RPsib)
     double DeltaQCD2 = (cosQCD-RMsib) / (cosQCD+RMsib);
 
     // ratio of CM pT to CM mass
@@ -1153,10 +1157,10 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
     // ratio fo CM pz to CM mass
     eventInfo->auxdecor<float>("QCD_RPZ") = vPGG.Pz() / (vPGG.Pz() + shat/4.);
     eventInfo->auxdecor<float>("QCD_RMsib") = RMsib;
-    //eventInfo->auxdecor<float>("QCD_RPsib") = RPsib;
+    eventInfo->auxdecor<float>("QCD_RPsib") = RPsib;
     eventInfo->auxdecor<float>("QCD_CosTheta") = cosQCD;
     eventInfo->auxdecor<float>("QCD_dPhiR"        ) = GG.GetDeltaPhiBoostVisible();
-    //eventInfo->auxdecor<float>("QCD_Delta1"       ) = DeltaQCD1;
+    eventInfo->auxdecor<float>("QCD_Delta1"       ) = DeltaQCD1;
     eventInfo->auxdecor<float>("QCD_Delta2"       ) = DeltaQCD2;
 
 	// Info( APP_NAME,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
