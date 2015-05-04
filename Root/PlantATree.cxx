@@ -35,7 +35,7 @@ ClassImp(PlantATree)
 
 
 PlantATree :: PlantATree ()
-{
+{  Info(__PRETTY_FUNCTION__, "" ); // print long long int
   // Here you put any code for the base initialization of variables,
   // e.g. initialize all pointers to 0.  Note that you should only put
   // the most basic initialization here, since this method will be
@@ -47,7 +47,7 @@ PlantATree :: PlantATree ()
 
 
 EL::StatusCode PlantATree :: setupJob (EL::Job& job)
-{
+{  Info(__PRETTY_FUNCTION__, "" ); // print long long int
   // Here you put code that sets up the job on the submission object
   // so that it is ready to work with your algorithm, e.g. you can
   // request the D3PDReader service or add output files.  Any code you
@@ -65,7 +65,7 @@ EL::StatusCode PlantATree :: setupJob (EL::Job& job)
 
 
 EL::StatusCode PlantATree :: histInitialize ()
-{
+{  Info(__PRETTY_FUNCTION__, "" ); // print long long int
   // Here you do everything that needs to be done at the very
   // beginning on each worker node, e.g. create histograms and output
   // trees.  This method gets called before any input files are
@@ -178,7 +178,7 @@ EL::StatusCode PlantATree :: histInitialize ()
 
 
 EL::StatusCode PlantATree :: fileExecute ()
-{
+{  Info(__PRETTY_FUNCTION__, "" ); // print long long int
   // Here you do everything that needs to be done exactly once for every
   // single file, e.g. collect a list of all lumi-blocks processed
   return EL::StatusCode::SUCCESS;
@@ -187,7 +187,7 @@ EL::StatusCode PlantATree :: fileExecute ()
 
 
 EL::StatusCode PlantATree :: changeInput (bool firstFile)
-{
+{  Info(__PRETTY_FUNCTION__, "" ); // print long long int
   // Here you do everything you need to do when we change input files,
   // e.g. resetting branch addresses on trees.  If you are using
   // D3PDReader or a similar service this method is not needed.
@@ -197,7 +197,7 @@ EL::StatusCode PlantATree :: changeInput (bool firstFile)
 
 
 EL::StatusCode PlantATree :: initialize ()
-{
+{  Info(__PRETTY_FUNCTION__, "" ); // print long long int
   // Here you do everything that you need to do after the first input
   // file has been connected and before the first event is processed,
   // e.g. create additional histograms based on which variables are
@@ -216,8 +216,8 @@ EL::StatusCode PlantATree :: initialize ()
 
 
   // as a check, let's see the number of events in our xAOD
-  Info("initialize()", "Number of events = %lli", m_event->getEntries() ); // print long long int
-
+  Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
+  Info(__PRETTY_FUNCTION__, "Number of events = %lli", event->getEntries() ); // print long long int
 
   return EL::StatusCode::SUCCESS;
 }
@@ -417,6 +417,7 @@ EL::StatusCode PlantATree :: execute ()
 
 EL::StatusCode PlantATree :: postExecute ()
 {
+  Info(__PRETTY_FUNCTION__, "" ); // print long long int
   // Here you do everything that needs to be done after the main event
   // processing.  This is typically very rare, particularly in user
   // code.  It is mainly used in implementing the NTupleSvc.
@@ -427,6 +428,7 @@ EL::StatusCode PlantATree :: postExecute ()
 
 EL::StatusCode PlantATree :: finalize ()
 {
+  Info(__PRETTY_FUNCTION__, "" ); // print long long int
   // This method is the mirror image of initialize(), meaning it gets
   // called after the last event has been processed on the worker node
   // and allows you to finish up any objects you created in
@@ -445,7 +447,7 @@ EL::StatusCode PlantATree :: finalize ()
 
 
 EL::StatusCode PlantATree :: histFinalize ()
-{
+{  Info(__PRETTY_FUNCTION__, "" ); // print long long int
   // This method is the mirror image of histInitialize(), meaning it
   // gets called after the last event has been processed on the worker
   // node and allows you to finish up any objects you created in
