@@ -62,7 +62,7 @@ SklimmerAnalysis :: SklimmerAnalysis() :
   m_doEventSelection(false),
 //  m_writeNtuple(false),
   m_writexAOD(false),
-  m_writeFullCollectionsToxAOD(false),
+  m_writeFullCollectionsToxAOD(false)
 {
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
