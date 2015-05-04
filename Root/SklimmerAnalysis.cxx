@@ -278,7 +278,7 @@ EL::StatusCode SklimmerAnalysis :: initializeSUSYTools(){
   //todo do we need this isData property? either this or isMC seems redundant?
   CHECK( m_susy_obj->setProperty("IsData",isData) );
   CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
-  CHECK( m_susy_obj->setProperty("EleId","Tight") );
+  CHECK( m_susy_obj->setProperty("EleId","TightLLH") );
   m_susy_obj->msg().setLevel(MSG::ERROR);
 
   if( m_susy_obj->SUSYToolsInit().isFailure() ) {
