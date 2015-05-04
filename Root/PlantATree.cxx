@@ -94,8 +94,7 @@ EL::StatusCode PlantATree :: histInitialize ()
   Electron_phi = new std::vector<float>       ;   
   Electron_E = new std::vector<float>       ;     
   Electron_m = new std::vector<float>       ;     
-
-
+  
   //Set up branches here
 
   
@@ -132,10 +131,10 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_QCD_RPT", &RJVars_QCD_RPT);
   tree->Branch("RJVars_QCD_RPZ", &RJVars_QCD_RPZ);
   tree->Branch("RJVars_QCD_RMsib", &RJVars_QCD_RMsib);
-  //tree->Branch("RJVars_QCD_RPsib", &RJVars_QCD_RPsib);
+  tree->Branch("RJVars_QCD_RPsib", &RJVars_QCD_RPsib);
   tree->Branch("RJVars_QCD_CosTheta", &RJVars_QCD_CosTheta);
   tree->Branch("RJVars_QCD_dPhiR", &RJVars_QCD_dPhiR);
-  //tree->Branch("RJVars_QCD_Delta1", &RJVars_QCD_Delta1);
+  tree->Branch("RJVars_QCD_Delta1", &RJVars_QCD_Delta1);
   tree->Branch("RJVars_QCD_Detla2", &RJVars_QCD_Delta2);
 
   tree->Branch("Jet_pT"       , &Jet_pT        );
@@ -155,10 +154,19 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("Electron_E"   , &Electron_E    );
   tree->Branch("Electron_m"   , &Electron_m    );
 
-  tree->Branch("MET_x"   , &MET_x    );
-  tree->Branch("MET_y"   , &MET_y    );
+  //tree->Branch("MET_x"   , &MET_x    );
+  //tree->Branch("MET_y"   , &MET_y    );
 
+  float HT;
+  float MET;
+  float Meff;
+  float METsig;
 
+  tree->Branch("HT", &HT);
+  tree->Branch("MET", &MET);
+  tree->Branch("Meff", &Meff);
+  tree->Branch("METsig", &METsig);
+  
   return EL::StatusCode::SUCCESS;
 }
 
@@ -267,10 +275,10 @@ EL::StatusCode PlantATree :: execute ()
   RJVars_QCD_RPT = eventinfo->auxdata<float>("QCD_RPT");
   RJVars_QCD_RPZ = eventinfo->auxdata<float>("QCD_RPZ");
   RJVars_QCD_RMsib = eventinfo->auxdata<float>("QCD_RMsib");
-  //RJVars_QCD_RPsib = eventinfo->auxdata<float>("QCD_RPsib");
+  RJVars_QCD_RPsib = eventinfo->auxdata<float>("QCD_RPsib");
   RJVars_QCD_CosTheta = eventinfo->auxdata<float>("QCD_CosTheta");
   RJVars_QCD_dPhiR = eventinfo->auxdata<float>("QCD_dPhiR");
-  //RJVars_QCD_Delta1 = eventinfo->auxdata<float>("QCD_Delta1");
+  RJVars_QCD_Delta1 = eventinfo->auxdata<float>("QCD_Delta1");
   RJVars_QCD_Delta2 = eventinfo->auxdata<float>("QCD_Delta2");
 
   //////////////////////////////////////////////////////////////////////////////////////////
@@ -299,6 +307,7 @@ EL::StatusCode PlantATree :: execute ()
 
   xAOD::JetContainer::iterator jet_itr = (jets)->begin();
   xAOD::JetContainer::iterator jet_end = (jets)->end();
+  HT = 0;
   for( ; jet_itr != jet_end; ++jet_itr ) {
     if( (*jet_itr)->auxdata< char >("baseline")==1  &&
         (*jet_itr)->auxdata< char >("passOR")==1  &&
@@ -310,7 +319,8 @@ EL::StatusCode PlantATree :: execute ()
         Jet_E   ->push_back( (*jet_itr)->e()  );
         Jet_m   ->push_back( (*jet_itr)->m()  );
         Jet_MV1 ->push_back( (*jet_itr)->auxdata< float >("MV1")   );
-
+	HT += (*jet_itr)->pt();
+	
     } 
   }
 
@@ -371,8 +381,11 @@ EL::StatusCode PlantATree :: execute ()
   }
 
 
+  MET = TMath::Sqrt(MET_x*MET_x+MET_y*MET_y);
+  Meff = HT + MET;
+  METsig = MET/TMath::Sqrt(HT);
 
-// fill the branches of our trees
+  // fill the branches of our trees
   // EventNumber = 111;
 
 
