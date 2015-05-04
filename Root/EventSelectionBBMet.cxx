@@ -337,6 +337,7 @@ EL::StatusCode EventSelectionBBMet::initialize()
 
 std::string EventSelectionBBMet::run(xAOD::EventInfo * eventInfo){
   // Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
+  assert(m_store&&"you need to have a store to run the event selection");
   assert(eventInfo);
 
   xAOD::JetContainer* jets_copy(0);
