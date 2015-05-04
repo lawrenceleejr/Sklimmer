@@ -52,7 +52,7 @@ elif options.inputDS != "none":
 else :
   search_directories = []
   search_directories = ("/afs/cern.ch/atlas/project/PAT/xAODs/r5591/",)
-    
+
   # scan for datasets in the given directories
   for directory in search_directories:
     ROOT.SH.scanDir(sh_all, directory)
@@ -67,7 +67,7 @@ sh_all.setMetaString("nc_tree", "CollectionTree")
 logging.info("creating new job")
 job = ROOT.EL.Job()
 job.sampleHandler(sh_all)
-  
+
 if options.nevents:
     logging.info("processing only %d events", options.nevents)
     job.options().setDouble(ROOT.EL.Job.optMaxEvents, options.nevents)
@@ -78,6 +78,8 @@ if options.skip_events:
 
 job.options().setDouble(ROOT.EL.Job.optCacheSize, 50*1024*1024)
 job.options().setDouble(ROOT.EL.Job.optCacheLearnEntries, 50)
+job.options().setString(ROOT.EL.Job.optXaodAccessMode, "branch")
+#job.options().setString (ROOT.EL.Job.optXaodAccessMode, EL.Job.optXaodAccessMode_class);
 
 # add our algorithm to the job
 logging.info("creating algorithms")
@@ -111,18 +113,21 @@ job.algsAdd(treeWriter)
 logging.info("creating driver")
 driver = None
 if (options.driver == "direct"):
+    print "direct driver"
     logging.info("running on direct")
     driver = ROOT.EL.DirectDriver()
     logging.info("submit job")
     driver.submit(job, options.submitDir)
 elif (options.driver == "prooflite"):
+    print "prooflite"
     logging.info("running on prooflite")
     driver = ROOT.EL.ProofDriver()
     logging.info("submit job")
     driver.submit(job, options.submitDir)
 elif (options.driver == "grid"):
-    logging.info("running on Grid") 
-    driver = ROOT.EL.PrunDriver()   
+    print "grid driver"
+    logging.info("running on Grid")
+    driver = ROOT.EL.PrunDriver()
     driver.options().setString("nc_outputSampleName", "user.leejr.%%in:name[2]%%.%%in:name[3]%%.%%in:name[6]%%.%s"%options.runTag)
     #driver.options().setDouble("nc_disableAutoRetry", 1)
     driver.options().setDouble("nc_nFilesPerJob", 1)
