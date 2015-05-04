@@ -54,8 +54,15 @@ SklimmerAnalysis :: SklimmerAnalysis() :
   ,
   m_grl(nullptr),
   m_pileupReweightingTool(nullptr),
-  m_susy_obj(nullptr)
-#endif // not __CINT__
+  m_susy_obj(nullptr),
+#endif // not __CINT__  //  truthTauCollectionName(""),
+// These are the switches to steer the analysis code, depending on what step you want to do
+  m_doSklimming(false),
+  m_doSUSYObjDef(false),
+  m_doEventSelection(false),
+//  m_writeNtuple(false),
+  m_writexAOD(false),
+  m_writeFullCollectionsToxAOD(false),
 {
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
