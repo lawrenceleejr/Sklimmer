@@ -321,16 +321,16 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 
 	CHECK(event->copy(eventInfoName));
-	CHECK(event->copy(truthEventName));
-	CHECK(event->copy(truthParticleName));
+	//	CHECK(event->copy(truthEventName));
+	//	CHECK(event->copy(truthParticleName));
 
 	CHECK(event->copy(jetCollectionName));
-	CHECK(event->copy(truthJetCollectionName));
+	//	CHECK(event->copy(truthJetCollectionName));
 
 	CHECK(event->copy(metCollectionName));
 	//	CHECK(event->copy(truthMetCollectionName));
 
-	CHECK(event->copy(truthPrimaryVerticesName));
+	//	CHECK(event->copy(truthPrimaryVerticesName));
 	CHECK(event->copy(primaryVerticesName));
 
 	CHECK(event->copy(electronCollectionName));
@@ -385,15 +385,12 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	const xAOD::ElectronContainer* electrons = 0;
 
-	std::cout << __PRETTY_FUNCTION__ << " at line : " << std::endl;
-
 	if ( !event->retrieve( electrons, electronCollectionName).isSuccess() ){ // retrieve arguments: container type, container key
 	  Error(__PRETTY_FUNCTION__, ("Failed to retrieve"+ electronCollectionName + " container. Exiting.").c_str()) ;
 
 	  return EL::StatusCode::FAILURE;
 	}
 
-	std::cout << __PRETTY_FUNCTION__ << " at line : " << std::endl;
 	xAOD::ElectronContainer* electrons_copy(0);
 	xAOD::ShallowAuxContainer* electrons_copyaux(0);
 	CHECK( m_susy_obj->GetElectrons(electrons_copy,
@@ -406,7 +403,6 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
                );
 
 
-	std::cout << __PRETTY_FUNCTION__ << " at line : " << std::endl;
 	// Print their properties, using the tools:
 	xAOD::ElectronContainer::iterator el_itr = (electrons_copy)->begin();
 	xAOD::ElectronContainer::iterator el_end = (electrons_copy)->end();
@@ -639,12 +635,12 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		MCChannelNumber == 167759 ||
 		MCChannelNumber == 167760 ){
 
-		const xAOD::TruthParticleContainer* truthParticles = 0;
+	  /*		const xAOD::TruthParticleContainer* truthParticles = 0;
 		if ( !event->retrieve( truthParticles, truthParticleName  ).isSuccess() ){ // retrieve arguments: container type, container key
 			Error(__PRETTY_FUNCTION__, "Failed to retrieve truth container. Exiting." );
 			return EL::StatusCode::FAILURE;
 		}
-
+	  */
 
 		TLorentzVector V;
 		TLorentzVector l1;
@@ -654,7 +650,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		bool foundSecond = false;
 		bool foundMore   = false;
 
-
+		/*
 
 		for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
 		  // const TruthParticle* p = *tpi;
@@ -684,7 +680,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	  		if(V.Pt()>70000.) return EL::StatusCode::SUCCESS;
 
 		}
-
+*/
 	}
 	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
 
