@@ -68,21 +68,12 @@ class SklimmerAnalysis : public EL::Algorithm
 
 public:
 	// float cutValue;
-
 	TH1 *h_nevents; //!
 	TH1 *h_nevents_weighted; //!
-
-	Float_t weight; //!
-	Int_t nEvents; //!
-
-
 
 	// variables that don't get filled at submission time should be
 	// protected from being send from the submission node to the worker
 	// node (done by the //!)
-
-
-
 private:
 
 
