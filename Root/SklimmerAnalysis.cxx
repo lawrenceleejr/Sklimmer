@@ -852,7 +852,7 @@ TString SklimmerAnalysis :: doEventSelectionBBMet(xAOD::EventInfo * eventInfo )
 
 }
 
-EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
+EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){//todo put these in a text file for different releaseses
   if(eventInfoName.empty())       eventInfoName       = "EventInfo";
   if(primaryVerticesName.empty()) primaryVerticesName = "PrimaryVertices";
 
@@ -863,7 +863,7 @@ EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){
   if(photonCollectionName.empty())   photonCollectionName   = "Photons";
   //  if(photonCollectionName.empty())   photonCollectionName   = "PhotonCollection";
   if(jetCollectionName.empty())      jetCollectionName      = "AntiKt4LCTopoJets";
-  if(metCollectionName.empty())      metCollectionName      = "MET_Reference_AntiKt4LCTopoJets";
+  if(metCollectionName.empty())      metCollectionName      = "MET_Reference_AntiKt4LCTopo";
   //  if(metCollectionName.empty())      metCollectionName      = "MET_RefFinal";
   //  if(tauCollectionName.empty())      tauCollectionName      = "TauRecContainer";
   if(tauCollectionName.empty())      tauCollectionName      = "TauJets";
