@@ -78,27 +78,27 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->SetDirectory (outputFile);
 
 
-  Jet_pT = new std::vector<float>       ;    
-  Jet_eta = new std::vector<float>       ;   
-  Jet_phi = new std::vector<float>       ;   
-  Jet_E = new std::vector<float>       ;     
-  Jet_m = new std::vector<float>       ;     
-  Jet_MV1 = new std::vector<float>       ;     
-  Muon_pT = new std::vector<float>       ;    
-  Muon_eta = new std::vector<float>       ;   
-  Muon_phi = new std::vector<float>       ;   
-  Muon_E = new std::vector<float>       ;     
-  Muon_m = new std::vector<float>       ;     
-  Electron_pT = new std::vector<float>       ;    
-  Electron_eta = new std::vector<float>       ;   
-  Electron_phi = new std::vector<float>       ;   
-  Electron_E = new std::vector<float>       ;     
-  Electron_m = new std::vector<float>       ;     
+  Jet_pT = new std::vector<float>       ;
+  Jet_eta = new std::vector<float>       ;
+  Jet_phi = new std::vector<float>       ;
+  Jet_E = new std::vector<float>       ;
+  Jet_m = new std::vector<float>       ;
+  Jet_MV1 = new std::vector<float>       ;
+  Muon_pT = new std::vector<float>       ;
+  Muon_eta = new std::vector<float>       ;
+  Muon_phi = new std::vector<float>       ;
+  Muon_E = new std::vector<float>       ;
+  Muon_m = new std::vector<float>       ;
+  Electron_pT = new std::vector<float>       ;
+  Electron_eta = new std::vector<float>       ;
+  Electron_phi = new std::vector<float>       ;
+  Electron_E = new std::vector<float>       ;
+  Electron_m = new std::vector<float>       ;
 
 
   //Set up branches here
 
-  
+
   tree->Branch("RunNumber"                     , &RunNumber                      );
   tree->Branch("EventNumber"                   , &EventNumber                    );
   tree->Branch("LumiBlock"                     , &LumiBlock                      );
@@ -110,34 +110,34 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("AverageInteractionsPerCrossing", &AverageInteractionsPerCrossing );
 
 
-  tree->Branch("RJVars_SS_Mass"           , &RJVars_SS_Mass           ); 
-  tree->Branch("RJVars_SS_InvGamma"       , &RJVars_SS_InvGamma       ); 
-  tree->Branch("RJVars_SS_dPhiBetaR"      , &RJVars_SS_dPhiBetaR      ); 
-  tree->Branch("RJVars_SS_dPhiVis"        , &RJVars_SS_dPhiVis        ); 
-  tree->Branch("RJVars_SS_CosTheta"       , &RJVars_SS_CosTheta       ); 
-  tree->Branch("RJVars_SS_dPhiDecayAngle" , &RJVars_SS_dPhiDecayAngle ); 
-  tree->Branch("RJVars_SS_VisShape"       , &RJVars_SS_VisShape       ); 
-  tree->Branch("RJVars_SS_MDeltaR"        , &RJVars_SS_MDeltaR        ); 
-  tree->Branch("RJVars_S1_Mass"           , &RJVars_S1_Mass           ); 
-  tree->Branch("RJVars_S1_CosTheta"       , &RJVars_S1_CosTheta       ); 
-  tree->Branch("RJVars_S2_Mass"           , &RJVars_S2_Mass           ); 
-  tree->Branch("RJVars_S2_CosTheta"       , &RJVars_S2_CosTheta       ); 
-  tree->Branch("RJVars_I1_Depth"          , &RJVars_I1_Depth          ); 
-  tree->Branch("RJVars_I2_Depth"          , &RJVars_I2_Depth          ); 
-  tree->Branch("RJVars_V1_N"              , &RJVars_V1_N              ); 
-  tree->Branch("RJVars_V2_N"              , &RJVars_V2_N              ); 
+  tree->Branch("RJVars_SS_Mass"           , &RJVars_SS_Mass           );
+  tree->Branch("RJVars_SS_InvGamma"       , &RJVars_SS_InvGamma       );
+  tree->Branch("RJVars_SS_dPhiBetaR"      , &RJVars_SS_dPhiBetaR      );
+  tree->Branch("RJVars_SS_dPhiVis"        , &RJVars_SS_dPhiVis        );
+  tree->Branch("RJVars_SS_CosTheta"       , &RJVars_SS_CosTheta       );
+  tree->Branch("RJVars_SS_dPhiDecayAngle" , &RJVars_SS_dPhiDecayAngle );
+  tree->Branch("RJVars_SS_VisShape"       , &RJVars_SS_VisShape       );
+  tree->Branch("RJVars_SS_MDeltaR"        , &RJVars_SS_MDeltaR        );
+  tree->Branch("RJVars_S1_Mass"           , &RJVars_S1_Mass           );
+  tree->Branch("RJVars_S1_CosTheta"       , &RJVars_S1_CosTheta       );
+  tree->Branch("RJVars_S2_Mass"           , &RJVars_S2_Mass           );
+  tree->Branch("RJVars_S2_CosTheta"       , &RJVars_S2_CosTheta       );
+  tree->Branch("RJVars_I1_Depth"          , &RJVars_I1_Depth          );
+  tree->Branch("RJVars_I2_Depth"          , &RJVars_I2_Depth          );
+  tree->Branch("RJVars_V1_N"              , &RJVars_V1_N              );
+  tree->Branch("RJVars_V2_N"              , &RJVars_V2_N              );
 
 
-  tree->Branch("RJVars_G_0_CosTheta"    , &RJVars_G_0_CosTheta    ); 
-  tree->Branch("RJVars_C_0_CosTheta"    , &RJVars_C_0_CosTheta    ); 
-  tree->Branch("RJVars_G_0_dPhiGC"      , &RJVars_G_0_dPhiGC      ); 
-  tree->Branch("RJVars_G_0_MassRatioGC" , &RJVars_G_0_MassRatioGC ); 
+  tree->Branch("RJVars_G_0_CosTheta"    , &RJVars_G_0_CosTheta    );
+  tree->Branch("RJVars_C_0_CosTheta"    , &RJVars_C_0_CosTheta    );
+  tree->Branch("RJVars_G_0_dPhiGC"      , &RJVars_G_0_dPhiGC      );
+  tree->Branch("RJVars_G_0_MassRatioGC" , &RJVars_G_0_MassRatioGC );
   tree->Branch("RJVars_G_0_Jet1_pT"     , &RJVars_G_0_Jet1_pT     );
   tree->Branch("RJVars_G_0_Jet2_pT"     , &RJVars_G_0_Jet2_pT     );
-  tree->Branch("RJVars_G_1_CosTheta"    , &RJVars_G_1_CosTheta    ); 
-  tree->Branch("RJVars_C_1_CosTheta"    , &RJVars_C_1_CosTheta    ); 
-  tree->Branch("RJVars_G_1_dPhiGC"      , &RJVars_G_1_dPhiGC      ); 
-  tree->Branch("RJVars_G_1_MassRatioGC" , &RJVars_G_1_MassRatioGC ); 
+  tree->Branch("RJVars_G_1_CosTheta"    , &RJVars_G_1_CosTheta    );
+  tree->Branch("RJVars_C_1_CosTheta"    , &RJVars_C_1_CosTheta    );
+  tree->Branch("RJVars_G_1_dPhiGC"      , &RJVars_G_1_dPhiGC      );
+  tree->Branch("RJVars_G_1_MassRatioGC" , &RJVars_G_1_MassRatioGC );
   tree->Branch("RJVars_G_1_Jet1_pT"     , &RJVars_G_1_Jet1_pT     );
   tree->Branch("RJVars_G_1_Jet2_pT"     , &RJVars_G_1_Jet2_pT     );
 
@@ -242,19 +242,19 @@ EL::StatusCode PlantATree :: execute ()
   CHECK( m_store->retrieve(eventinfo, "myEventInfo") );
 
   if( eventinfo->auxdata<char>("selection") == (char) 0 ){
-      m_store->clear(); 
+      m_store->clear();
       return EL::StatusCode::SUCCESS;
   }
 
-  RunNumber                       = eventinfo->runNumber(); 
-  EventNumber                     = eventinfo->eventNumber(); 
-  LumiBlock                       = eventinfo->lumiBlock(); 
-  BCID                            = eventinfo->bcid(); 
-  MCChannelNumber                 = eventinfo->mcChannelNumber(); 
-  MCEventNumber                   = eventinfo->mcEventNumber(); 
-  MCEventWeight                   = eventinfo->mcEventWeight(); 
-  ActualInteractionsPerCrossing   = eventinfo->actualInteractionsPerCrossing(); 
-  AverageInteractionsPerCrossing  = eventinfo->averageInteractionsPerCrossing(); 
+  RunNumber                       = eventinfo->runNumber();
+  EventNumber                     = eventinfo->eventNumber();
+  LumiBlock                       = eventinfo->lumiBlock();
+  BCID                            = eventinfo->bcid();
+  MCChannelNumber                 = eventinfo->mcChannelNumber();
+  MCEventNumber                   = eventinfo->mcEventNumber();
+  MCEventWeight                   = eventinfo->mcEventWeight();
+  ActualInteractionsPerCrossing   = eventinfo->actualInteractionsPerCrossing();
+  AverageInteractionsPerCrossing  = eventinfo->averageInteractionsPerCrossing();
 
 
   RJVars_SS_Mass            = eventinfo->auxdata<float>("SS_Mass");
@@ -293,7 +293,7 @@ EL::StatusCode PlantATree :: execute ()
   std::cout << "In PlantATree: " << eventinfo->auxdata<float>("G_1_Jet2_pT") << std::endl;
 
 
-  RJVars_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_dPhiR"); 
+  RJVars_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_dPhiR");
   RJVars_QCD_Rpt            = eventinfo->auxdata<float>("QCD_Rpt"  );
   RJVars_QCD_Rmsib          = eventinfo->auxdata<float>("QCD_Rmsib");
   RJVars_QCD_Rpsib          = eventinfo->auxdata<float>("QCD_Rpsib");
@@ -338,7 +338,7 @@ EL::StatusCode PlantATree :: execute ()
         Jet_m   ->push_back( (*jet_itr)->m()  );
         Jet_MV1 ->push_back( (*jet_itr)->auxdata< float >("MV1")   );
 
-    } 
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////////////////
@@ -359,7 +359,7 @@ EL::StatusCode PlantATree :: execute ()
         Muon_E   ->push_back( (*muon_itr)->e()  );
         Muon_m   ->push_back( (*muon_itr)->m()  );
 
-    } 
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////////////////
@@ -379,7 +379,7 @@ EL::StatusCode PlantATree :: execute ()
         Electron_E   ->push_back( (*electron_itr)->e()  );
         Electron_m   ->push_back( (*electron_itr)->m()  );
 
-    } 
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////////////////
@@ -387,7 +387,7 @@ EL::StatusCode PlantATree :: execute ()
 
 
   xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-  CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
+  CHECK( m_store->retrieve( MET, "CalibMET_Reference_AntiKt4LCTopo" ) );
 
     xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
   if (met_it == MET->end()) {
@@ -407,7 +407,7 @@ EL::StatusCode PlantATree :: execute ()
 
   tree->Fill();
 
-  m_store->clear(); 
+  m_store->clear();
 
 
   return EL::StatusCode::SUCCESS;
