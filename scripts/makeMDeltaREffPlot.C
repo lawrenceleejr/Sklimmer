@@ -1,6 +1,6 @@
 #include <TChain.h>
 
-int makeEffPlots(){
+int makeMDeltaREffPlot(){
 
   //  TFile * file = TFile::Open("/afs/cern.ch/user/r/rsmith/testarea/razor/Sklimmer/Run/output.15.04.15.23.55/data-treeOutput/mc14_13TeV.110351.PowhegPythia_P2012_ttbar_allhad.recon.AOD.e3232_s2127_s2132_r6561_tid05274300_00.root");
   std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
@@ -19,8 +19,7 @@ int makeEffPlots(){
   // for (UInt_t iTrig = 0; iTrig < triggerStrings.size(); ++iTrig) {
   //   std::string iTrigStr = triggerStrings.at(iTrig);
 
-    TEfficiency * effPlots = new TEfficiency(("eff_rj_mdeltaR").c_str(), (" m#DeltaR [GeV]effici\
-ency").c_str(), 100, 0, 2000);
+    TEfficiency * effPlots = new TEfficiency("eff_rj_mdeltaR", " m#DeltaR [GeV]efficiency", 100, 0, 2000);
 
   for(Long64_t ientry = 0; ientry < fChain.GetEntries(); ++ientry){
     //for(Long64_t ievent = 0;  ievent < std::min(int(event->getEntries()), 100); ++ievent){
@@ -43,7 +42,7 @@ ency").c_str(), 100, 0, 2000);
     effPlots->Fill(was_triggered_razor, rj_mdeltaR/1000.);
   }
 
-  effPlots->write();
+  effPlots->Write();
 
   outfile->Close();
 
