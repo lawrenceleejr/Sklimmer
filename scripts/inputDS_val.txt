@@ -1,0 +1,1 @@
+valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s2578_r6628_tid05346318_00
