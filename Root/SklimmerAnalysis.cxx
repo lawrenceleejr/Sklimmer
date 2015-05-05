@@ -63,7 +63,7 @@ SklimmerAnalysis :: SklimmerAnalysis() :
 //  m_writeNtuple(false),
   m_writexAOD(false),
   m_writeFullCollectionsToxAOD(false)
-{
+{Info(__PRETTY_FUNCTION__, " ");
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
 	// the most basic initialization here, since this method will be
@@ -76,7 +76,7 @@ SklimmerAnalysis :: SklimmerAnalysis() :
 
 
 EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
-{
+{Info(__PRETTY_FUNCTION__, " ");
 	// Here you put code that sets up the job on the submission object
 	// so that it is ready to work with your algorithm, e.g. you can
 	// request the D3PDReader service or add output files.  Any code you
@@ -91,7 +91,7 @@ EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 	xAOD::Init( "SklimmerAnalysis" ).ignore(); // call before opening first file
 
 	// tell EventLoop about our output xAOD:
-	if(outputxAODName.empty()){
+	if(outputxAODName.empty()){Info(__PRETTY_FUNCTION__, " ");
 	  outputxAODName = "outputxAOD";
 	}
 
@@ -118,7 +118,10 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	  return EL::StatusCode::FAILURE;
 	}
 
-
+	if(initializeEventSelectionBBMet() != EL::StatusCode::SUCCESS){
+	  Error(__PRETTY_FUNCTION__ , "Failed to initialize RJigsaw variables" );
+	  return EL::StatusCode::FAILURE;
+	}
 
 	h_nevents = new TH1F("h_nevents", "h_nevents", 10, 0, 10);
 	h_nevents_weighted = new TH1F("h_nevents_weighted", "h_nevents_weighted", 10, 0, 10);
@@ -131,7 +134,7 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 
 
 EL::StatusCode SklimmerAnalysis :: fileExecute ()
-{
+{Info(__PRETTY_FUNCTION__, " ");
 	// Here you do everything that needs to be done exactly once for every
 	// single file, e.g. collect a list of all lumi-blocks processed
 	return EL::StatusCode::SUCCESS;
@@ -150,7 +153,7 @@ EL::StatusCode SklimmerAnalysis :: changeInput (bool firstFile)
 
 
 EL::StatusCode SklimmerAnalysis :: initialize ()
-{
+{Info(__PRETTY_FUNCTION__, " ");
 	// Here you do everything that you need to do after the first input
 	// file has been connected and before the first event is processed,
 	// e.g. create additional histograms based on which variables are
@@ -218,19 +221,13 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	  return EL::StatusCode::FAILURE;
 	}
 
-	if(initializeEventSelectionBBMet() != EL::StatusCode::SUCCESS){
-	  Error(__PRETTY_FUNCTION__ , "Failed to initialize RJigsaw variables" );
-	  return EL::StatusCode::FAILURE;
-	}
-
-
 
 	// std::cout << "Leaving SklimmerAnalysis :: initialize ()"  << std::endl;
 
 	return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
+EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){Info(__PRETTY_FUNCTION__, " ");
   m_pileupReweightingTool= new PileupReweightingTool("PileupReweightingTool");
   CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );//todo should this EventInfo be the eventInfoName member?
   std::vector<std::string> prwFiles;
@@ -248,9 +245,10 @@ EL::StatusCode SklimmerAnalysis :: initializePileupReweightingTool(){
 }
 
 EL::StatusCode SklimmerAnalysis :: initializeEventSelectionBBMet()
-{
-
+{Info(__PRETTY_FUNCTION__, " ");
+  std::cout << __PRETTY_FUNCTION__ << std::endl;
   xAOD::TStore *store = wk()->xaodStore();
+  std::cout << "store value : " << store << std::endl;
 
   eventSelectionBBMet = new EventSelectionBBMet(store);
   if(!eventSelectionBBMet){
@@ -272,7 +270,8 @@ EL::StatusCode SklimmerAnalysis :: initializeEventSelectionBBMet()
   return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode SklimmerAnalysis :: initializeSUSYTools(){
+EL::StatusCode SklimmerAnalysis :: initializeSUSYTools()
+{
   m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
 
   //todo do we need this isData property? either this or isMC seems redundant?
@@ -299,7 +298,7 @@ EL::StatusCode SklimmerAnalysis :: initializeSUSYTools(){
   return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode SklimmerAnalysis :: initializeGRLTool(){
+EL::StatusCode SklimmerAnalysis :: initializeGRLTool(){Info(__PRETTY_FUNCTION__, " ");
 	m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
 	std::vector<std::string> vecStringGRL;
 	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/GRL/Summer2013/data12_8TeV.periodAllYear_DetStatus-v61-pro14-02_DQDefects-00-01-00_PHYS_StandardGRL_All_Good.xml"));
@@ -314,7 +313,7 @@ EL::StatusCode SklimmerAnalysis :: initializeGRLTool(){
 }
 
 int SklimmerAnalysis :: copyFullxAODContainers ()
-{
+{Info(__PRETTY_FUNCTION__, " ");
 	// copy full container(s) to new xAOD
 	// without modifying the contents of it:
 	xAOD::TEvent *event = wk()->xaodEvent();
@@ -343,7 +342,7 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 
 
-int SklimmerAnalysis :: applySUSYObjectDefinitions (){
+int SklimmerAnalysis :: applySUSYObjectDefinitions (){Info(__PRETTY_FUNCTION__, " ");
 
 	xAOD::TEvent *event = wk()->xaodEvent();
 	xAOD::TStore *store = wk()->xaodStore();
@@ -581,9 +580,8 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// code will go.
 
 	xAOD::TEvent *event = wk()->xaodEvent();
-
-	int passEvent = 1;
-
+	xAOD::TStore *store = wk()->xaodStore();
+	store->clear();
 
 	//if(m_doSklimming) copyFullxAODContainers();
         // LH update, should the above instead be this:
@@ -713,12 +711,12 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	if(isMC){
 		// Check if input file is mc14_13TeV to skip pileup reweighting
-		bool mc14_13TeV = false;
-		if( RunNumber == 222222) mc14_13TeV = true;
-		if (!mc14_13TeV){ // Only reweight 8 TeV MC
-			CHECK( m_pileupReweightingTool->execute() );
+		// bool mc14_13TeV = false;
+		// if( RunNumber == 222222) mc14_13TeV = true;
+		// if (!mc14_13TeV){ // Only reweight 8 TeV MC
+		// 	CHECK( m_pileupReweightingTool->execute() );
 			//Info( __PRETTY_FUNCTION__,"PileupReweightingTool: PileupWeight %f RandomRunNumber %i RandomLumiBlockNumber %i",eventInfo->auxdata< double >("PileupWeight"), eventInfo->auxdata< unsigned int >("RandomRunNumber"),  eventInfo->auxdata< unsigned int >("RandomLumiBlockNumber") );
-		}
+	  //}
 	}// end if IS MC
 
 	// Let's calibrate
@@ -726,7 +724,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
 	else putStuffInStore();//todo this can't be used yet?
 
-	xAOD::TStore *store = wk()->xaodStore();
+
 
 	std::pair< xAOD::EventInfo*, xAOD::ShallowAuxInfo* > eventInfo_shallowCopy = xAOD::shallowCopyObject( *eventInfo );
 	if( !store->record( eventInfo_shallowCopy.first , myEventInfoName )){return EL::StatusCode::FAILURE;}
@@ -739,7 +737,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	  if( !event->record( eventInfo_shallowCopy.first , myEventInfoName )){return EL::StatusCode::FAILURE;}
 	  if( !event->record( eventInfo_shallowCopy.second, myEventInfoName+"Aux." )) {return EL::StatusCode::FAILURE;}
 	}
-	// store->print();
+	store->print();
 
 
 
@@ -756,7 +754,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	//Info( __PRETTY_FUNCTION__,"RJigsaw Variables: gammainv_Rp1 %f",
 	//	(eventInfo_shallowCopy.first)->auxdata< float >("gammainv_Rp1") );
 
-	store->clear();
+	//	store->clear();
 
 	//Info( __PRETTY_FUNCTION__,"About to write to xAOD "  );
 
@@ -765,16 +763,14 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		CHECK(event->fill()); // Trying to fill the output xAOD causes problems right now...
 	}
 
-	//Info( __PRETTY_FUNCTION__,"leaving execute "  );
-
-
+	Info( __PRETTY_FUNCTION__,"leaving execute "  );
 	return EL::StatusCode::SUCCESS;
 }
 
 
 
 EL::StatusCode SklimmerAnalysis :: postExecute ()
-{
+{Info(__PRETTY_FUNCTION__, " ");
 	// Here you do everything that needs to be done after the main event
 	// processing.  This is typically very rare, particularly in user
 	// code.  It is mainly used in implementing the NTupleSvc.
@@ -784,7 +780,7 @@ EL::StatusCode SklimmerAnalysis :: postExecute ()
 
 
 EL::StatusCode SklimmerAnalysis :: finalize ()
-{
+{Info(__PRETTY_FUNCTION__, " ");
 	// This method is the mirror image of initialize(), meaning it gets
 	// called after the last event has been processed on the worker node
 	// and allows you to finish up any objects you created in
@@ -826,7 +822,7 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 
 
 EL::StatusCode SklimmerAnalysis :: histFinalize ()
-{
+{Info(__PRETTY_FUNCTION__, " ");
 	// This method is the mirror image of histInitialize(), meaning it
 	// gets called after the last event has been processed on the worker
 	// node and allows you to finish up any objects you created in
@@ -846,13 +842,13 @@ TString SklimmerAnalysis :: doEventSelectionBBMet(xAOD::EventInfo * eventInfo )
     Error(__PRETTY_FUNCTION__, "can't do bbMET eventSelection without eventInfo object" ) ;
     return TString("");//todo should this return something else if it fails?
   }
-  //  EventSelectionBBMet evtSelection(store);//todo should probably be a tool owned up the analysis class? we wouldn't need this silly store passb
 
   return TString( eventSelectionBBMet->run(eventInfo));
 
 }
 
-EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){//todo put these in a text file for different releaseses
+EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){Info(__PRETTY_FUNCTION__, " ");
+//todo put these in a text file for different releaseses
   if(eventInfoName.empty())       eventInfoName       = "EventInfo";
   if(primaryVerticesName.empty()) primaryVerticesName = "PrimaryVertices";
 
@@ -885,12 +881,4 @@ EL::StatusCode SklimmerAnalysis :: fillEmptyCollectionNames (){//todo put these 
 
   return EL::StatusCode::SUCCESS;
 }
-
-
-
-
-
-
-
-
 //  LocalWords:  xaodEvent

@@ -232,19 +232,24 @@ EL::StatusCode PlantATree :: execute ()
   // code will go.
 
   const char* APP_NAME = "PlantATree";
+
+  //  xAOD::TEvent * store = wk()->xaodEvent();
   xAOD::TStore * store = wk()->xaodStore();
-  //  event = wk()->xaodEvent();
+  std::cout << "store value : " << store << std::endl;
+  store->print();
+  //event = wk()->xaodEvent();
 
   std::cout << "PlantATree :: execute ()" << std::endl;
+  //  store->print();
   // std::cout << "PlantATree - Contains event info? " <<std::endl; store->print();
 
   // store->print();
 
   xAOD::EventInfo* eventinfo = 0;
-  CHECK( store->retrieve(eventinfo, "myEventInfo") );
+  assert( store->retrieve(eventinfo, "MyEventInfo") );
 
   if( eventinfo->auxdata<char>("selection") == (char) 0 ){
-    store->clear();
+    //    store->clear();
     return EL::StatusCode::SUCCESS;
   }
 
@@ -324,7 +329,7 @@ EL::StatusCode PlantATree :: execute ()
   /////////////////////////////////////////////////////////////////////////////////////
 
   xAOD::JetContainer* jets = 0;
-  CHECK( store->retrieve( jets, "CalibJets" ) );
+  assert( store->retrieve( jets, "CalibJets" ) );
 
   xAOD::JetContainer::iterator jet_itr = (jets)->begin();
   xAOD::JetContainer::iterator jet_end = (jets)->end();
@@ -347,7 +352,7 @@ EL::StatusCode PlantATree :: execute ()
 
 
   xAOD::MuonContainer* muons = 0;
-  CHECK( store->retrieve( muons, "CalibMuons" ) );
+  assert( store->retrieve( muons, "CalibMuons" ) );
 
   xAOD::MuonContainer::iterator muon_itr = (muons)->begin();
   xAOD::MuonContainer::iterator muon_end = (muons)->end();
@@ -367,7 +372,7 @@ EL::StatusCode PlantATree :: execute ()
   /////////////////////////////////////////////////////////////////////////////////////
 
   xAOD::ElectronContainer* electrons = 0;
-  CHECK( store->retrieve( electrons, "CalibElectrons" ) );
+  assert( store->retrieve( electrons, "CalibElectrons" ) );
 
   xAOD::ElectronContainer::iterator electron_itr = (electrons)->begin();
   xAOD::ElectronContainer::iterator electron_end = (electrons)->end();
@@ -389,7 +394,7 @@ EL::StatusCode PlantATree :: execute ()
 
 
   xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-  CHECK( store->retrieve( MET, "CalibMET_RefFinal" ) );
+  assert( store->retrieve( MET, "CalibMET_RefFinal" ) );
 
     xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
   if (met_it == MET->end()) {
@@ -402,7 +407,7 @@ EL::StatusCode PlantATree :: execute ()
   //todo readd
   tree->Fill();
 
-  store->clear();
+  //  store->clear();
 
 
   return EL::StatusCode::SUCCESS;
