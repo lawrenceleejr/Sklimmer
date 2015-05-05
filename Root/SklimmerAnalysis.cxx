@@ -379,7 +379,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 		CHECK( m_susy_obj->setProperty("IsData",isData) );
 		CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
-		CHECK( m_susy_obj->setProperty("EleId","Tight") );
+		CHECK( m_susy_obj->setProperty("EleId","TightLLH") );
 
 		if( m_susy_obj->SUSYToolsInit().isFailure() ) {
 		  Error( APP_NAME, "Failed to initialise tools in SUSYToolsInit()..." );
@@ -430,6 +430,42 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	return EL::StatusCode::SUCCESS;
 }
 
+EL::StatusCode SklimmerAnalysis :: addTrigDecisionInfo ( xAOD::EventInfo * eventInfo)
+{
+  if(eventInfo == nullptr ){
+    Error(__PRETTY_FUNCTION__, "can't add without eventInfo object" ) ;
+    return EL::StatusCode::FAILURE;
+  }
+
+  std::bitset<32> triggers;
+
+  //todo make this list configurable
+  triggers[0] = m_susy_obj->isTrigPassed("L1_XE50");
+  triggers[1] = m_susy_obj->isTrigPassed("L1_XE70");
+  triggers[2] = m_susy_obj->isTrigPassed("HLT_xe70");
+  triggers[3] = m_susy_obj->isTrigPassed("HLT_xe70_pueta");
+  triggers[4] = m_susy_obj->isTrigPassed("HLT_xe100");
+  triggers[5] = m_susy_obj->isTrigPassed("HLT_xe100_pueta");
+  triggers[6] = m_susy_obj->isTrigPassed("HLT_e28_tight_iloose");
+  triggers[7] = m_susy_obj->isTrigPassed("HLT_e60_medium");
+  triggers[8] = m_susy_obj->isTrigPassed("HLT_mu26_imedium");
+  triggers[9] = m_susy_obj->isTrigPassed("HLT_mu50");
+  triggers[10] = m_susy_obj->isTrigPassed("HLT_j30_xe10_razor170");
+  triggers[11] = m_susy_obj->isTrigPassed("HLT_xe70_tc_em");
+  triggers[12] = m_susy_obj->isTrigPassed("HLT_xe70_tc_lcw");
+  triggers[13] = m_susy_obj->isTrigPassed("HLT_xe70_mht");
+  triggers[14] = m_susy_obj->isTrigPassed("HLT_xe70_pufit");
+  triggers[15] = m_susy_obj->isTrigPassed("HLT_xe100_tc_em");
+  triggers[16] = m_susy_obj->isTrigPassed("HLT_xe100_tc_lcw");
+  triggers[17] = m_susy_obj->isTrigPassed("HLT_xe100_mht");
+  triggers[18] = m_susy_obj->isTrigPassed("HLT_xe100_pufit");
+
+  int const triggerSet = triggers.to_ulong();
+
+  eventInfo->auxdecor<int>("triggerBitset") = triggerSet;
+
+  return EL::StatusCode::SUCCESS;
+}
 
 int SklimmerAnalysis :: copyFullxAODContainers ()
 {
@@ -440,17 +476,17 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 	// copy full container(s) to new xAOD
 	// without modifying the contents of it:
         CHECK(m_event->copy("EventInfo"));
-	CHECK(m_event->copy("TruthEvent"));
+	//	CHECK(m_event->copy("TruthEvent"));
 
-	CHECK(m_event->copy("TruthParticle"));
+	//CHECK(m_event->copy("TruthParticle"));
 
 	CHECK(m_event->copy("AntiKt4LCTopoJets"));
 	CHECK(m_event->copy("AntiKt4TruthJets"));
 
 	CHECK(m_event->copy("MET_Reference_AntiKt4LCTopo"));
-	CHECK(m_event->copy("MET_Truth"));
+	//	CHECK(m_event->copy("MET_Truth"));
 
-	CHECK(m_event->copy("TruthVertex"));
+	//	CHECK(m_event->copy("TruthVertex"));
 	CHECK(m_event->copy("PrimaryVertices"));
 
 	CHECK(m_event->copy("Electrons"));
@@ -721,11 +757,11 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 
-		const xAOD::TruthParticleContainer* truthParticles = 0;
-		if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
-			Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
-			return EL::StatusCode::FAILURE;
-		}
+		// const xAOD::TruthParticleContainer* truthParticles = 0;
+		// if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
+		// 	Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
+		// 	return EL::StatusCode::FAILURE;
+		// }
 
 
 		TLorentzVector V;
@@ -738,37 +774,37 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 
-		for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
-		  // const TruthParticle* p = *tpi;
-		  // In general for Sherpa,  you have to select particles with status==3 and barcode<100,000 to get get the Matrix element in and out
-		  if ( ((*tpi)->status() == 3) && (fabs( (*tpi)->pdgId() ) >= 11) && (fabs( (*tpi)->pdgId() ) <= 16) && ((*tpi)->barcode() < 100000) ) {
-		    if ( !foundFirst ) {
-		      l1.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
-		      foundFirst = true;
-		    } else if ( !foundSecond ) {
-		      l2.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
-		      foundSecond = true;
-		    } else {
-		      foundMore = true;
-		      break;
-		    }
-		  }
-		}
+	// 	for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
+	// 	  // const TruthParticle* p = *tpi;
+	// 	  // In general for Sherpa,  you have to select particles with status==3 and barcode<100,000 to get get the Matrix element in and out
+	// 	  if ( ((*tpi)->status() == 3) && (fabs( (*tpi)->pdgId() ) >= 11) && (fabs( (*tpi)->pdgId() ) <= 16) && ((*tpi)->barcode() < 100000) ) {
+	// 	    if ( !foundFirst ) {
+	// 	      l1.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
+	// 	      foundFirst = true;
+	// 	    } else if ( !foundSecond ) {
+	// 	      l2.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
+	// 	      foundSecond = true;
+	// 	    } else {
+	// 	      foundMore = true;
+	// 	      break;
+	// 	    }
+	// 	  }
+	// 	}
 
-		if ( !foundSecond )
-		  std::cout << "doSherpaPtFilterCheck: Unable to find 2 leptons" << std::endl;
-		else if ( foundMore )
-		  std::cout << "doSherpaPtFilterCheck: Found more than 2 leptons" << std::endl;
-		else {
-		  V = l1 + l2;
-		  // m_h_sherpaPt->Fill( V.Pt() / GeV, m_eventWeight );
+	// 	if ( !foundSecond )
+	// 	  std::cout << "doSherpaPtFilterCheck: Unable to find 2 leptons" << std::endl;
+	// 	else if ( foundMore )
+	// 	  std::cout << "doSherpaPtFilterCheck: Found more than 2 leptons" << std::endl;
+	// 	else {
+	// 	  V = l1 + l2;
+	// 	  // m_h_sherpaPt->Fill( V.Pt() / GeV, m_eventWeight );
 
-	  		if(V.Pt()>70000.) return EL::StatusCode::SUCCESS;
+	//   		if(V.Pt()>70000.) return EL::StatusCode::SUCCESS;
 
-		}
+	// 	}
 
-	}
-	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
+        }
+	// // stupid sherpa stuff...///////////////////////////////////////////////////////////////////
 
 
 
@@ -801,7 +837,10 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		bool mc14_13TeV = false;
 		if( RunNumber == 222222) mc14_13TeV = true;
 		if (!mc14_13TeV){ // Only reweight 8 TeV MC
-			CHECK( m_pileupReweightingTool->execute() );
+		  //todo reincludE!!!!!!
+		  //			CHECK( m_pileupReweightingTool->execute() );
+
+
 			//Info( APP_NAME,"PileupReweightingTool: PileupWeight %f RandomRunNumber %i RandomLumiBlockNumber %i",eventInfo->auxdata< double >("PileupWeight"), eventInfo->auxdata< unsigned int >("RandomRunNumber"),  eventInfo->auxdata< unsigned int >("RandomLumiBlockNumber") );
 		}
 	}// end if IS MC
@@ -832,6 +871,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	if( m_doEventSelection && m_Analysis=="bbmet" ){
 		TString result = eventSelectionBBMet();
 		(eventInfo_shallowCopy.first)->auxdecor< char >("selection") = *result.Data();
+		addTrigDecisionInfo(eventInfo_shallowCopy.first );
 		//if(result=="") return EL::StatusCode::SUCCESS;
 	}
 
