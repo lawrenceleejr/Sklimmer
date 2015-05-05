@@ -380,6 +380,8 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		CHECK( m_susy_obj->setProperty("IsData",isData) );
 		CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
 		CHECK( m_susy_obj->setProperty("EleId","TightLLH") );
+		m_susy_obj->msg().setLevel(MSG::ERROR);
+
 
 		if( m_susy_obj->SUSYToolsInit().isFailure() ) {
 		  Error( APP_NAME, "Failed to initialise tools in SUSYToolsInit()..." );
