@@ -82,7 +82,7 @@ EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 	// tell EventLoop about our output xAOD:
 	EL::OutputStream out ("outputxAOD");
 	job.outputAdd (out);
-	
+
 	return EL::StatusCode::SUCCESS;
 }
 
@@ -170,7 +170,7 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	S_alt->AddChildFrame(V_alt);
 	S_alt->AddChildFrame(I_alt);
 
-	LAB_alt->InitializeTree(); 
+	LAB_alt->InitializeTree();
 
 	// Will just set invisible mass to zero
 	INV_alt->AddJigsaw(MinMass_alt);
@@ -179,7 +179,7 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	INV_alt->AddJigsaw(Rapidity_alt);
 	Rapidity_alt->AddVisibleFrame((LAB_alt->GetListVisibleFrames()));
 
-	LAB_alt->InitializeAnalysis(); 
+	LAB_alt->InitializeAnalysis();
 
 	//
 	//
@@ -195,7 +195,7 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	INV->AddFrame(I2);
 
 	// the combinatoric group is the list of visible objects
-	// that go into our hemispheres 
+	// that go into our hemispheres
 	VIS->AddFrame(V1);
 	VIS->SetNElementsForFrame(V1,1,false);
 	VIS->AddFrame(V2);
@@ -211,7 +211,7 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	S2->AddChildFrame(V2);
 	S2->AddChildFrame(I2);
 
-	std::cout << "Is consistent tree topology? " << LAB->InitializeTree() << std::endl; 
+	std::cout << "Is consistent tree topology? " << LAB->InitializeTree() << std::endl;
 
 	INV->AddJigsaw(MinMassJigsaw);
 
@@ -228,7 +228,7 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	HemiJigsaw->AddFrame(V1,0);
 	HemiJigsaw->AddFrame(V2,1);
 
-	std::cout << "Is consistent analysis tree? : " << LAB->InitializeAnalysis() << std::endl; 
+	std::cout << "Is consistent analysis tree? : " << LAB->InitializeAnalysis() << std::endl;
 
 	//
 	//
@@ -254,7 +254,7 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	Cb_R->AddChildFrame(Xb_R);
 
 
-	if(!LAB_R->InitializeTree()) cout << "Problem with signal-like reconstruction tree" << endl; 
+	if(!LAB_R->InitializeTree()) cout << "Problem with signal-like reconstruction tree" << endl;
 
 
 	INV_R->AddFrame(Xa_R);
@@ -336,15 +336,15 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 
 	// This will get moved to submission at some point... //////////////////////
-        if(m_writexAOD == false) m_writeFullCollectionsToxAOD = false; // logic and fail-safe 
+        if(m_writexAOD == false) m_writeFullCollectionsToxAOD = false; // logic and fail-safe
 
-	Info("initialize()", "m_doSklimming = %i"               , m_doSklimming                 ); 
-	Info("initialize()", "m_doSUSYObjDef = %i"              , m_doSUSYObjDef                ); 
-	Info("initialize()", "m_doEventSelection = %i"          , m_doEventSelection            ); 
-	// Info("initialize()", "m_writeNtuple = %i"               , m_writeNtuple                 ); 
-	Info("initialize()", "m_writexAOD = %i"                 , m_writexAOD                   ); 
-	Info("initialize()", "m_writeFullCollectionsToxAOD = %i", m_writeFullCollectionsToxAOD  ); 
-	Info("initialize()", "m_Analysis = %s"                  , m_Analysis.Data()             ); 
+	Info("initialize()", "m_doSklimming = %i"               , m_doSklimming                 );
+	Info("initialize()", "m_doSUSYObjDef = %i"              , m_doSUSYObjDef                );
+	Info("initialize()", "m_doEventSelection = %i"          , m_doEventSelection            );
+	// Info("initialize()", "m_writeNtuple = %i"               , m_writeNtuple                 );
+	Info("initialize()", "m_writexAOD = %i"                 , m_writexAOD                   );
+	Info("initialize()", "m_writeFullCollectionsToxAOD = %i", m_writeFullCollectionsToxAOD  );
+	Info("initialize()", "m_Analysis = %s"                  , m_Analysis.Data()             );
 
 
 	// m_doSklimming = true;
@@ -353,7 +353,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// m_writeNtuple = false;
 	// m_writexAOD = true;
 	// m_writeFullCollectionsToxAOD = true;
- 
+
 	// m_Analysis = "bbmet";
 
 
@@ -384,7 +384,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		if( m_susy_obj->SUSYToolsInit().isFailure() ) {
 		  Error( APP_NAME, "Failed to initialise tools in SUSYToolsInit()..." );
 		  Error( APP_NAME, "Exiting..." );
-		  return EL::StatusCode::FAILURE;   
+		  return EL::StatusCode::FAILURE;
 		}
 		else{ Info(APP_NAME,"SUSYToolsInit with success!!... " );}
 
@@ -411,12 +411,12 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	// Pile Up Reweighting ///////////////////////////////////////////////////////////////////
 
-	m_pileupReweightingTool= new PileupReweightingTool("PileupReweightingTool");   
+	m_pileupReweightingTool= new PileupReweightingTool("PileupReweightingTool");
 	CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );
-	std::vector<std::string> prwFiles;   
-	prwFiles.push_back("PileupReweighting/mc14v1_defaults.prw.root");   
-	CHECK( m_pileupReweightingTool->setProperty("ConfigFiles",prwFiles) );   
-	std::vector<std::string> lumicalcFiles; 
+	std::vector<std::string> prwFiles;
+	prwFiles.push_back("PileupReweighting/mc14v1_defaults.prw.root");
+	CHECK( m_pileupReweightingTool->setProperty("ConfigFiles",prwFiles) );
+	std::vector<std::string> lumicalcFiles;
 	lumicalcFiles.push_back("SUSYTools/susy_data12_avgintperbx.root");
 	CHECK( m_pileupReweightingTool->setProperty("LumiCalcFiles",lumicalcFiles) );
 	if(!m_pileupReweightingTool->initialize().isSuccess()){
@@ -438,7 +438,7 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 
 	// copy full container(s) to new xAOD
-	// without modifying the contents of it: 
+	// without modifying the contents of it:
         CHECK(m_event->copy("EventInfo"));
 	CHECK(m_event->copy("TruthEvent"));
 
@@ -447,13 +447,13 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 	CHECK(m_event->copy("AntiKt4LCTopoJets"));
 	CHECK(m_event->copy("AntiKt4TruthJets"));
 
-	CHECK(m_event->copy("MET_RefFinal"));
+	CHECK(m_event->copy("MET_Reference_AntiKt4LCTopo"));
 	CHECK(m_event->copy("MET_Truth"));
 
 	CHECK(m_event->copy("TruthVertex"));
 	CHECK(m_event->copy("PrimaryVertices"));
-	
-	CHECK(m_event->copy("ElectronCollection"));
+
+	CHECK(m_event->copy("Electrons"));
 	CHECK(m_event->copy("Muons"));
 	// CHECK(m_event->copy("PhotonCollection"));
 
@@ -497,7 +497,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	//------------
 
 	const xAOD::ElectronContainer* electrons = 0;
-	if ( !m_event->retrieve( electrons, "ElectronCollection" ).isSuccess() ){ // retrieve arguments: container type, container key
+	if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ // retrieve arguments: container type, container key
 		Error(APP_NAME, "Failed to retrieve Electrons container. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
@@ -523,11 +523,11 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	//------------
 
 	const xAOD::PhotonContainer* photons = 0;
-	if ( !m_event->retrieve( photons, "PhotonCollection" ).isSuccess() ){ // retrieve arguments: container type, container key
+	if ( !m_event->retrieve( photons, "Photons" ).isSuccess() ){ // retrieve arguments: container type, container key
 		Error(APP_NAME, "Failed to retrieve Photons container. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
-	  
+
 	xAOD::PhotonContainer* photons_copy(0);
 	xAOD::ShallowAuxContainer* photons_copyaux(0);
 	CHECK( m_susy_obj->GetPhotons(photons_copy,photons_copyaux) );
@@ -553,7 +553,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	// TAUS
 	//------------
 	const xAOD::TauJetContainer* taus = 0;
-	if ( !m_event->retrieve( taus, "TauRecContainer" ).isSuccess() ){ // retrieve arguments: container type, container key
+	if ( !m_event->retrieve( taus, "TauJets" ).isSuccess() ){ // retrieve arguments: container type, container key
 		Error(APP_NAME, "Failed to retrieve Taus container. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
@@ -577,8 +577,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::MissingETContainer*    MET = new xAOD::MissingETContainer;
 	xAOD::MissingETAuxContainer* METAux = new xAOD::MissingETAuxContainer;
 	MET->setStore(METAux);
-	CHECK( m_store->record( MET, "CalibMET_RefFinal" ) );
-	CHECK( m_store->record( METAux, "CalibMET_RefFinalAux." ) );
+	CHECK( m_store->record( MET, "CalibMET_Reference_AntiKt4LCTopo" ) );
+	CHECK( m_store->record( METAux, "CalibMET_Reference_AntiKt4LCTopoAux." ) );
 
 	///// TEMPORARY CODE ONLY
 	// Protection against bad muons (calo-tagged, si-associated forward)
@@ -625,7 +625,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 		if( !m_event->record( MET,    "CalibMET" )){return EL::StatusCode::FAILURE;}
 		if( !m_event->record( METAux, "CalibMETAux." )) {return EL::StatusCode::FAILURE;}
 
-	} 
+	}
 
 	muons_copy->setStore(muons_copyaux);
 	CHECK( m_store->record( muons_copy, "CalibMuons" ) );
@@ -634,7 +634,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	electrons_copy->setStore(electrons_copyaux);
 	CHECK( m_store->record( electrons_copy, "CalibElectrons" ) );
 	CHECK( m_store->record( electrons_copyaux, "CalibElectronsAux." ) );
-	
+
 	photons_copy->setStore(photons_copyaux);
 	CHECK( m_store->record( photons_copy, "CalibPhotons" ) );
 	CHECK( m_store->record( photons_copyaux, "CalibPhotonsAux." ) );
@@ -675,7 +675,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	//----------------------------
 	// Event information
-	//--------------------------- 
+	//---------------------------
 	const xAOD::EventInfo* eventInfo = 0;
 	if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
 		Error(APP_NAME, "Failed to retrieve event info collection. Exiting." );
@@ -687,7 +687,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	int RunNumber = eventInfo->runNumber();
 	float EventWeight = eventInfo->mcEventWeight();
 
-	int MCChannelNumber = eventInfo->mcChannelNumber(); 
+	int MCChannelNumber = eventInfo->mcChannelNumber();
 
 
 
@@ -696,7 +696,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	h_nevents_weighted->Fill(0.,EventWeight);
 
 	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
-	if ( 
+	if (
 		MCChannelNumber == 167740 ||
 		MCChannelNumber == 167741 ||
 		MCChannelNumber == 167742 ||
@@ -779,7 +779,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	// check if the event is MC
 	if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
 	   isMC = true; // can do something with this later
-	}   
+	}
 
 
 	// if data, check if event passes GRL ////////////////////////////////////////////////
@@ -788,8 +788,8 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		if(!m_grl->passRunLB(*eventInfo)){
 			return EL::StatusCode::SUCCESS; // go to next event
 		}
-		if(  (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) || 
-			(eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) || 
+		if(  (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) ||
+			(eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) ||
 			(eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
 		{
 			return EL::StatusCode::SUCCESS; // go to the next event
@@ -806,7 +806,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		}
 	}// end if IS MC
 
-	// Let's calibrate 
+	// Let's calibrate
 
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
 	else putStuffInStore();
@@ -842,7 +842,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	//Info( APP_NAME,"RJigsaw Variables: gammainv_Rp1 %f",
 	//	(eventInfo_shallowCopy.first)->auxdata< float >("gammainv_Rp1") );
 
-	// m_store->clear(); 
+	// m_store->clear();
 
 	//Info( APP_NAME,"About to write to xAOD "  );
 
@@ -954,7 +954,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	for( ; el_itr != el_end; ++el_itr ) {
 		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
 	}
-	
+
 	int Nmu=0;
 	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
 	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
@@ -978,16 +978,16 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
 			(*jet_itr)->auxdata< char >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
-			goodJets->push_back (*jet_itr); 
+			goodJets->push_back (*jet_itr);
 		}
 
 		(*jet_itr)->auxdecor<float>("MV1") =  ((*jet_itr)->btagging())->MV1_discriminant() ;
-    
+
     }
 
     if(goodJets->size() < 2){
 		return "";
-    } 
+    }
 
 
 	std::sort(goodJets->begin(), goodJets->end(),
@@ -1007,17 +1007,17 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
 			(*jet_itr)->auxdata< char >("passOR")==1  &&
 			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
-			VIS->AddLabFrameFourVector( (*jet_itr)->p4()  );  
+			VIS->AddLabFrameFourVector( (*jet_itr)->p4()  );
 			jetID_R.push_back( VIS_R->AddLabFrameFourVector( (*jet_itr)->p4()  )  );
 			VIS_alt->AddLabFrameFourVector( (*jet_itr)->p4()   );
 		}
-    
+
     }
 
 	// Get MET Collection to hand to Rest Frames////////////////////////////////////////////////////
 
 	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-	CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
+	CHECK( m_store->retrieve( MET, "CalibMET_Reference_AntiKt4LCTopo" ) );
 
 	TVector3 MET_TV3;
 
@@ -1187,20 +1187,20 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	/////////////////////////////////////////////////////////////////
 
 	if(goodJets->at(0)->pt() >  20000 &&
-		goodJets->at(1)->pt() > 20000 
+		goodJets->at(1)->pt() > 20000
 		// (goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
-		// (goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 
+		// (goodJets->at(1)->btagging())->MV1_discriminant() > 0.98
 		)
 	{
 			return "SRA";
-		
+
 	}
 
 
 	// if(goodJets->size() > 2){
 	// 	if(goodJets->at(0)->pt() > 150000 &&
-	// 		goodJets->at(1)->pt() > 30000 && 
-	// 		goodJets->at(2)->pt() > 30000 && 
+	// 		goodJets->at(1)->pt() > 30000 &&
+	// 		goodJets->at(2)->pt() > 30000 &&
 	// 		(goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 &&
 	// 		(goodJets->at(2)->btagging())->MV1_discriminant() > 0.98 ){
 	// 		return "SRB";
