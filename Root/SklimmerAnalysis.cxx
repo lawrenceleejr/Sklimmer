@@ -488,7 +488,15 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	for( ; mu_itr != mu_end; ++mu_itr ) {
 		m_susy_obj->IsSignalMuonExp( **mu_itr,  ST::SignalIsoExp::TightIso ) ;
 		m_susy_obj->IsCosmicMuon( **mu_itr );
-		//Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< char >("baseline") );
+
+		// kill non baseline muon by setting 4-vector to small value
+		if ( ((*mu_itr)->muonType() != xAOD::Muon::Combined &&
+		   (*mu_itr)->muonType() != xAOD::Muon::MuonStandAlone &&
+		    (*mu_itr)->muonType() != xAOD::Muon::SegmentTagged) ||
+		   !(*mu_itr)->auxdecor<char>("baseline") )
+		{
+			(*mu_itr)->setP4(1.,(*mu_itr)->eta(),(*mu_itr)->phi());
+		}
 	}
 
 
@@ -504,7 +512,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::ElectronContainer* electrons_copy(0);
 	xAOD::ShallowAuxContainer* electrons_copyaux(0);
-	CHECK( m_susy_obj->GetElectrons(electrons_copy,electrons_copyaux) );
+	CHECK( m_susy_obj->GetElectrons(electrons_copy,electrons_copyaux, true, 10000., 2.47) ); //EMULATING ZERO LEPTON PACKAGE
 
 	// Print their properties, using the tools:
 	xAOD::ElectronContainer::iterator el_itr = (electrons_copy)->begin();
@@ -546,7 +554,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::JetContainer* jets_copy(0);
 	xAOD::ShallowAuxContainer* jets_copyaux(0);
-	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux) );
+	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux, true, 20000. , 10. ) ); //EMULATING ZEROLEPTON COLLECTION
 
 
 	//------------
@@ -567,7 +575,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	// OVERLAP REMOVAL (as in susytools tester)
 	//------------
 
-	CHECK( m_susy_obj->OverlapRemoval(electrons_copy, muons_copy, jets_copy) );
+	CHECK( m_susy_obj->OverlapRemoval(electrons_copy, muons_copy, jets_copy, false, 0.2, 0.4, 0.4) );
 
 
 	//------------
@@ -596,7 +604,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 			  electrons_copy,
 			  &muons_copy_met,
 			  photons_copy,
-			  taus_copy) );
+			  0) );
+
 
 
 	//////////////////////////////////////////////////////
@@ -695,80 +704,10 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	h_nevents->Fill(0.);
 	h_nevents_weighted->Fill(0.,EventWeight);
 
-	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
-	if ( 
-		MCChannelNumber == 167740 ||
-		MCChannelNumber == 167741 ||
-		MCChannelNumber == 167742 ||
-		MCChannelNumber == 167743 ||
-		MCChannelNumber == 167744 ||
-		MCChannelNumber == 167745 ||
-		MCChannelNumber == 167746 ||
-		MCChannelNumber == 167747 ||
-		MCChannelNumber == 167748 ||
-		MCChannelNumber == 167749 ||
-		MCChannelNumber == 167750 ||
-		MCChannelNumber == 167751 ||
-		MCChannelNumber == 167752 ||
-		MCChannelNumber == 167753 ||
-		MCChannelNumber == 167754 ||
-		MCChannelNumber == 167755 ||
-		MCChannelNumber == 167756 ||
-		MCChannelNumber == 167757 ||
-		MCChannelNumber == 167758 ||
-		MCChannelNumber == 167759 ||
-		MCChannelNumber == 167760 ){
 
 
+	if(sherpaWZInclVeto(MCChannelNumber)) return EL::StatusCode::SUCCESS;
 
-		const xAOD::TruthParticleContainer* truthParticles = 0;
-		if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
-			Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
-			return EL::StatusCode::FAILURE;
-		}
-
-
-		TLorentzVector V;
-		TLorentzVector l1;
-		TLorentzVector l2;
-
-		bool foundFirst  = false;
-		bool foundSecond = false;
-		bool foundMore   = false;
-
-
-
-		for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
-		  // const TruthParticle* p = *tpi;
-		  // In general for Sherpa,  you have to select particles with status==3 and barcode<100,000 to get get the Matrix element in and out
-		  if ( ((*tpi)->status() == 3) && (fabs( (*tpi)->pdgId() ) >= 11) && (fabs( (*tpi)->pdgId() ) <= 16) && ((*tpi)->barcode() < 100000) ) {
-		    if ( !foundFirst ) {
-		      l1.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
-		      foundFirst = true;
-		    } else if ( !foundSecond ) {
-		      l2.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
-		      foundSecond = true;
-		    } else {
-		      foundMore = true;
-		      break;
-		    }
-		  }
-		}
-
-		if ( !foundSecond )
-		  std::cout << "doSherpaPtFilterCheck: Unable to find 2 leptons" << std::endl;
-		else if ( foundMore )
-		  std::cout << "doSherpaPtFilterCheck: Found more than 2 leptons" << std::endl;
-		else {
-		  V = l1 + l2;
-		  // m_h_sherpaPt->Fill( V.Pt() / GeV, m_eventWeight );
-
-	  		if(V.Pt()>70000.) return EL::StatusCode::SUCCESS;
-
-		}
-
-	}
-	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
 
 
 
@@ -946,20 +885,126 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	xAOD::EventInfo* eventInfo = 0;
 	CHECK(m_store->retrieve(eventInfo, "myEventInfo"));
 
+
+
+	//Info( APP_NAME, "1 ---------------------------------" );
+
+
+	//////////////////////////////////////////
+	// Event Cleaning Cuts
+	//
+	// Primary Vertex Cuts __________________________________________________
+	// const xAOD::VertexContainer* vertices(0);
+
+	// bool hasGoodVertex = 0;
+	// if( m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ) {
+	//   for( const auto& vx : *vertices ) {
+	//     if(vx->vertexType() == xAOD::VxType::PriVtx){
+	//     	if( vx->nTrackParticles() > 4 ) hasGoodVertex = 1;
+	// 		break;
+	//     }
+	//   }
+	//   if(hasGoodVertex==0) return "";
+	// } else {
+	// 	return "";
+	// }
+
+	Info( APP_NAME, "2 ---------------------------------" );
+
+
+
+	// Cosmic muon veto __________________________________________________
+	bool hasCosmicMuon=0;
+	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
+	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
+	// for( ; mu_itr != mu_end; ++mu_itr ) {
+	// 	if( ( *mu_itr )->auxdata<bool>("passOR") && 
+	// 		( *mu_itr )->auxdata<bool>("baseline") && m_susy_obj->IsCosmicMuon( **mu_itr ) ){
+	// 		hasCosmicMuon=1;
+	// 		break;
+	// 	}
+	// }
+	// if(hasCosmicMuon) return "";
+
+
+	Info( APP_NAME, "3 ---------------------------------" );
+
+
+	// Bad Tile Veto __________________________________________________
+	// bool isDeadTile=0;
+	// float BCH_CORR_JET = 0;
+
+	// jet_itr = goodJets->begin();
+	// jet_end = goodJets->end();
+	// for( ; jet_itr != jet_end; ++jet_itr ) {
+	// 	if( (*jet_itr)->pt() < 40000.  ) continue;
+ //    	(*jet_itr)->getAttribute(xAOD::JetAttribute::BchCorrJet,BCH_CORR_JET);
+ //    	if(std::acos(std::cos( (*jet_itr)->phi()-MET_TV3.Phi() ))<0.3 && BCH_CORR_JET>0.05 ) isDeadTile=1;
+ //    }
+ //    if(isDeadTile) return "";
+
+	//	Info( APP_NAME, "3 ---------------------------------" );
+
+	// NegCellCleaning _________________________________________________
+
+	// xAOD::MissingETContainer::const_iterator met_softclus = MET->find("SoftClus");
+	// if ( ( (*met_softclus)->met() / MET_TV3.Mag() ) * \
+	// 	std::cos( (*met_softclus)->phi()-MET_TV3.Phi() ) >= 0.5 ) return "";
+
+	//Info( APP_NAME, "4 ---------------------------------" );
+
+ //    // Jet Timing Cut __________________________________________________
+	// std::vector<float> time;
+	// time.resize(5,-999.f);
+	// double denom = 0.;
+	// double num = 0.;
+	// // int size = goodJets.size();
+
+	// jet_itr = goodJets->begin();
+	// jet_end = goodJets->end();
+	// int i = 0;
+	// for( ; jet_itr != jet_end; ++jet_itr ) {
+	// 	denom = denom + (*jet_itr)->e();
+	// 	float tmptime = -99999.f;
+	// 	(*jet_itr)->getAttribute(xAOD::JetAttribute::Timing,tmptime);
+	// 	num = num + (*jet_itr)->e() * tmptime;
+	// 	if(i==1) time[0] = num/denom;
+	// 	if(i==2) time[1] = num/denom;
+	// 	if(i==3) time[2] = num/denom;
+	// 	if(i==4) time[3] = num/denom;
+	// 	if(i==5) time[4] = num/denom;
+	// }
+
+	// if ((goodJets->size()>=2) && (fabs(time[0])>5)) { return ""; }
+	// if ((goodJets->size()>=2) && (fabs(time[0])>5)) { return ""; }
+	// if ((goodJets->size()>=3) && (fabs(time[1])>5)) { return ""; }
+	// if ((goodJets->size()>=4) && (fabs(time[2])>5)) { return ""; }
+	// if ((goodJets->size()>=5) && (fabs(time[3])>5)) { return ""; }
+	// if ((goodJets->size()>=6) && (fabs(time[4])>5)) { return ""; }
+
+
+	//
+	//////////////////////////////////////////////
+
+
 	/////////////// Lepton Veto //////////////////////////////
 
 	int Nel=0;
 	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
 	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
 	for( ; el_itr != el_end; ++el_itr ) {
-		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
+		if( ( *el_itr )->auxdata<char>("passOR") && 
+			( *el_itr )->auxdata<char>("baseline") &&  
+			( *el_itr )->pt()>10000. ) Nel++;
 	}
-	
+
 	int Nmu=0;
-	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
-	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
+	mu_itr = muons_copy->begin();
+	mu_end = muons_copy->end();
 	for( ; mu_itr != mu_end; ++mu_itr ) {
-		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
+		if( ( *mu_itr )->auxdata<char>("passOR") && 
+			( *mu_itr )->auxdata<char>("baseline") &&  
+			( *mu_itr )->pt()>10000. ) Nmu++;
 	}
 
 	if(Nel || Nmu) return "";
@@ -1186,8 +1231,8 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	/////////////////////////////////////////////////////////////////
 
-	if(goodJets->at(0)->pt() >  20000 &&
-		goodJets->at(1)->pt() > 20000 
+	if(goodJets->at(0)->pt() >  30000 &&
+		goodJets->at(1)->pt() > 30000 
 		// (goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
 		// (goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 
 		)
@@ -1212,6 +1257,92 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 }
 
+
+
+
+int SklimmerAnalysis :: sherpaWZInclVeto(int MCChannelNumber){
+
+	const char* APP_NAME = "SklimmerAnalysis";
+
+
+	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
+	if ( 
+		MCChannelNumber == 167740 ||
+		MCChannelNumber == 167741 ||
+		MCChannelNumber == 167742 ||
+		MCChannelNumber == 167743 ||
+		MCChannelNumber == 167744 ||
+		MCChannelNumber == 167745 ||
+		MCChannelNumber == 167746 ||
+		MCChannelNumber == 167747 ||
+		MCChannelNumber == 167748 ||
+		MCChannelNumber == 167749 ||
+		MCChannelNumber == 167750 ||
+		MCChannelNumber == 167751 ||
+		MCChannelNumber == 167752 ||
+		MCChannelNumber == 167753 ||
+		MCChannelNumber == 167754 ||
+		MCChannelNumber == 167755 ||
+		MCChannelNumber == 167756 ||
+		MCChannelNumber == 167757 ||
+		MCChannelNumber == 167758 ||
+		MCChannelNumber == 167759 ||
+		MCChannelNumber == 167760 ){
+
+		const xAOD::TruthParticleContainer* truthParticles = 0;
+		if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
+			Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
+			return EL::StatusCode::FAILURE;
+		}
+
+
+		TLorentzVector V;
+		TLorentzVector l1;
+		TLorentzVector l2;
+
+		bool foundFirst  = false;
+		bool foundSecond = false;
+		bool foundMore   = false;
+
+
+
+		for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
+		  // const TruthParticle* p = *tpi;
+		  // In general for Sherpa,  you have to select particles with status==3 and barcode<100,000 to get get the Matrix element in and out
+		  if ( ((*tpi)->status() == 3) && (fabs( (*tpi)->pdgId() ) >= 11) && (fabs( (*tpi)->pdgId() ) <= 16) && ((*tpi)->barcode() < 100000) ) {
+		    if ( !foundFirst ) {
+		      l1.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
+		      foundFirst = true;
+		    } else if ( !foundSecond ) {
+		      l2.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
+		      foundSecond = true;
+		    } else {
+		      foundMore = true;
+		      break;
+		    }
+		  }
+		}
+
+		if ( !foundSecond )
+		  // std::cout << "doSherpaPtFilterCheck: Unable to find 2 leptons" << std::endl;
+			return 0;
+		else if ( foundMore )
+		  // std::cout << "doSherpaPtFilterCheck: Found more than 2 leptons" << std::endl;
+			return 0;
+		else {
+		  V = l1 + l2;
+		  // m_h_sherpaPt->Fill( V.Pt() / GeV, m_eventWeight );
+	  		if(V.Pt()>70000.) return 1;
+	  		else return 0;
+		}
+
+	} else {
+		return 0;
+	}
+	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
+
+
+}
 
 
 
