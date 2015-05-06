@@ -237,7 +237,7 @@ EL::StatusCode PlantATree :: execute ()
 
   const char* APP_NAME = "PlantATree";
 
-  std::cout << "PlantATree :: execute ()" << std::endl;
+  //  std::cout << "PlantATree :: execute ()" << std::endl;
   // std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
 
   // m_store->print();
@@ -294,7 +294,7 @@ EL::StatusCode PlantATree :: execute ()
   RJVars_G_1_Jet1_pT        = eventinfo->auxdata<float>("G_1_Jet1_pT");
   RJVars_G_1_Jet2_pT        = eventinfo->auxdata<float>("G_1_Jet2_pT");
 
-  std::cout << "In PlantATree: " << eventinfo->auxdata<float>("G_1_Jet2_pT") << std::endl;
+  //  std::cout << "In PlantATree: " << eventinfo->auxdata<float>("G_1_Jet2_pT") << std::endl;
 
 
   RJVars_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_dPhiR");

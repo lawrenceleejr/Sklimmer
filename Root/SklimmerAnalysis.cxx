@@ -458,6 +458,15 @@ EL::StatusCode SklimmerAnalysis :: addTrigDecisionInfo ( xAOD::EventInfo * event
   triggers[16] = m_susy_obj->isTrigPassed("HLT_xe100_tc_lcw");
   triggers[17] = m_susy_obj->isTrigPassed("HLT_xe100_mht");
   triggers[18] = m_susy_obj->isTrigPassed("HLT_xe100_pufit");
+  triggers[19] = m_susy_obj->isTrigPassed("HLT_3j175");
+  triggers[20] = m_susy_obj->isTrigPassed("HLT_4j85");
+  triggers[21] = m_susy_obj->isTrigPassed("HLT_5j85");
+  triggers[22] = m_susy_obj->isTrigPassed("HLT_6j25");
+  triggers[23] = m_susy_obj->isTrigPassed("HLT_6j45_0eta240");
+  triggers[24] = m_susy_obj->isTrigPassed("HLT_6j55_0eta240_L14J20");
+  triggers[25] = m_susy_obj->isTrigPassed("HLT_7j45");
+  triggers[26] = m_susy_obj->isTrigPassed("L1_2J15");
+  triggers[27] = m_susy_obj->isTrigPassed("HLT_2j55_bloose");
 
   int const triggerSet = triggers.to_ulong();
 
