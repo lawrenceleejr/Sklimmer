@@ -245,10 +245,10 @@ EL::StatusCode PlantATree :: execute ()
   xAOD::EventInfo* eventinfo = 0;
   CHECK( m_store->retrieve(eventinfo, "myEventInfo") );
 
-  if( eventinfo->auxdata<char>("selection") == (char) 0 ){
-      m_store->clear();
-      return EL::StatusCode::SUCCESS;
-  }
+  // if( eventinfo->auxdata<char>("selection") == (char) 0 ){
+    //     m_store->clear();
+    //     return EL::StatusCode::SUCCESS;
+    // }
 
   RunNumber                       = eventinfo->runNumber();
   EventNumber                     = eventinfo->eventNumber();
