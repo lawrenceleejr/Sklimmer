@@ -159,9 +159,6 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 	CbHemiJigsaw_R = new RestFrames::MinimizeMassesCombinatoricJigsaw("CaHEM_JIGSAW_R","Minimize m _{C_{b}} Jigsaw");
 
 
-
-
-
 	INV_alt->AddFrame(I_alt);
 	VIS_alt->AddFrame(V_alt);
 	VIS_alt->SetNElementsForFrame(V_alt,1,false);
@@ -380,7 +377,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		CHECK( m_susy_obj->setProperty("IsData",isData) );
 		CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
 		CHECK( m_susy_obj->setProperty("EleId","TightLLH") );
-		m_susy_obj->msg().setLevel(MSG::ERROR);
+		m_susy_obj->msg().setLevel(MSG::FATAL);
 
 
 		if( m_susy_obj->SUSYToolsInit().isFailure() ) {
@@ -924,6 +921,61 @@ EL::StatusCode SklimmerAnalysis :: finalize ()
 	// gets called on worker nodes that processed input events.
 
 	const char* APP_NAME = "SklimmerAnalysis";
+
+	// BACKGROUND TREE FOR QCD VARIABLES //////////////////////////
+	///////////////////////////////////////////////////////////////
+	//
+	//
+
+	delete LAB_alt ;// = new RestFrames::RLabFrame("LAB","lab");
+
+	delete S_alt ;// = new RestFrames::RSelfAssemblingFrame("CM","CM");
+	delete V_alt ;// = new RestFrames::RVisibleFrame("V_alt","Vis");
+	delete I_alt ;// = new RestFrames::RInvisibleFrame("I_alt","Iinv");
+	delete INV_alt ;// = new RestFrames::InvisibleGroup ("INV_alt","Invisible State Jigsaws");
+	delete VIS_alt ;// = new RestFrames::CombinatoricGroup("VIS_alt","Visible Object Jigsaws");
+
+
+	delete MinMass_alt ;// = new RestFrames::InvisibleMassJigsaw("MINMASS_JIGSAW_ALT", "Invisible system mass Jigsaw");
+	delete Rapidity_alt ;// = new RestFrames::InvisibleRapidityJigsaw("RAPIDITY_JIGSAW_ALT", "Invisible system rapidity Jigsaw");
+
+
+	delete LAB ;// = new RestFrames::RLabFrame("LAB","lab");
+	delete SS ;// = new RestFrames::RDecayFrame("SS","SS");
+	delete S1 ;// = new RestFrames::RSelfAssemblingFrame("S1","#tilde{S}_{a}");
+	delete S2 ;// = new RestFrames::RSelfAssemblingFrame("S2","#tilde{S}_{b}");
+	delete V1 ;// = new RestFrames::RVisibleFrame("V1","V_{a}");
+	delete V2 ;// = new RestFrames::RVisibleFrame("V2","V_{b}");
+	delete I1 ;// = new RestFrames::RInvisibleFrame("I1","I_{a}");
+	delete I2 ;// = new RestFrames::RInvisibleFrame("I2","I_{b}");
+	delete INV ;// = new RestFrames::InvisibleGroup("INV","Invisible State Jigsaws");
+	delete VIS ;// = new RestFrames::CombinatoricGroup("VIS","Visible Object Jigsaws");
+
+	delete MinMassJigsaw ;// = new RestFrames::InvisibleMassJigsaw("MINMASS_JIGSAW", "Invisible system mass Jigsaw");
+	delete RapidityJigsaw ;// = new RestFrames::InvisibleRapidityJigsaw("RAPIDITY_JIGSAW", "Invisible system rapidity Jigsaw");
+	delete ContraBoostJigsaw ;// = new RestFrames::ContraBoostInvariantJigsaw("CB_JIGSAW","Contraboost invariant Jigsaw");
+	delete HemiJigsaw ;// = new RestFrames::MinimizeMassesCombinatoricJigsaw("HEM_JIGSAW","Minimize m _{V_{a,b}} Jigsaw");
+
+	delete LAB_R ;// = new RestFrames::RLabFrame("LAB_R","LAB");
+	delete GG_R ;// = new RestFrames::RDecayFrame("GG_R","#tilde{g}#tilde{g}");
+	delete Ga_R ;// = new RestFrames::RDecayFrame("Ga_R","#tilde{g}_{a}");
+	delete Gb_R ;// = new RestFrames::RDecayFrame("Gb_R","#tilde{g}_{b}");
+	delete Ca_R ;// = new RestFrames::RDecayFrame("Ca_R","C_{a}");
+	delete Cb_R ;// = new RestFrames::RDecayFrame("Cb_R","C_{b}");
+	delete V1a_R ;// = new RestFrames::RVisibleFrame("V1a_R","j_{1a}");
+	delete V2a_R ;// = new RestFrames::RVisibleFrame("V2a_R","j_{2a}");
+	delete Xa_R ;// = new RestFrames::RInvisibleFrame("Xa_R","#tilde{#chi}_{a}");
+	delete V1b_R ;// = new RestFrames::RVisibleFrame("V1b_R","j_{1b}");
+	delete V2b_R ;// = new RestFrames::RVisibleFrame("V2b_R","j_{2b}");
+	delete Xb_R ;// = new RestFrames::RInvisibleFrame("Xb_R","#tilde{#chi}_{b}");
+	delete INV_R ;// = new RestFrames::InvisibleGroup ("INV_R","WIMP Jigsaws");
+	delete VIS_R ;// = new RestFrames::CombinatoricGroup("VIS","Visible Object Jigsaws");
+	delete MinMassJigsaw_R ;// = new RestFrames::InvisibleMassJigsaw("MINMASS_R", "Invisible system mass Jigsaw");
+	delete RapidityJigsaw_R ;// = new RestFrames::InvisibleRapidityJigsaw("RAPIDITY_R", "Invisible system rapidity Jigsaw");
+	delete ContraBoostJigsaw_R ;// = new RestFrames::ContraBoostInvariantJigsaw("CONTRA_R","Contraboost invariant Jigsaw");
+	delete HemiJigsaw_R ;// = new RestFrames::MinimizeMassesCombinatoricJigsaw ("HEM_JIGSAW_R","Minimize m _{V_{a,b}} Jigsaw");
+	delete CaHemiJigsaw_R ;// = new RestFrames::MinimizeMassesCombinatoricJigsaw("CbHEM_JIGSAW_R","Minimize m _{C_{a}} Jigsaw");
+	delete CbHemiJigsaw_R ;//= new RestFrames::MinimizeMassesCombinatoricJigsaw("CaHEM_JIGSAW_R","Minimize m _{C_{b}} Jigsaw");
 
 
 	// GRL
