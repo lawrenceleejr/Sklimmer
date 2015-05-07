@@ -1065,7 +1065,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
 	}
 
-	if(Nel || Nmu) return "";
+
 
 	///////////////////////////////////////////////////////////
 
@@ -1288,16 +1288,18 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 
 	/////////////////////////////////////////////////////////////////
+    if(Nel || Nmu) return "";
 
-	if(goodJets->at(0)->pt() >  20000 &&
-		goodJets->at(1)->pt() > 20000
-		// (goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
-		// (goodJets->at(1)->btagging())->MV1_discriminant() > 0.98
+
+    if(goodJets->at(0)->pt() >  20000 &&
+       goodJets->at(1)->pt() > 20000
+       // (goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
+       // (goodJets->at(1)->btagging())->MV1_discriminant() > 0.98
 		)
-	{
-			return "SRA";
+      {
+	return "SRA";
 
-	}
+      }
 
 
 	// if(goodJets->size() > 2){
