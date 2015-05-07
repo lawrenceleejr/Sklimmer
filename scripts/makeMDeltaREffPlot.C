@@ -3,18 +3,20 @@
 int makeMDeltaREffPlot(){
 
   //  TFile * file = TFile::Open("/afs/cern.ch/user/r/rsmith/testarea/razor/Sklimmer/Run/output.15.04.15.23.55/data-treeOutput/mc14_13TeV.110351.PowhegPythia_P2012_ttbar_allhad.recon.AOD.e3232_s2127_s2132_r6561_tid05274300_00.root");
-  std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+  //std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
   std::vector<std::string> triggerStrings;
   triggerStrings.push_back("HLT_j30_xe10_razor170");
 
   //  map<TString, TEfficiency*> effPlots;
+  std::string sampleName = "minbias";
+
   TChain fChain("tree");
-  fChain.Add("/afs/cern.ch/user/r/rsmith/testarea/razor_r20/Sklimmer/scripts/submit_dir/data-treeOutput/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s2578_r6628_tid05346318_00.root");
+  fChain.Add(("/afs/cern.ch/user/r/rsmith/testarea/razor_r20/Sklimmer/scripts/*"+sampleName+"*.root").c_str());
   fChain.SetMakeClass(1);
 
-  std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+  //std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
 
-  TFile * outfile = new TFile("outputEff.root" , "RECREATE" );
+  TFile * outfile = new TFile(("outputEff_" +sampleName+".root").c_str() , "RECREATE" );
 
   // for (UInt_t iTrig = 0; iTrig < triggerStrings.size(); ++iTrig) {
   //   std::string iTrigStr = triggerStrings.at(iTrig);
@@ -23,8 +25,8 @@ int makeMDeltaREffPlot(){
 
   for(Long64_t ientry = 0; ientry < fChain.GetEntries(); ++ientry){
     //for(Long64_t ievent = 0;  ievent < std::min(int(event->getEntries()), 100); ++ievent){
-    std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
-    std::cout << "Entry number " << ientry << std::endl;
+    //std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+    //std::cout << "Entry number " << ientry << std::endl;
     fChain.GetTree()->GetEntry(ientry);
 
     TBranch *b_rj_mdeltaR;
