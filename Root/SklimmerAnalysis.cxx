@@ -1085,97 +1085,118 @@ EL::StatusCode SklimmerAnalysis :: postExecute ()
 
 
 	// if(goodJets->size()>3){
-		INV_R->SetLabFrameThreeVector(MET_TV3);
-		LAB_R->AnalyzeEvent();
+	INV_R->SetLabFrameThreeVector(MET_TV3);
+	LAB_R->AnalyzeEvent();
 
 
-		RestFrames::RDecayFrame* G[2];
-		RestFrames::RDecayFrame* C[2];
-		RestFrames::RVisibleFrame* VS[2];
-		RestFrames::RVisibleFrame* VC[2];
-		RestFrames::RInvisibleFrame* X[2];
-		// Randomize the two hemispheres
-		int flip = (gRandom->Rndm() > 0.5);
-		G[flip] = Ga_R;
-		G[(flip+1)%2] = Gb_R;
-		C[flip] = Ca_R;
-		C[(flip+1)%2] = Cb_R;
-		VS[flip] = V1a_R;
-		VS[(flip+1)%2] = V1b_R;
-		VC[flip] = V2a_R;
-		VC[(flip+1)%2] = V2b_R;
-		X[flip] = Xa_R;
-		X[(flip+1)%2] = Xb_R;
+	RestFrames::RDecayFrame* G[2];
+	RestFrames::RDecayFrame* C[2];
+	RestFrames::RVisibleFrame* VS[2];
+	RestFrames::RVisibleFrame* VC[2];
+	RestFrames::RInvisibleFrame* X[2];
+	// Randomize the two hemispheres
+	int flip = (gRandom->Rndm() > 0.5);
+	G[flip] = Ga_R;
+	G[(flip+1)%2] = Gb_R;
+	C[flip] = Ca_R;
+	C[(flip+1)%2] = Cb_R;
+	VS[flip] = V1a_R;
+	VS[(flip+1)%2] = V1b_R;
+	VC[flip] = V2a_R;
+	VC[(flip+1)%2] = V2b_R;
+	X[flip] = Xa_R;
+	X[(flip+1)%2] = Xb_R;
 
 
-		double NV[2];
-		double jet1PT[2];
-		double jet2PT[2];
+	double NV[2];
+	double jet1PT[2];
+	double jet2PT[2];
 
 
-		for(int i = 0; i < 2; i++){
+	for(int i = 0; i < 2; i++){
 
-			NV[i] =  VIS_R->GetNElementsInFrame(VS[i]);
-			NV[i] += VIS_R->GetNElementsInFrame(VC[i]);
+		NV[i] =  VIS_R->GetNElementsInFrame(VS[i]);
+		NV[i] += VIS_R->GetNElementsInFrame(VC[i]);
 
-			int N = jetID_R.size();
-			// std::cout << "In SklimmerAnalysis:  N Jets " << N << std::endl;
+		int N = jetID_R.size();
+		// std::cout << "In SklimmerAnalysis:  N Jets " << N << std::endl;
 
-			double pTmax[2]; pTmax[0] = -1.; pTmax[1] = -1.;
-			for(int j = 0; j < N; j++){
-				const RestFrames::RestFrame* frame = VIS_R->GetFrame(jetID_R[j]);
-				if(VS[i]->IsSame(frame) || VC[i]->IsSame(frame)){
-					double pT = VIS_R->GetLabFrameFourVector(jetID_R[j]).Pt();
-					// std::cout << "In SklimmerAnalysis: ijet pT " << pT << std::endl;
+		double pTmax[2]; pTmax[0] = -1.; pTmax[1] = -1.;
+		for(int j = 0; j < N; j++){
+			const RestFrames::RestFrame* frame = VIS_R->GetFrame(jetID_R[j]);
+			if(VS[i]->IsSame(frame) || VC[i]->IsSame(frame)){
+				double pT = VIS_R->GetLabFrameFourVector(jetID_R[j]).Pt();
+				// std::cout << "In SklimmerAnalysis: ijet pT " << pT << std::endl;
 
-					if(pT > pTmax[0]){
-						pTmax[1] = pTmax[0];
-						pTmax[0] = pT;
-					} else {
-						if(pT > pTmax[1]) pTmax[1] = pT;
-					}
+				if(pT > pTmax[0]){
+					pTmax[1] = pTmax[0];
+					pTmax[0] = pT;
+				} else {
+					if(pT > pTmax[1]) pTmax[1] = pT;
 				}
 			}
-
-			jet1PT[i] = pTmax[0];
-			jet2PT[i] = pTmax[1];
-			std::cout << "In SklimmerAnalysis: " << jet1PT[i] << " " << jet2PT[i] << std::endl;
-
-
-
-			if(NV[i] > 1){
-				eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = C[i]->GetCosDecayAngle();
-				eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = G[i]->GetDeltaPhiDecayPlanes(C[i]);
-				eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = (C[i]->GetMass()-X[i]->GetMass())/(G[i]->GetMass()-X[i]->GetMass());
-			} else {
-				eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = -10.;
-				eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = -10.;
-				eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = -10.;
-			}
-
-			eventInfo->auxdecor<float>(Form("G_%d_CosTheta",i)     ) = G[i]->GetCosDecayAngle();
-
-			eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = jet1PT[i];
-			eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = jet2PT[i];
-
-		// std::cout << "In SklimmerAnalysis: " << jet2PT[i] << std::endl;
-
 		}
 
-	// } else {
+		jet1PT[i] = pTmax[0];
+		jet2PT[i] = pTmax[1];
+		std::cout << "In SklimmerAnalysis: " << jet1PT[i] << " " << jet2PT[i] << std::endl;
 
-	// 	for(int i = 0; i < 2; i++){
-	// 		eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = -10.;
-	// 		eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = -10.;
-	// 		eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = -10.;
-	// 		eventInfo->auxdecor<float>(Form("G_%d_CosTheta",i)     ) = -10.;
-	// 		eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = -10.;
-	// 		eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = -10.;
-	// 	}
 
-	// }
 
-	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
+		if(NV[i] > 1){
+			eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = C[i]->GetCosDecayAngle();
+			eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = G[i]->GetDeltaPhiDecayPlanes(C[i]);
+			eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = (C[i]->GetMass()-X[i]->GetMass())/(G[i]->GetMass()-X[i]->GetMass());
+		} else {
+			eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = -10.;
+			eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = -10.;
+			eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = -10.;
+		}
+
+		eventInfo->auxdecor<float>(Form("G_%d_CosTheta",i)     ) = G[i]->GetCosDecayAngle();
+
+		eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = jet1PT[i];
+		eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = jet2PT[i];
+
+	// std::cout << "In SklimmerAnalysis: " << jet2PT[i] << std::endl;
+
+	}
+
+
+
+	// Some new Gluino variables....
+
+	TLorentzVector vV1 = G[0]->GetVisibleFourVector(G[0]);
+	TLorentzVector vV2 = G[1]->GetVisibleFourVector(G[1]);
+	float MG = (vV1.M2()-vV2.M2())/(2.*(vV1.E()-vV2.E()));
+
+	float PG = G[0]->GetMomentum(GG_R);
+	float MGG = 2.*sqrt(PG*PG + MG*MG);
+	float gaminvGG = 2.*MG/MGG;
+	float gaminv = 1./SS->GetGammaInParentFrame();
+	float beta = sqrt(1.- gaminv*gaminv);
+	float betaGG = sqrt(1.- gaminvGG*gaminvGG);
+
+	//*** velocity difference between 'massive' and 'mass-less'
+	float DeltaBetaGG = -(betaGG-beta)/(1.-betaGG*beta);
+
+	//*** delta phi between GG visible decay products and GG decay axis
+	float dphiVG = GG_R->GetDeltaPhiDecayVisible();
+
+
+	eventInfo->auxdecor<float>("MG"               ) = MG;
+	eventInfo->auxdecor<float>("DeltaBetaGG"      ) = DeltaBetaGG;
+	eventInfo->auxdecor<float>("dphiVG"           ) = dphiVG;
+
+
+	// Gluino-level variables end
+	////////////////////////////////////////////////////////////////////////////////
+
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// 1st order squark vars
+
 
 	eventInfo->auxdecor<float>("SS_Mass"           ) = SS->GetMass();
 	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS->GetGammaInParentFrame();
@@ -1194,6 +1215,18 @@ EL::StatusCode SklimmerAnalysis :: postExecute ()
 	eventInfo->auxdecor<float>("V1_N"              ) = VIS->GetNElementsInFrame(V1);
 	eventInfo->auxdecor<float>("V2_N"              ) = VIS->GetNElementsInFrame(V2);
 
+	// end
+	////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// QCD Variables
 
 
 	// dphiR and Rptshat (formerly cosPT)
@@ -1233,8 +1266,8 @@ EL::StatusCode SklimmerAnalysis :: postExecute ()
 	eventInfo->auxdecor<float>("QCD_Rpsib"              ) = RpsibM;
 	eventInfo->auxdecor<float>("QCD_Delta1"              ) = DeltaQCD1;
 
-	// Info( APP_NAME,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
-	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
+	// end
+	////////////////////////////////////////////////////////////////////////////////
 
 
 

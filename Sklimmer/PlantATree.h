@@ -64,6 +64,9 @@ public:
   float RJVars_V2_N              ; //!    
 
   // Gluino Variables
+  float RJVars_MG      ; //!      
+  float RJVars_DeltaBetaGG      ; //!      
+  float RJVars_dphiVG      ; //!      
   float RJVars_G_0_CosTheta      ; //!      
   float RJVars_C_0_CosTheta      ; //!      
   float RJVars_G_0_dPhiGC        ; //!    

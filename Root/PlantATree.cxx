@@ -128,6 +128,12 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_V2_N"              , &RJVars_V2_N              ); 
 
 
+
+  tree->Branch("RJVars_MG" , &RJVars_MG          );
+  tree->Branch("RJVars_DeltaBetaGG" , &RJVars_DeltaBetaGG );
+  tree->Branch("RJVars_dphiVG" , &RJVars_dphiVG      );
+
+
   tree->Branch("RJVars_G_0_CosTheta"    , &RJVars_G_0_CosTheta    ); 
   tree->Branch("RJVars_C_0_CosTheta"    , &RJVars_C_0_CosTheta    ); 
   tree->Branch("RJVars_G_0_dPhiGC"      , &RJVars_G_0_dPhiGC      ); 
@@ -274,6 +280,9 @@ EL::StatusCode PlantATree :: execute ()
   RJVars_V1_N               = eventinfo->auxdata<float>("V1_N");
   RJVars_V2_N               = eventinfo->auxdata<float>("V2_N");
 
+  RJVars_MG          = eventinfo->auxdata<float>("MG");
+  RJVars_DeltaBetaGG = eventinfo->auxdata<float>("DeltaBetaGG");
+  RJVars_dphiVG      = eventinfo->auxdata<float>("dphiVG");
 
   RJVars_G_0_CosTheta       = eventinfo->auxdata<float>("G_0_CosTheta");
   RJVars_C_0_CosTheta       = eventinfo->auxdata<float>("C_0_CosTheta");
