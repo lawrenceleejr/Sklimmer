@@ -79,6 +79,7 @@ if options.skip_events:
 job.options().setDouble(ROOT.EL.Job.optCacheSize, 50*1024*1024)
 job.options().setDouble(ROOT.EL.Job.optCacheLearnEntries, 50)
 job.options().setString(ROOT.EL.Job.optXaodAccessMode, "branch")
+
 #job.options().setString (ROOT.EL.Job.optXaodAccessMode, EL.Job.optXaodAccessMode_class);
 
 # add our algorithm to the job
@@ -128,7 +129,8 @@ elif (options.driver == "grid"):
     print "grid driver"
     logging.info("running on Grid")
     driver = ROOT.EL.PrunDriver()
-    driver.options().setString("nc_outputSampleName", "user.leejr.%%in:name[2]%%.%%in:name[3]%%.%%in:name[6]%%.%s"%options.runTag)
+    driver.options().setString("nc_outputSampleName", "user.rsmith.%%in:name[2]%%.%%in:name[3]%%.%%in:name[6]%%.%s"%options.runTag)
+#    driver.options().setString(EL::Job::optGridNfilesPerJob, "1");
     #driver.options().setDouble("nc_disableAutoRetry", 1)
     driver.options().setDouble("nc_nFilesPerJob", 1)
     driver.options().setDouble(ROOT.EL.Job.optGridMergeOutput, 1);
