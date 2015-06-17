@@ -53,12 +53,12 @@ ClassImp(SklimmerAnalysis)
 
 SklimmerAnalysis :: SklimmerAnalysis()
 {
-	// Here you put any code for the base initialization of variables,
-	// e.g. initialize all pointers to 0.  Note that you should only put
-	// the most basic initialization here, since this method will be
-	// called on both the submission and the worker node.  Most of your
-	// initialization code will go into histInitialize() and
-	// initialize().
+// Here you put any code for the base initialization of variables,
+// e.g. initialize all pointers to 0.  Note that you should only put
+// the most basic initialization here, since this method will be
+// called on both the submission and the worker node.  Most of your
+// initialization code will go into histInitialize() and
+// initialize().
 
 }
 
@@ -82,7 +82,7 @@ EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 	// tell EventLoop about our output xAOD:
 	EL::OutputStream out ("outputxAOD");
 	job.outputAdd (out);
-	
+
 	return EL::StatusCode::SUCCESS;
 }
 
@@ -90,10 +90,10 @@ EL::StatusCode SklimmerAnalysis :: setupJob (EL::Job& job)
 
 EL::StatusCode SklimmerAnalysis :: histInitialize ()
 {
-	// Here you do everything that needs to be done at the very
-	// beginning on each worker node, e.g. create histograms and output
-	// trees.  This method gets called before any input files are
-	// connected.
+// Here you do everything that needs to be done at the very
+// beginning on each worker node, e.g. create histograms and output
+// trees.  This method gets called before any input files are
+// connected.
 
 	h_nevents = new TH1F("h_nevents", "h_nevents", 10, 0, 10);
 	h_nevents_weighted = new TH1F("h_nevents_weighted", "h_nevents_weighted", 10, 0, 10);
@@ -103,10 +103,10 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 
 
 
-	// BACKGROUND TREE FOR QCD VARIABLES //////////////////////////
-	///////////////////////////////////////////////////////////////
-	//
-	//
+// BACKGROUND TREE FOR QCD VARIABLES //////////////////////////
+///////////////////////////////////////////////////////////////
+//
+//
 
 	LAB_alt = new RestFrames::RLabFrame("LAB","lab");
 
@@ -172,30 +172,30 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 
 	LAB_alt->InitializeTree(); 
 
-	// Will just set invisible mass to zero
+// Will just set invisible mass to zero
 	INV_alt->AddJigsaw(MinMass_alt);
 
-	// will set rapidity to zero
+// will set rapidity to zero
 	INV_alt->AddJigsaw(Rapidity_alt);
 	Rapidity_alt->AddVisibleFrame((LAB_alt->GetListVisibleFrames()));
 
 	LAB_alt->InitializeAnalysis(); 
 
-	//
-	//
-	////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////
-	// SQUARK TREE /////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////
-	//
-	//
+//
+//
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+// SQUARK TREE /////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//
+//
 
-	// The invisible group is all of the weakly interacting particles
+// The invisible group is all of the weakly interacting particles
 	INV->AddFrame(I1);
 	INV->AddFrame(I2);
 
-	// the combinatoric group is the list of visible objects
-	// that go into our hemispheres 
+// the combinatoric group is the list of visible objects
+// that go into our hemispheres 
 	VIS->AddFrame(V1);
 	VIS->SetNElementsForFrame(V1,1,false);
 	VIS->AddFrame(V2);
@@ -230,17 +230,17 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 
 	std::cout << "Is consistent analysis tree? : " << LAB->InitializeAnalysis() << std::endl; 
 
-	//
-	//
-	////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////
-	// GLUINO TREE /////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////
-	//
-	//
+//
+//
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+// GLUINO TREE /////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//
+//
 
 
-	// Set up 'signal-like' analysis tree
+// Set up 'signal-like' analysis tree
 	LAB_R->SetChildFrame(GG_R);
 	GG_R->AddChildFrame(Ga_R);
 	GG_R->AddChildFrame(Gb_R);
@@ -259,12 +259,12 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 
 	INV_R->AddFrame(Xa_R);
 	INV_R->AddFrame(Xb_R);
-	// visible frames in first decay step must always have at least one element
+// visible frames in first decay step must always have at least one element
 	VIS_R->AddFrame(V1a_R);
 	VIS_R->AddFrame(V1b_R);
 	VIS_R->SetNElementsForFrame(V1a_R,1,false);
 	VIS_R->SetNElementsForFrame(V1b_R,1,false);
-	// visible frames in second decay step can have zero elements
+// visible frames in second decay step can have zero elements
 	VIS_R->AddFrame(V2a_R);
 	VIS_R->AddFrame(V2b_R);
 	VIS_R->SetNElementsForFrame(V2a_R,0,false);
@@ -303,8 +303,8 @@ EL::StatusCode SklimmerAnalysis :: histInitialize ()
 
 EL::StatusCode SklimmerAnalysis :: fileExecute ()
 {
-	// Here you do everything that needs to be done exactly once for every
-	// single file, e.g. collect a list of all lumi-blocks processed
+// Here you do everything that needs to be done exactly once for every
+// single file, e.g. collect a list of all lumi-blocks processed
 	return EL::StatusCode::SUCCESS;
 }
 
@@ -312,9 +312,9 @@ EL::StatusCode SklimmerAnalysis :: fileExecute ()
 
 EL::StatusCode SklimmerAnalysis :: changeInput (bool firstFile)
 {
-	// Here you do everything you need to do when we change input files,
-	// e.g. resetting branch addresses on trees.  If you are using
-	// D3PDReader or a similar service this method is not needed.
+// Here you do everything you need to do when we change input files,
+// e.g. resetting branch addresses on trees.  If you are using
+// D3PDReader or a similar service this method is not needed.
 	return EL::StatusCode::SUCCESS;
 }
 
@@ -331,12 +331,12 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// you create here won't be available in the output if you have no
 	// input events.
 
-	const char* APP_NAME = "SklimmerAnalysis";
+		const char* APP_NAME = "SklimmerAnalysis";
 
 
 
 	// This will get moved to submission at some point... //////////////////////
-        if(m_writexAOD == false) m_writeFullCollectionsToxAOD = false; // logic and fail-safe 
+	if(m_writexAOD == false) m_writeFullCollectionsToxAOD = false; // logic and fail-safe 
 
 	Info("initialize()", "m_doSklimming = %i"               , m_doSklimming                 ); 
 	Info("initialize()", "m_doSUSYObjDef = %i"              , m_doSUSYObjDef                ); 
@@ -353,14 +353,14 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// m_writeNtuple = false;
 	// m_writexAOD = true;
 	// m_writeFullCollectionsToxAOD = true;
- 
+
 	// m_Analysis = "bbmet";
 
 
 	////////////////////////////////////////////////////////////////////////////
 
-    m_event = wk()->xaodEvent();
-    m_store = wk()->xaodStore();
+	m_event = wk()->xaodEvent();
+	m_store = wk()->xaodStore();
 
 	// as a check, let's see the number of events in our xAOD
 	Info("initialize()", "Number of events = %lli", m_event->getEntries() ); // print long long int
@@ -382,18 +382,18 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		CHECK( m_susy_obj->setProperty("EleId","Tight") );
 
 		if( m_susy_obj->SUSYToolsInit().isFailure() ) {
-		  Error( APP_NAME, "Failed to initialise tools in SUSYToolsInit()..." );
-		  Error( APP_NAME, "Exiting..." );
-		  return EL::StatusCode::FAILURE;   
+			Error( APP_NAME, "Failed to initialise tools in SUSYToolsInit()..." );
+			Error( APP_NAME, "Exiting..." );
+			return EL::StatusCode::FAILURE;   
 		}
 		else{ Info(APP_NAME,"SUSYToolsInit with success!!... " );}
 
 		if( m_susy_obj->initialize() != StatusCode::SUCCESS){
-		  Error(APP_NAME, "Cannot intialize SUSYObjDef_xAOD..." );
-		  Error(APP_NAME, "Exiting... " );
-		  return EL::StatusCode::FAILURE;
+			Error(APP_NAME, "Cannot intialize SUSYObjDef_xAOD..." );
+			Error(APP_NAME, "Exiting... " );
+			return EL::StatusCode::FAILURE;
 		}else{
-		  Info(APP_NAME,"SUSYObjDef_xAOD initialized... " );
+			Info(APP_NAME,"SUSYObjDef_xAOD initialized... " );
 		}
 	}
 
@@ -437,9 +437,9 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 	const char* APP_NAME = "SklimmerAnalysis";
 
 
-	// copy full container(s) to new xAOD
-	// without modifying the contents of it: 
-        CHECK(m_event->copy("EventInfo"));
+// copy full container(s) to new xAOD
+// without modifying the contents of it: 
+	CHECK(m_event->copy("EventInfo"));
 	CHECK(m_event->copy("TruthEvent"));
 
 	CHECK(m_event->copy("TruthParticle"));
@@ -452,10 +452,10 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 	CHECK(m_event->copy("TruthVertex"));
 	CHECK(m_event->copy("PrimaryVertices"));
-	
+
 	CHECK(m_event->copy("ElectronCollection"));
 	CHECK(m_event->copy("Muons"));
-	// CHECK(m_event->copy("PhotonCollection"));
+// CHECK(m_event->copy("PhotonCollection"));
 
 
 	return 0;
@@ -472,7 +472,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	// MUONS
 	//------------
 
-	const xAOD::MuonContainer* muons = 0;
+		const xAOD::MuonContainer* muons = 0;
 	if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ // retrieve arguments: container type, container key
 		Error(APP_NAME, "Failed to retrieve Muons container. Exiting." );
 		return EL::StatusCode::FAILURE;
@@ -488,7 +488,15 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	for( ; mu_itr != mu_end; ++mu_itr ) {
 		m_susy_obj->IsSignalMuonExp( **mu_itr,  ST::SignalIsoExp::TightIso ) ;
 		m_susy_obj->IsCosmicMuon( **mu_itr );
-		//Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< char >("baseline") );
+
+	// kill non baseline muon by setting 4-vector to small value
+		if ( ((*mu_itr)->muonType() != xAOD::Muon::Combined &&
+			(*mu_itr)->muonType() != xAOD::Muon::MuonStandAlone &&
+			(*mu_itr)->muonType() != xAOD::Muon::SegmentTagged) ||
+			!(*mu_itr)->auxdecor<char>("baseline") )
+		{
+			(*mu_itr)->setP4(1.,(*mu_itr)->eta(),(*mu_itr)->phi());
+		}
 	}
 
 
@@ -504,7 +512,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::ElectronContainer* electrons_copy(0);
 	xAOD::ShallowAuxContainer* electrons_copyaux(0);
-	CHECK( m_susy_obj->GetElectrons(electrons_copy,electrons_copyaux) );
+	CHECK( m_susy_obj->GetElectrons(electrons_copy,electrons_copyaux, true, 10000., 2.47) ); //EMULATING ZERO LEPTON PACKAGE
 
 	// Print their properties, using the tools:
 	xAOD::ElectronContainer::iterator el_itr = (electrons_copy)->begin();
@@ -512,7 +520,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	for( ; el_itr != el_end; ++el_itr ) {
 		m_susy_obj->IsSignalElectronExp( **el_itr , ST::SignalIsoExp::TightIso);
-		//Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< char >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
+	//Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< char >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
 	}
 
 
@@ -527,7 +535,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 		Error(APP_NAME, "Failed to retrieve Photons container. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
-	  
+
 	xAOD::PhotonContainer* photons_copy(0);
 	xAOD::ShallowAuxContainer* photons_copyaux(0);
 	CHECK( m_susy_obj->GetPhotons(photons_copy,photons_copyaux) );
@@ -546,7 +554,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 	xAOD::JetContainer* jets_copy(0);
 	xAOD::ShallowAuxContainer* jets_copyaux(0);
-	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux) );
+	CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux, true, 20000. , 10. ) ); //EMULATING ZEROLEPTON COLLECTION
 
 
 	//------------
@@ -567,7 +575,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	// OVERLAP REMOVAL (as in susytools tester)
 	//------------
 
-	CHECK( m_susy_obj->OverlapRemoval(electrons_copy, muons_copy, jets_copy) );
+	CHECK( m_susy_obj->OverlapRemoval(electrons_copy, muons_copy, jets_copy, false, 0.2, 0.4, 0.4) );
 
 
 	//------------
@@ -586,44 +594,45 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	// This will be made redundant by fixes in MET
 	xAOD::MuonContainer muons_copy_met(SG::VIEW_ELEMENTS);
 	for(auto mu : *muons_copy) {
-	if(mu->muonType()==xAOD::Muon::Combined || mu->muonType()==xAOD::Muon::SegmentTagged || mu->muonType()==xAOD::Muon::MuonStandAlone)
-		muons_copy_met.push_back(mu);
+		if(mu->muonType()==xAOD::Muon::Combined || mu->muonType()==xAOD::Muon::SegmentTagged || mu->muonType()==xAOD::Muon::MuonStandAlone)
+			muons_copy_met.push_back(mu);
 	}
 	///// TEMPORARY CODE ONLY
 
 	CHECK( m_susy_obj->GetMET(*MET,
-			  jets_copy,
-			  electrons_copy,
-			  &muons_copy_met,
-			  photons_copy,
-			  taus_copy) );
+		jets_copy,
+		electrons_copy,
+		&muons_copy_met,
+		photons_copy,
+		0) );
+
 
 
 	//////////////////////////////////////////////////////
 
 	if(m_writeFullCollectionsToxAOD){
 
-		muons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
-		if( !m_event->record( muons_copy ,   "CalibMuons" )){return EL::StatusCode::FAILURE;}
-		if( !m_event->record( muons_copyaux, "CalibMuonsAux." )) {return EL::StatusCode::FAILURE;}
+	muons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	if( !m_event->record( muons_copy ,   "CalibMuons" )){return EL::StatusCode::FAILURE;}
+	if( !m_event->record( muons_copyaux, "CalibMuonsAux." )) {return EL::StatusCode::FAILURE;}
 
 
-		electrons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
-		if( !m_event->record( electrons_copy ,   "CalibElectrons" )){return EL::StatusCode::FAILURE;}
-		if( !m_event->record( electrons_copyaux, "CalibElectronsAux." )) {return EL::StatusCode::FAILURE;}
+	electrons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	if( !m_event->record( electrons_copy ,   "CalibElectrons" )){return EL::StatusCode::FAILURE;}
+	if( !m_event->record( electrons_copyaux, "CalibElectronsAux." )) {return EL::StatusCode::FAILURE;}
 
-		// photons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
-		// if( !m_event->record( photons_copy ,   "CalibPhotons" )){return EL::StatusCode::FAILURE;}
-		// if( !m_event->record( photons_copyaux, "CalibPhotonsAux." )) {return EL::StatusCode::FAILURE;}
+	// photons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	// if( !m_event->record( photons_copy ,   "CalibPhotons" )){return EL::StatusCode::FAILURE;}
+	// if( !m_event->record( photons_copyaux, "CalibPhotonsAux." )) {return EL::StatusCode::FAILURE;}
 
-		jets_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
-	                                       // if true should have something like this line somewhere:
-	                                       // m_event->copy("AntiKt4LCTopoJets");
-		if( !m_event->record( jets_copy , "CalibJets" )){return EL::StatusCode::FAILURE;}
-		if( !m_event->record( jets_copyaux, "CalibJetsAux." )) {return EL::StatusCode::FAILURE;}
+	jets_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	   // if true should have something like this line somewhere:
+	   // m_event->copy("AntiKt4LCTopoJets");
+	if( !m_event->record( jets_copy , "CalibJets" )){return EL::StatusCode::FAILURE;}
+	if( !m_event->record( jets_copyaux, "CalibJetsAux." )) {return EL::StatusCode::FAILURE;}
 
-		if( !m_event->record( MET,    "CalibMET" )){return EL::StatusCode::FAILURE;}
-		if( !m_event->record( METAux, "CalibMETAux." )) {return EL::StatusCode::FAILURE;}
+	if( !m_event->record( MET,    "CalibMET" )){return EL::StatusCode::FAILURE;}
+	if( !m_event->record( METAux, "CalibMETAux." )) {return EL::StatusCode::FAILURE;}
 
 	} 
 
@@ -634,7 +643,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	electrons_copy->setStore(electrons_copyaux);
 	CHECK( m_store->record( electrons_copy, "CalibElectrons" ) );
 	CHECK( m_store->record( electrons_copyaux, "CalibElectronsAux." ) );
-	
+
 	photons_copy->setStore(photons_copyaux);
 	CHECK( m_store->record( photons_copy, "CalibPhotons" ) );
 	CHECK( m_store->record( photons_copyaux, "CalibPhotonsAux." ) );
@@ -657,45 +666,648 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
 EL::StatusCode SklimmerAnalysis :: execute ()
 {
-	// Here you do everything that needs to be done on every single
-	// events, e.g. read input variables, apply cuts, and fill
-	// histograms and trees.  This is where most of your actual analysis
-	// code will go.
+		// Here you do everything that needs to be done on every single
+		// events, e.g. read input variables, apply cuts, and fill
+		// histograms and trees.  This is where most of your actual analysis
+		// code will go.
+
+			const char* APP_NAME = "SklimmerAnalysis";
+
+
+
+			int passEvent = 1;
+
+
+		//if(m_doSklimming) copyFullxAODContainers();
+		// LH update, should the above instead be this:
+			if(m_writeFullCollectionsToxAOD) copyFullxAODContainers();
+
+		//----------------------------
+		// Event information
+		//--------------------------- 
+			const xAOD::EventInfo* eventInfo = 0;
+			if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
+				Error(APP_NAME, "Failed to retrieve event info collection. Exiting." );
+				return EL::StatusCode::FAILURE;
+			}
+
+
+			int EventNumber = eventInfo->eventNumber();
+			int RunNumber = eventInfo->runNumber();
+			float EventWeight = eventInfo->mcEventWeight();
+
+			int MCChannelNumber = eventInfo->mcChannelNumber(); 
+
+
+
+
+			h_nevents->Fill(0.);
+			h_nevents_weighted->Fill(0.,EventWeight);
+
+
+
+			if(sherpaWZInclVeto(MCChannelNumber)) return EL::StatusCode::SUCCESS;
+
+
+
+
+
+		// check if the event is data or MC
+		// (many tools are applied either to data or MC)
+			bool isMC = false;
+		// check if the event is MC
+			if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
+		isMC = true; // can do something with this later
+		}   
+
+
+		// if data, check if event passes GRL ////////////////////////////////////////////////
+
+		if(!isMC){ // it's data!
+			if(!m_grl->passRunLB(*eventInfo)){
+		return EL::StatusCode::SUCCESS; // go to next event
+		}
+		if(  (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) || 
+			(eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) || 
+			(eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
+		{
+		return EL::StatusCode::SUCCESS; // go to the next event
+		} // end if event flags check
+		} // end if not MC
+
+		if(isMC){
+		// Check if input file is mc14_13TeV to skip pileup reweighting
+			bool mc14_13TeV = false;
+			if( RunNumber == 222222) mc14_13TeV = true;
+		if (!mc14_13TeV){ // Only reweight 8 TeV MC
+			CHECK( m_pileupReweightingTool->execute() );
+		//Info( APP_NAME,"PileupReweightingTool: PileupWeight %f RandomRunNumber %i RandomLumiBlockNumber %i",eventInfo->auxdata< double >("PileupWeight"), eventInfo->auxdata< unsigned int >("RandomRunNumber"),  eventInfo->auxdata< unsigned int >("RandomLumiBlockNumber") );
+		}
+		}// end if IS MC
+
+		// Let's calibrate 
+
+		if(m_doSUSYObjDef) applySUSYObjectDefinitions();
+		else putStuffInStore();
+
+
+
+		std::pair< xAOD::EventInfo*, xAOD::ShallowAuxInfo* > eventInfo_shallowCopy = xAOD::shallowCopyObject( *eventInfo );
+		if( !m_store->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
+		if( !m_store->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
+
+
+		eventInfo_shallowCopy.second->setShallowIO(true);
+		if(m_writeFullCollectionsToxAOD){
+			if( !m_event->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
+			if( !m_event->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
+		}
+
+
+		// m_store->print();
+
+
+
+		if( m_doEventSelection && m_Analysis=="bbmet" ){
+			TString result = eventSelectionBBMet();
+			(eventInfo_shallowCopy.first)->auxdecor< char >("selection") = *result.Data();
+		//if(result=="") return EL::StatusCode::SUCCESS;
+		}
+
+		//Info( APP_NAME,"About to access eventInfo "  );
+
+		//Info( APP_NAME,"RJigsaw Variables: sHatR %f",
+		//	(eventInfo_shallowCopy.first)->auxdata< float >("sHatR")  );
+		//Info( APP_NAME,"RJigsaw Variables: gammainv_Rp1 %f",
+		//	(eventInfo_shallowCopy.first)->auxdata< float >("gammainv_Rp1") );
+
+		// m_store->clear(); 
+
+		//Info( APP_NAME,"About to write to xAOD "  );
+
+		if(m_writexAOD){
+		// Save the event:
+			m_event->fill();
+		}
+
+		//Info( APP_NAME,"leaving execute "  );
+
+
+		return EL::StatusCode::SUCCESS;
+}
+
+
+
+EL::StatusCode SklimmerAnalysis :: postExecute ()
+{
+	// Here you do everything that needs to be done after the main event
+	// processing.  This is typically very rare, particularly in user
+	// code.  It is mainly used in implementing the NTupleSvc.
+		return EL::StatusCode::SUCCESS;
+	}
+
+
+
+	EL::StatusCode SklimmerAnalysis :: finalize ()
+	{
+	// This method is the mirror image of initialize(), meaning it gets
+	// called after the last event has been processed on the worker node
+	// and allows you to finish up any objects you created in
+	// initialize() before they are written to disk.  This is actually
+	// fairly rare, since this happens separately for each worker node.
+	// Most of the time you want to do your post-processing on the
+	// submission node after all your histogram outputs have been
+	// merged.  This is different from histFinalize() in that it only
+	// gets called on worker nodes that processed input events.
+
+		const char* APP_NAME = "SklimmerAnalysis";
+
+
+	// GRL
+		if( m_grl ) {
+			delete m_grl;
+			m_grl = 0;
+		}
+
+	// Pileup_Reweighting
+		if( m_pileupReweightingTool ) {
+			delete m_pileupReweightingTool;
+			m_pileupReweightingTool = 0;
+		}
+
+	// finalize and close our output xAOD file:
+
+		if(m_writexAOD){
+			TFile *file = wk()->getOutputFile ("outputxAOD");
+			CHECK(m_event->finishWritingTo( file ));
+		}
+
+		return EL::StatusCode::SUCCESS;
+	}
+
+
+
+	EL::StatusCode SklimmerAnalysis :: histFinalize ()
+	{
+	// This method is the mirror image of histInitialize(), meaning it
+	// gets called after the last event has been processed on the worker
+	// node and allows you to finish up any objects you created in
+	// histInitialize() before they are written to disk.  This is
+	// actually fairly rare, since this happens separately for each
+	// worker node.  Most of the time you want to do your
+	// post-processing on the submission node after all your histogram
+	// outputs have been merged.  This is different from finalize() in
+	// that it gets called on all worker nodes regardless of whether
+	// they processed input events.
+		return EL::StatusCode::SUCCESS;
+	}
+
+
+
+	TString SklimmerAnalysis :: eventSelectionBBMet()
+	{
+
+		const char* APP_NAME = "SklimmerAnalysis";
+
+
+	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
+
+		xAOD::JetContainer* jets_copy(0);
+		CHECK( m_store->retrieve( jets_copy, "CalibJets" ) );
+
+		xAOD::MuonContainer* muons_copy(0);
+		CHECK( m_store->retrieve( muons_copy, "CalibMuons" ) );
+
+		xAOD::ElectronContainer* electrons_copy(0);
+		CHECK( m_store->retrieve( electrons_copy, "CalibElectrons" ) );
+
+
+		xAOD::EventInfo* eventInfo = 0;
+		CHECK(m_store->retrieve(eventInfo, "myEventInfo"));
+
+
+
+	//Info( APP_NAME, "1 ---------------------------------" );
+
+
+	//////////////////////////////////////////
+	// Event Cleaning Cuts
+	//
+	// Primary Vertex Cuts __________________________________________________
+	// const xAOD::VertexContainer* vertices(0);
+
+	// bool hasGoodVertex = 0;
+	// if( m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ) {
+	//   for( const auto& vx : *vertices ) {
+	//     if(vx->vertexType() == xAOD::VxType::PriVtx){
+	//     	if( vx->nTrackParticles() > 4 ) hasGoodVertex = 1;
+	// 		break;
+	//     }
+	//   }
+	//   if(hasGoodVertex==0) return "";
+	// } else {
+	// 	return "";
+	// }
+
+		Info( APP_NAME, "2 ---------------------------------" );
+
+
+
+	// Cosmic muon veto __________________________________________________
+		bool hasCosmicMuon=0;
+		xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
+		xAOD::MuonContainer::iterator mu_end = muons_copy->end();
+	// for( ; mu_itr != mu_end; ++mu_itr ) {
+	// 	if( ( *mu_itr )->auxdata<bool>("passOR") && 
+	// 		( *mu_itr )->auxdata<bool>("baseline") && m_susy_obj->IsCosmicMuon( **mu_itr ) ){
+	// 		hasCosmicMuon=1;
+	// 		break;
+	// 	}
+	// }
+	// if(hasCosmicMuon) return "";
+
+
+		Info( APP_NAME, "3 ---------------------------------" );
+
+
+	// Bad Tile Veto __________________________________________________
+	// bool isDeadTile=0;
+	// float BCH_CORR_JET = 0;
+
+	// jet_itr = goodJets->begin();
+	// jet_end = goodJets->end();
+	// for( ; jet_itr != jet_end; ++jet_itr ) {
+	// 	if( (*jet_itr)->pt() < 40000.  ) continue;
+	//    	(*jet_itr)->getAttribute(xAOD::JetAttribute::BchCorrJet,BCH_CORR_JET);
+	//    	if(std::acos(std::cos( (*jet_itr)->phi()-MET_TV3.Phi() ))<0.3 && BCH_CORR_JET>0.05 ) isDeadTile=1;
+	//    }
+	//    if(isDeadTile) return "";
+
+	//	Info( APP_NAME, "3 ---------------------------------" );
+
+	// NegCellCleaning _________________________________________________
+
+	// xAOD::MissingETContainer::const_iterator met_softclus = MET->find("SoftClus");
+	// if ( ( (*met_softclus)->met() / MET_TV3.Mag() ) * \
+	// 	std::cos( (*met_softclus)->phi()-MET_TV3.Phi() ) >= 0.5 ) return "";
+
+	//Info( APP_NAME, "4 ---------------------------------" );
+
+	//    // Jet Timing Cut __________________________________________________
+	// std::vector<float> time;
+	// time.resize(5,-999.f);
+	// double denom = 0.;
+	// double num = 0.;
+	// // int size = goodJets.size();
+
+	// jet_itr = goodJets->begin();
+	// jet_end = goodJets->end();
+	// int i = 0;
+	// for( ; jet_itr != jet_end; ++jet_itr ) {
+	// 	denom = denom + (*jet_itr)->e();
+	// 	float tmptime = -99999.f;
+	// 	(*jet_itr)->getAttribute(xAOD::JetAttribute::Timing,tmptime);
+	// 	num = num + (*jet_itr)->e() * tmptime;
+	// 	if(i==1) time[0] = num/denom;
+	// 	if(i==2) time[1] = num/denom;
+	// 	if(i==3) time[2] = num/denom;
+	// 	if(i==4) time[3] = num/denom;
+	// 	if(i==5) time[4] = num/denom;
+	// }
+
+	// if ((goodJets->size()>=2) && (fabs(time[0])>5)) { return ""; }
+	// if ((goodJets->size()>=2) && (fabs(time[0])>5)) { return ""; }
+	// if ((goodJets->size()>=3) && (fabs(time[1])>5)) { return ""; }
+	// if ((goodJets->size()>=4) && (fabs(time[2])>5)) { return ""; }
+	// if ((goodJets->size()>=5) && (fabs(time[3])>5)) { return ""; }
+	// if ((goodJets->size()>=6) && (fabs(time[4])>5)) { return ""; }
+
+
+	//
+	//////////////////////////////////////////////
+
+
+	/////////////// Lepton Veto //////////////////////////////
+
+		int Nel=0;
+		xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
+		xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
+		for( ; el_itr != el_end; ++el_itr ) {
+			if( ( *el_itr )->auxdata<char>("passOR") && 
+				( *el_itr )->auxdata<char>("baseline") &&  
+				( *el_itr )->pt()>10000. ) Nel++;
+		}
+
+	int Nmu=0;
+	mu_itr = muons_copy->begin();
+	mu_end = muons_copy->end();
+	for( ; mu_itr != mu_end; ++mu_itr ) {
+		if( ( *mu_itr )->auxdata<char>("passOR") && 
+			( *mu_itr )->auxdata<char>("baseline") &&  
+			( *mu_itr )->pt()>10000. ) Nmu++;
+	}
+
+	if(Nel || Nmu) return "";
+
+	///////////////////////////////////////////////////////////
+
+
+	xAOD::JetContainer* goodJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
+	// CHECK( m_store->record(goodJets, "MySelJets") );
+
+	xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
+	xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
+
+
+
+	LAB->ClearEvent();
+	LAB_R->ClearEvent();
+	LAB_alt->ClearEvent();
+
+
+	vector<RestFrames::GroupElementID> jetID_R;                    // ID for tracking jets in tree
+
+
+
+	for( ; jet_itr != jet_end; ++jet_itr ) {
+
+		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
+			(*jet_itr)->auxdata< char >("passOR")==1  &&
+			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
+
+			goodJets->push_back (*jet_itr); 
+
+			VIS->AddLabFrameFourVector( (*jet_itr)->p4()  );  
+			jetID_R.push_back( VIS_R->AddLabFrameFourVector( (*jet_itr)->p4()  )  );
+			VIS_alt->AddLabFrameFourVector( TLorentzVector( (*jet_itr)->p4().X(),
+															(*jet_itr)->p4().Y(),
+															0.0,
+															(*jet_itr)->p4().T() )   );
+
+		}
+
+		(*jet_itr)->auxdecor<float>("MV1") =  ((*jet_itr)->btagging())->MV1_discriminant() ;
+
+	}
+
+	if(goodJets->size() < 2){
+		return "";
+	} 
+
+
+	std::sort(goodJets->begin(), goodJets->end(),
+		[](xAOD::Jet  *a, xAOD::Jet  *b){return a->pt() > b->pt();});
+
+
+
+
+	// Get MET Collection to hand to Rest Frames////////////////////////////////////////////////////
+
+	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
+	CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
+
+	TVector3 MET_TV3;
+
+	xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
+	if (met_it == MET->end()) {
+		Error( APP_NAME, "No RefFinal inside MET container" );
+	} else {
+		MET_TV3.SetZ(0.);
+		MET_TV3.SetX((*met_it)->mpx() );
+		MET_TV3.SetY((*met_it)->mpy() );
+	}
+
+	INV->SetLabFrameThreeVector(MET_TV3);
+	LAB->AnalyzeEvent();
+
+	INV_alt->SetLabFrameThreeVector(MET_TV3);
+	LAB_alt->AnalyzeEvent();
+
+
+	// if(goodJets->size()>3){
+	INV_R->SetLabFrameThreeVector(MET_TV3);
+	LAB_R->AnalyzeEvent();
+
+
+	RestFrames::RDecayFrame* G[2];
+	RestFrames::RDecayFrame* C[2];
+	RestFrames::RVisibleFrame* VS[2];
+	RestFrames::RVisibleFrame* VC[2];
+	RestFrames::RInvisibleFrame* X[2];
+	// Randomize the two hemispheres
+	int flip = (gRandom->Rndm() > 0.5);
+	G[flip] = Ga_R;
+	G[(flip+1)%2] = Gb_R;
+	C[flip] = Ca_R;
+	C[(flip+1)%2] = Cb_R;
+	VS[flip] = V1a_R;
+	VS[(flip+1)%2] = V1b_R;
+	VC[flip] = V2a_R;
+	VC[(flip+1)%2] = V2b_R;
+	X[flip] = Xa_R;
+	X[(flip+1)%2] = Xb_R;
+
+
+	double NV[2];
+	double jet1PT[2];
+	double jet2PT[2];
+
+
+	for(int i = 0; i < 2; i++){
+
+		NV[i] =  VIS_R->GetNElementsInFrame(VS[i]);
+		NV[i] += VIS_R->GetNElementsInFrame(VC[i]);
+
+		int N = jetID_R.size();
+		// std::cout << "In SklimmerAnalysis:  N Jets " << N << std::endl;
+
+		double pTmax[2]; pTmax[0] = -1.; pTmax[1] = -1.;
+		for(int j = 0; j < N; j++){
+			const RestFrames::RestFrame* frame = VIS_R->GetFrame(jetID_R[j]);
+			if(VS[i]->IsSame(frame) || VC[i]->IsSame(frame)){
+				double pT = VIS_R->GetLabFrameFourVector(jetID_R[j]).Pt();
+				// std::cout << "In SklimmerAnalysis: ijet pT " << pT << std::endl;
+
+				if(pT > pTmax[0]){
+					pTmax[1] = pTmax[0];
+					pTmax[0] = pT;
+				} else {
+					if(pT > pTmax[1]) pTmax[1] = pT;
+				}
+			}
+		}
+
+		jet1PT[i] = pTmax[0];
+		jet2PT[i] = pTmax[1];
+		std::cout << "In SklimmerAnalysis: " << jet1PT[i] << " " << jet2PT[i] << std::endl;
+
+
+
+		if(NV[i] > 1){
+			eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = C[i]->GetCosDecayAngle();
+			eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = G[i]->GetDeltaPhiDecayPlanes(C[i]);
+			eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = (C[i]->GetMass()-X[i]->GetMass())/(G[i]->GetMass()-X[i]->GetMass());
+		} else {
+			eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = -10.;
+			eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = -10.;
+			eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = -10.;
+		}
+
+		eventInfo->auxdecor<float>(Form("G_%d_CosTheta",i)     ) = G[i]->GetCosDecayAngle();
+
+		eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = jet1PT[i];
+		eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = jet2PT[i];
+
+	// std::cout << "In SklimmerAnalysis: " << jet2PT[i] << std::endl;
+
+	}
+
+
+
+	// Some new Gluino variables....
+
+	TLorentzVector vV1 = G[0]->GetVisibleFourVector(G[0]);
+	TLorentzVector vV2 = G[1]->GetVisibleFourVector(G[1]);
+	float MG = (vV1.M2()-vV2.M2())/(2.*(vV1.E()-vV2.E()));
+
+	float PG = G[0]->GetMomentum(GG_R);
+	float MGG = 2.*sqrt(PG*PG + MG*MG);
+	float gaminvGG = 2.*MG/MGG;
+	float gaminv = 1./SS->GetGammaInParentFrame();
+	float beta = sqrt(1.- gaminv*gaminv);
+	float betaGG = sqrt(1.- gaminvGG*gaminvGG);
+
+	//*** velocity difference between 'massive' and 'mass-less'
+	float DeltaBetaGG = -(betaGG-beta)/(1.-betaGG*beta);
+
+	//*** delta phi between GG visible decay products and GG decay axis
+	float dphiVG = GG_R->GetDeltaPhiDecayVisible();
+
+
+	eventInfo->auxdecor<float>("MG"               ) = MG;
+	eventInfo->auxdecor<float>("DeltaBetaGG"      ) = DeltaBetaGG;
+	eventInfo->auxdecor<float>("dphiVG"           ) = dphiVG;
+
+
+	// Gluino-level variables end
+	////////////////////////////////////////////////////////////////////////////////
+
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// 1st order squark vars
+
+
+	eventInfo->auxdecor<float>("SS_Mass"           ) = SS->GetMass();
+	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS->GetGammaInParentFrame();
+	eventInfo->auxdecor<float>("SS_dPhiBetaR"      ) = SS->GetDeltaPhiBoostVisible();
+	eventInfo->auxdecor<float>("SS_dPhiVis"        ) = SS->GetDeltaPhiVisible();
+	eventInfo->auxdecor<float>("SS_CosTheta"       ) = SS->GetCosDecayAngle();
+	eventInfo->auxdecor<float>("SS_dPhiDecayAngle" ) = SS->GetDeltaPhiDecayAngle();
+	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS->GetVisibleShape();
+	eventInfo->auxdecor<float>("SS_MDeltaR"        ) = SS->GetVisibleShape() * SS->GetMass() ;
+	eventInfo->auxdecor<float>("S1_Mass"           ) = S1->GetMass();
+	eventInfo->auxdecor<float>("S1_CosTheta"       ) = S1->GetCosDecayAngle();
+	eventInfo->auxdecor<float>("S2_Mass"           ) = S2->GetMass();
+	eventInfo->auxdecor<float>("S2_CosTheta"       ) = S2->GetCosDecayAngle();
+	eventInfo->auxdecor<float>("I1_Depth"          ) = S1->GetFrameDepth(I1);
+	eventInfo->auxdecor<float>("I2_Depth"          ) = S2->GetFrameDepth(I2);
+	eventInfo->auxdecor<float>("V1_N"              ) = VIS->GetNElementsInFrame(V1);
+	eventInfo->auxdecor<float>("V2_N"              ) = VIS->GetNElementsInFrame(V2);
+
+	// end
+	////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// QCD Variables
+
+
+	// dphiR and Rptshat (formerly cosPT)
+	// for QCD rejection
+	double dphiR = SS->GetDeltaPhiBoostVisible();
+	double PTCM = SS->GetFourVector(LAB).Pt();
+	double Rptshat = PTCM / (PTCM + SS->GetMass()/4.);
+
+	// QCD rejection using the 'background tree'
+	// MET 'sibling' in background tree auxillary calculations
+	TLorentzVector Psib = I_alt->GetSiblingFrame()->GetFourVector(LAB_alt);
+	TLorentzVector Pmet = I_alt->GetFourVector(LAB_alt);
+	double Psib_dot_METhat = max(0., Psib.Vect().Dot(MET_TV3.Unit()));
+	double Mpar2 = Psib.E()*Psib.E()-Psib.Vect().Dot(MET_TV3.Unit())*Psib.Vect().Dot(MET_TV3.Unit());
+	double Msib2 = Psib.M2();
+	double MB2 = 2.*(Pmet.E()*Psib.E()-MET_TV3.Dot(Psib.Vect()));
+	TVector3 boostPsibM = (Pmet+Psib).BoostVector();
+
+
+	// QCD rejection variables from 'background tree'
+	double DepthBKG = S_alt->GetFrameDepth(I_alt);
+	int Nsib = I_alt->GetSiblingFrame()->GetNDescendants();
+	double cosBKG = I_alt->GetParentFrame()->GetCosDecayAngle();
+	double dphiMsib = fabs(MET_TV3.DeltaPhi(Psib.Vect()));
+	double RpsibM = Psib_dot_METhat / (Psib_dot_METhat + MET_TV3.Mag());
+	double RmsibM = 1. / ( MB2/(Mpar2-Msib2) + 1.);
+	Psib.Boost(-boostPsibM);
+	double cosPsibM = -1.*Psib.Vect().Unit().Dot(boostPsibM.Unit());
+	cosPsibM = (1.-cosPsibM)/2.;
+	double DeltaQCD1 = (cosPsibM-RpsibM)/(cosPsibM+RpsibM);
+	double DeltaQCD2 = (cosPsibM-RmsibM)/(cosPsibM+RmsibM);
+
+	eventInfo->auxdecor<float>("QCD_dPhiR"              ) = dphiR;
+	eventInfo->auxdecor<float>("QCD_Rpt"                ) = Rptshat;
+	eventInfo->auxdecor<float>("QCD_Rmsib"              ) = RmsibM;
+	eventInfo->auxdecor<float>("QCD_Delta2"              ) = DeltaQCD2;
+	eventInfo->auxdecor<float>("QCD_Rpsib"              ) = RpsibM;
+	eventInfo->auxdecor<float>("QCD_Delta1"              ) = DeltaQCD1;
+
+	// end
+	////////////////////////////////////////////////////////////////////////////////
+
+
+
+	/////////////////////////////////////////////////////////////////
+
+	if(goodJets->at(0)->pt() >  30000 &&
+		goodJets->at(1)->pt() > 30000 
+	// (goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
+	// (goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 
+		)
+	{
+		return "SRA";
+
+	}
+
+
+	// if(goodJets->size() > 2){
+	// 	if(goodJets->at(0)->pt() > 150000 &&
+	// 		goodJets->at(1)->pt() > 30000 && 
+	// 		goodJets->at(2)->pt() > 30000 && 
+	// 		(goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 &&
+	// 		(goodJets->at(2)->btagging())->MV1_discriminant() > 0.98 ){
+	// 		return "SRB";
+	// 	}
+	// }
+
+
+	return "";
+
+}
+
+
+
+
+int SklimmerAnalysis :: sherpaWZInclVeto(int MCChannelNumber){
 
 	const char* APP_NAME = "SklimmerAnalysis";
 
 
-
-	int passEvent = 1;
-
-
-	//if(m_doSklimming) copyFullxAODContainers();
-        // LH update, should the above instead be this:
-        if(m_writeFullCollectionsToxAOD) copyFullxAODContainers();
-
-	//----------------------------
-	// Event information
-	//--------------------------- 
-	const xAOD::EventInfo* eventInfo = 0;
-	if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
-		Error(APP_NAME, "Failed to retrieve event info collection. Exiting." );
-		return EL::StatusCode::FAILURE;
-	}
-
-
-	int EventNumber = eventInfo->eventNumber();
-	int RunNumber = eventInfo->runNumber();
-	float EventWeight = eventInfo->mcEventWeight();
-
-	int MCChannelNumber = eventInfo->mcChannelNumber(); 
-
-
-
-
-	h_nevents->Fill(0.);
-	h_nevents_weighted->Fill(0.,EventWeight);
-
-	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
+// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
 	if ( 
 		MCChannelNumber == 167740 ||
 		MCChannelNumber == 167741 ||
@@ -719,499 +1331,60 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		MCChannelNumber == 167759 ||
 		MCChannelNumber == 167760 ){
 
-
-
 		const xAOD::TruthParticleContainer* truthParticles = 0;
-		if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
-			Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
-			return EL::StatusCode::FAILURE;
-		}
-
-
-		TLorentzVector V;
-		TLorentzVector l1;
-		TLorentzVector l2;
-
-		bool foundFirst  = false;
-		bool foundSecond = false;
-		bool foundMore   = false;
-
-
-
-		for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
-		  // const TruthParticle* p = *tpi;
-		  // In general for Sherpa,  you have to select particles with status==3 and barcode<100,000 to get get the Matrix element in and out
-		  if ( ((*tpi)->status() == 3) && (fabs( (*tpi)->pdgId() ) >= 11) && (fabs( (*tpi)->pdgId() ) <= 16) && ((*tpi)->barcode() < 100000) ) {
-		    if ( !foundFirst ) {
-		      l1.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
-		      foundFirst = true;
-		    } else if ( !foundSecond ) {
-		      l2.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
-		      foundSecond = true;
-		    } else {
-		      foundMore = true;
-		      break;
-		    }
-		  }
-		}
-
-		if ( !foundSecond )
-		  std::cout << "doSherpaPtFilterCheck: Unable to find 2 leptons" << std::endl;
-		else if ( foundMore )
-		  std::cout << "doSherpaPtFilterCheck: Found more than 2 leptons" << std::endl;
-		else {
-		  V = l1 + l2;
-		  // m_h_sherpaPt->Fill( V.Pt() / GeV, m_eventWeight );
-
-	  		if(V.Pt()>70000.) return EL::StatusCode::SUCCESS;
-
-		}
-
-	}
-	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
-
-
-
-
-	// check if the event is data or MC
-	// (many tools are applied either to data or MC)
-	bool isMC = false;
-	// check if the event is MC
-	if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
-	   isMC = true; // can do something with this later
-	}   
-
-
-	// if data, check if event passes GRL ////////////////////////////////////////////////
-
-	if(!isMC){ // it's data!
-		if(!m_grl->passRunLB(*eventInfo)){
-			return EL::StatusCode::SUCCESS; // go to next event
-		}
-		if(  (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) || 
-			(eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) || 
-			(eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
-		{
-			return EL::StatusCode::SUCCESS; // go to the next event
-		} // end if event flags check
-	} // end if not MC
-
-	if(isMC){
-		// Check if input file is mc14_13TeV to skip pileup reweighting
-		bool mc14_13TeV = false;
-		if( RunNumber == 222222) mc14_13TeV = true;
-		if (!mc14_13TeV){ // Only reweight 8 TeV MC
-			CHECK( m_pileupReweightingTool->execute() );
-			//Info( APP_NAME,"PileupReweightingTool: PileupWeight %f RandomRunNumber %i RandomLumiBlockNumber %i",eventInfo->auxdata< double >("PileupWeight"), eventInfo->auxdata< unsigned int >("RandomRunNumber"),  eventInfo->auxdata< unsigned int >("RandomLumiBlockNumber") );
-		}
-	}// end if IS MC
-
-	// Let's calibrate 
-
-	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
-	else putStuffInStore();
-
-
-
-	std::pair< xAOD::EventInfo*, xAOD::ShallowAuxInfo* > eventInfo_shallowCopy = xAOD::shallowCopyObject( *eventInfo );
-	if( !m_store->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
-	if( !m_store->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
-
-
-	eventInfo_shallowCopy.second->setShallowIO(true);
-        if(m_writeFullCollectionsToxAOD){
-	    if( !m_event->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
-	    if( !m_event->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
-        }
-
-
-	// m_store->print();
-
-
-
-	if( m_doEventSelection && m_Analysis=="bbmet" ){
-		TString result = eventSelectionBBMet();
-		(eventInfo_shallowCopy.first)->auxdecor< char >("selection") = *result.Data();
-		//if(result=="") return EL::StatusCode::SUCCESS;
-	}
-
-	//Info( APP_NAME,"About to access eventInfo "  );
-
-	//Info( APP_NAME,"RJigsaw Variables: sHatR %f",
-	//	(eventInfo_shallowCopy.first)->auxdata< float >("sHatR")  );
-	//Info( APP_NAME,"RJigsaw Variables: gammainv_Rp1 %f",
-	//	(eventInfo_shallowCopy.first)->auxdata< float >("gammainv_Rp1") );
-
-	// m_store->clear(); 
-
-	//Info( APP_NAME,"About to write to xAOD "  );
-
-	if(m_writexAOD){
-		// Save the event:
-		m_event->fill();
-	}
-
-	//Info( APP_NAME,"leaving execute "  );
-
-
-	return EL::StatusCode::SUCCESS;
+if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
+	Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
+	return EL::StatusCode::FAILURE;
 }
 
 
+TLorentzVector V;
+TLorentzVector l1;
+TLorentzVector l2;
 
-EL::StatusCode SklimmerAnalysis :: postExecute ()
-{
-	// Here you do everything that needs to be done after the main event
-	// processing.  This is typically very rare, particularly in user
-	// code.  It is mainly used in implementing the NTupleSvc.
-	return EL::StatusCode::SUCCESS;
+bool foundFirst  = false;
+bool foundSecond = false;
+bool foundMore   = false;
+
+
+
+for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
+// const TruthParticle* p = *tpi;
+// In general for Sherpa,  you have to select particles with status==3 and barcode<100,000 to get get the Matrix element in and out
+	if ( ((*tpi)->status() == 3) && (fabs( (*tpi)->pdgId() ) >= 11) && (fabs( (*tpi)->pdgId() ) <= 16) && ((*tpi)->barcode() < 100000) ) {
+		if ( !foundFirst ) {
+			l1.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
+			foundFirst = true;
+		} else if ( !foundSecond ) {
+			l2.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
+			foundSecond = true;
+		} else {
+			foundMore = true;
+			break;
+		}
+	}
 }
 
-
-
-EL::StatusCode SklimmerAnalysis :: finalize ()
-{
-	// This method is the mirror image of initialize(), meaning it gets
-	// called after the last event has been processed on the worker node
-	// and allows you to finish up any objects you created in
-	// initialize() before they are written to disk.  This is actually
-	// fairly rare, since this happens separately for each worker node.
-	// Most of the time you want to do your post-processing on the
-	// submission node after all your histogram outputs have been
-	// merged.  This is different from histFinalize() in that it only
-	// gets called on worker nodes that processed input events.
-
-	const char* APP_NAME = "SklimmerAnalysis";
-
-
-	// GRL
-	if( m_grl ) {
-		delete m_grl;
-		m_grl = 0;
-	}
-
-	// Pileup_Reweighting
-	if( m_pileupReweightingTool ) {
-		delete m_pileupReweightingTool;
-		m_pileupReweightingTool = 0;
-	}
-
-	// finalize and close our output xAOD file:
-
-	if(m_writexAOD){
-		TFile *file = wk()->getOutputFile ("outputxAOD");
-		CHECK(m_event->finishWritingTo( file ));
-	}
-
-	return EL::StatusCode::SUCCESS;
+if ( !foundSecond )
+// std::cout << "doSherpaPtFilterCheck: Unable to find 2 leptons" << std::endl;
+	return 0;
+else if ( foundMore )
+// std::cout << "doSherpaPtFilterCheck: Found more than 2 leptons" << std::endl;
+	return 0;
+else {
+	V = l1 + l2;
+// m_h_sherpaPt->Fill( V.Pt() / GeV, m_eventWeight );
+	if(V.Pt()>70000.) return 1;
+	else return 0;
 }
 
-
-
-EL::StatusCode SklimmerAnalysis :: histFinalize ()
-{
-	// This method is the mirror image of histInitialize(), meaning it
-	// gets called after the last event has been processed on the worker
-	// node and allows you to finish up any objects you created in
-	// histInitialize() before they are written to disk.  This is
-	// actually fairly rare, since this happens separately for each
-	// worker node.  Most of the time you want to do your
-	// post-processing on the submission node after all your histogram
-	// outputs have been merged.  This is different from finalize() in
-	// that it gets called on all worker nodes regardless of whether
-	// they processed input events.
-	return EL::StatusCode::SUCCESS;
+} else {
+	return 0;
 }
+// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
 
-
-
-TString SklimmerAnalysis :: eventSelectionBBMet()
-{
-
-	const char* APP_NAME = "SklimmerAnalysis";
-
-
-	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
-
-	xAOD::JetContainer* jets_copy(0);
-	CHECK( m_store->retrieve( jets_copy, "CalibJets" ) );
-
-	xAOD::MuonContainer* muons_copy(0);
-	CHECK( m_store->retrieve( muons_copy, "CalibMuons" ) );
-
-	xAOD::ElectronContainer* electrons_copy(0);
-	CHECK( m_store->retrieve( electrons_copy, "CalibElectrons" ) );
-
-
-	xAOD::EventInfo* eventInfo = 0;
-	CHECK(m_store->retrieve(eventInfo, "myEventInfo"));
-
-	/////////////// Lepton Veto //////////////////////////////
-
-	int Nel=0;
-	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
-	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
-	for( ; el_itr != el_end; ++el_itr ) {
-		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
-	}
-	
-	int Nmu=0;
-	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
-	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
-	for( ; mu_itr != mu_end; ++mu_itr ) {
-		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
-	}
-
-	if(Nel || Nmu) return "";
-
-	///////////////////////////////////////////////////////////
-
-
-	xAOD::JetContainer* goodJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
-	// CHECK( m_store->record(goodJets, "MySelJets") );
-
-	xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
-	xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
-
-	for( ; jet_itr != jet_end; ++jet_itr ) {
-
-		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
-			(*jet_itr)->auxdata< char >("passOR")==1  &&
-			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
-			goodJets->push_back (*jet_itr); 
-		}
-
-		(*jet_itr)->auxdecor<float>("MV1") =  ((*jet_itr)->btagging())->MV1_discriminant() ;
-    
-    }
-
-    if(goodJets->size() < 2){
-		return "";
-    } 
-
-
-	std::sort(goodJets->begin(), goodJets->end(),
-    [](xAOD::Jet  *a, xAOD::Jet  *b){return a->pt() > b->pt();});
-
-
-	LAB->ClearEvent();
-	LAB_R->ClearEvent();
-	LAB_alt->ClearEvent();
-
-    vector<RestFrames::GroupElementID> jetID_R;                    // ID for tracking jets in tree
-
-	jet_itr = (jets_copy)->begin();
-
-	for( ; jet_itr != jet_end; ++jet_itr ) {
-
-		if( (*jet_itr)->auxdata< char >("baseline")==1  &&
-			(*jet_itr)->auxdata< char >("passOR")==1  &&
-			(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
-			VIS->AddLabFrameFourVector( (*jet_itr)->p4()  );  
-			jetID_R.push_back( VIS_R->AddLabFrameFourVector( (*jet_itr)->p4()  )  );
-			VIS_alt->AddLabFrameFourVector( (*jet_itr)->p4()   );
-		}
-    
-    }
-
-	// Get MET Collection to hand to Rest Frames////////////////////////////////////////////////////
-
-	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-	CHECK( m_store->retrieve( MET, "CalibMET_RefFinal" ) );
-
-	TVector3 MET_TV3;
-
-    xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
-	if (met_it == MET->end()) {
-		Error( APP_NAME, "No RefFinal inside MET container" );
-	} else {
-		MET_TV3.SetZ(0.);
-		MET_TV3.SetX((*met_it)->mpx() );
-		MET_TV3.SetY((*met_it)->mpy() );
-	}
-
-	INV->SetLabFrameThreeVector(MET_TV3);
-	LAB->AnalyzeEvent();
-
-    INV_alt->SetLabFrameThreeVector(MET_TV3);
-    LAB_alt->AnalyzeEvent();
-
-
-    if(goodJets->size()>3){
-    	INV_R->SetLabFrameThreeVector(MET_TV3);
-    	LAB_R->AnalyzeEvent();
-
-
-		RestFrames::RDecayFrame* G[2];
-		RestFrames::RDecayFrame* C[2];
-		RestFrames::RVisibleFrame* VS[2];
-		RestFrames::RVisibleFrame* VC[2];
-		RestFrames::RInvisibleFrame* X[2];
-		// Randomize the two hemispheres
-		int flip = (gRandom->Rndm() > 0.5);
-		G[flip] = Ga_R;
-		G[(flip+1)%2] = Gb_R;
-		C[flip] = Ca_R;
-		C[(flip+1)%2] = Cb_R;
-		VS[flip] = V1a_R;
-		VS[(flip+1)%2] = V1b_R;
-		VC[flip] = V2a_R;
-		VC[(flip+1)%2] = V2b_R;
-		X[flip] = Xa_R;
-		X[(flip+1)%2] = Xb_R;
-
-
-		double NV[2];
-		double jet1PT[2];
-		double jet2PT[2];
-
-
-		for(int i = 0; i < 2; i++){
-
-			NV[i] =  VIS_R->GetNElementsInFrame(VS[i]);
-			NV[i] += VIS_R->GetNElementsInFrame(VC[i]);
-
-			int N = jetID_R.size();
-			double pTmax[2]; pTmax[0] = -1.; pTmax[1] = -1.;
-			for(int j = 0; j < N; j++){
-				const RestFrames::RestFrame* frame = VIS_R->GetFrame(jetID_R[j]);
-				if(VS[i]->IsSame(frame) || VC[i]->IsSame(frame)){
-					double pT = frame->GetFourVector(LAB_R).Pt();
-					if(pT > pTmax[0]){
-						pTmax[1] = pTmax[0];
-						pTmax[0] = pT;
-					} else {
-						if(pT > pTmax[1]) pTmax[1] = pT;
-					}
-				}
-			}
-			jet1PT[i] = pTmax[0];
-			jet2PT[i] = pTmax[1];
-
-
-			if(NV[i] > 1){
-				eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = C[i]->GetCosDecayAngle();
-				eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = G[i]->GetDeltaPhiDecayPlanes(C[i]);
-				eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = (C[i]->GetMass()-X[i]->GetMass())/(G[i]->GetMass()-X[i]->GetMass());
-			} else {
-				eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = -10.;
-				eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = -10.;
-				eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = -10.;
-			}
-
-			eventInfo->auxdecor<float>(Form("G_%d_CosTheta",i)     ) = G[i]->GetCosDecayAngle();
-
-			eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = jet1PT[i];
-			eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = jet2PT[i];
-
-			// std::cout << "In SklimmerAnalysis: " << jet2PT[i] << std::endl;
-
-		}
-
-    } else {
-
-		for(int i = 0; i < 2; i++){
-			eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = -10.;
-			eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = -10.;
-			eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = -10.;
-			eventInfo->auxdecor<float>(Form("G_%d_CosTheta",i)     ) = -10.;
-			eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = -10.;
-			eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = -10.;
-		}
-
-    }
-
-	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
-
-	eventInfo->auxdecor<float>("SS_Mass"           ) = SS->GetMass();
-	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS->GetGammaInParentFrame();
-	eventInfo->auxdecor<float>("SS_dPhiBetaR"      ) = SS->GetDeltaPhiBoostVisible();
-	eventInfo->auxdecor<float>("SS_dPhiVis"        ) = SS->GetDeltaPhiVisible();
-	eventInfo->auxdecor<float>("SS_CosTheta"       ) = SS->GetCosDecayAngle();
-	eventInfo->auxdecor<float>("SS_dPhiDecayAngle" ) = SS->GetDeltaPhiDecayAngle();
-	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS->GetVisibleShape();
-	eventInfo->auxdecor<float>("SS_MDeltaR"        ) = SS->GetVisibleShape() * SS->GetMass() ;
-	eventInfo->auxdecor<float>("S1_Mass"           ) = S1->GetMass();
-	eventInfo->auxdecor<float>("S1_CosTheta"       ) = S1->GetCosDecayAngle();
-	eventInfo->auxdecor<float>("S2_Mass"           ) = S2->GetMass();
-	eventInfo->auxdecor<float>("S2_CosTheta"       ) = S2->GetCosDecayAngle();
-	eventInfo->auxdecor<float>("I1_Depth"          ) = S1->GetFrameDepth(I1);
-	eventInfo->auxdecor<float>("I2_Depth"          ) = S2->GetFrameDepth(I2);
-	eventInfo->auxdecor<float>("V1_N"              ) = VIS->GetNElementsInFrame(V1);
-	eventInfo->auxdecor<float>("V2_N"              ) = VIS->GetNElementsInFrame(V2);
-
-
-
-    // dphiR and Rptshat (formerly cosPT)
-    // for QCD rejection
-    double dphiR = SS->GetDeltaPhiBoostVisible();
-    double PTCM = SS->GetFourVector(LAB).Pt();
-    double Rptshat = PTCM / (PTCM + SS->GetMass()/4.);
-
-    // QCD rejection using the 'background tree'
-    // MET 'sibling' in background tree auxillary calculations
-    TLorentzVector Psib = I_alt->GetSiblingFrame()->GetFourVector(LAB_alt);
-    TLorentzVector Pmet = I_alt->GetFourVector(LAB_alt);
-    double Psib_dot_METhat = max(0., Psib.Vect().Dot(MET_TV3.Unit()));
-    double Mpar2 = Psib.E()*Psib.E()-Psib.Vect().Dot(MET_TV3.Unit())*Psib.Vect().Dot(MET_TV3.Unit());
-    double Msib2 = Psib.M2();
-    double MB2 = 2.*(Pmet.E()*Psib.E()-MET_TV3.Dot(Psib.Vect()));
-    TVector3 boostPsibM = (Pmet+Psib).BoostVector();
-
-
-    // QCD rejection variables from 'background tree'
-    double DepthBKG = S_alt->GetFrameDepth(I_alt);
-    int Nsib = I_alt->GetSiblingFrame()->GetNDescendants();
-    double cosBKG = I_alt->GetParentFrame()->GetCosDecayAngle();
-    double dphiMsib = fabs(MET_TV3.DeltaPhi(Psib.Vect()));
-    double RpsibM = Psib_dot_METhat / (Psib_dot_METhat + MET_TV3.Mag());
-    double RmsibM = 1. / ( MB2/(Mpar2-Msib2) + 1.);
-    Psib.Boost(-boostPsibM);
-    double cosPsibM = -1.*Psib.Vect().Unit().Dot(boostPsibM.Unit());
-    cosPsibM = (1.-cosPsibM)/2.;
-    double DeltaQCD1 = (cosPsibM-RpsibM)/(cosPsibM+RpsibM);
-    double DeltaQCD2 = (cosPsibM-RmsibM)/(cosPsibM+RmsibM);
-
-    eventInfo->auxdecor<float>("QCD_dPhiR"              ) = dphiR;
-    eventInfo->auxdecor<float>("QCD_Rpt"                ) = Rptshat;
-    eventInfo->auxdecor<float>("QCD_Rmsib"              ) = RmsibM;
-    eventInfo->auxdecor<float>("QCD_Delta2"              ) = DeltaQCD2;
-    eventInfo->auxdecor<float>("QCD_Rpsib"              ) = RpsibM;
-    eventInfo->auxdecor<float>("QCD_Delta1"              ) = DeltaQCD1;
-
-	// Info( APP_NAME,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
-	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
-
-
-
-	/////////////////////////////////////////////////////////////////
-
-	if(goodJets->at(0)->pt() >  20000 &&
-		goodJets->at(1)->pt() > 20000 
-		// (goodJets->at(0)->btagging())->MV1_discriminant() > 0.98 &&
-		// (goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 
-		)
-	{
-			return "SRA";
-		
-	}
-
-
-	// if(goodJets->size() > 2){
-	// 	if(goodJets->at(0)->pt() > 150000 &&
-	// 		goodJets->at(1)->pt() > 30000 && 
-	// 		goodJets->at(2)->pt() > 30000 && 
-	// 		(goodJets->at(1)->btagging())->MV1_discriminant() > 0.98 &&
-	// 		(goodJets->at(2)->btagging())->MV1_discriminant() > 0.98 ){
-	// 		return "SRB";
-	// 	}
-	// }
-
-
-	return "";
 
 }
-
 
 
 

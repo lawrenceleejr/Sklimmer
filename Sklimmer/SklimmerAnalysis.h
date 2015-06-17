@@ -85,9 +85,13 @@ public:
 private:
 	TString eventSelectionBBMet();
 
+	int sherpaWZInclVeto(int MCChannelNumber);
+
+
 	int copyFullxAODContainers ();
 	int applySUSYObjectDefinitions ();
 	int putStuffInStore ();
+
 
 
 public:
