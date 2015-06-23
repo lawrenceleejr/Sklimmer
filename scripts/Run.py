@@ -91,7 +91,7 @@ alg.m_doEventSelection = True;
 alg.m_writexAOD = True;
 alg.m_writeFullCollectionsToxAOD = True;
 
-alg.m_Analysis = "bbmet";
+alg.m_Analysis = "saveOutput";
 
 output = ROOT.EL.OutputStream("treeOutput")
 job.outputAdd(output)
@@ -128,7 +128,7 @@ elif (options.driver == "grid"):
     print "grid driver"
     logging.info("running on Grid")
     driver = ROOT.EL.PrunDriver()
-    driver.options().setString("nc_outputSampleName", "user.leejr.%%in:name[2]%%.%%in:name[3]%%.%%in:name[6]%%.%s"%options.runTag)
+    driver.options().setString("nc_outputSampleName", "user.rsmith.triggerOutput.%%in:name[2]%%.%%in:name[3]%%.%%in:name[6]%%.%s"%options.runTag)
     #driver.options().setDouble("nc_disableAutoRetry", 1)
     driver.options().setDouble("nc_nFilesPerJob", 1)
     driver.options().setDouble(ROOT.EL.Job.optGridMergeOutput, 1);

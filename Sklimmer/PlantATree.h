@@ -45,48 +45,87 @@ public:
   float ActualInteractionsPerCrossing; //!
   float AverageInteractionsPerCrossing; //!
 
+  // float RJVars_SS_Mass           ; //!
+  // float RJVars_SS_InvGamma       ; //!
+  // float RJVars_SS_dPhiBetaR      ; //!
+  // float RJVars_SS_dPhiVis        ; //!
+  // float RJVars_SS_CosTheta       ; //!
+  // float RJVars_SS_dPhiDecayAngle ; //!
+  // float RJVars_SS_VisShape       ; //!
+  // float RJVars_SS_MDeltaR        ; //!
+  // float RJVars_S1_Mass           ; //!
+  // float RJVars_S1_CosTheta       ; //!
+  // float RJVars_S2_Mass           ; //!
+  // float RJVars_S2_CosTheta       ; //!
+  // float RJVars_I1_Depth          ; //!
+  // float RJVars_I2_Depth          ; //!
+  // float RJVars_V1_N              ; //!
+  // float RJVars_V2_N              ; //!
 
-  float RJVars_SS_Mass           ; //!
-  float RJVars_SS_InvGamma       ; //!
-  float RJVars_SS_dPhiBetaR      ; //!
-  float RJVars_SS_dPhiVis        ; //!
-  float RJVars_SS_CosTheta       ; //!
-  float RJVars_SS_dPhiDecayAngle ; //!
-  float RJVars_SS_VisShape       ; //!
-  float RJVars_SS_MDeltaR        ; //!
-  float RJVars_S1_Mass           ; //!
-  float RJVars_S1_CosTheta       ; //!
-  float RJVars_S2_Mass           ; //!
-  float RJVars_S2_CosTheta       ; //!
-  float RJVars_I1_Depth          ; //!
-  float RJVars_I2_Depth          ; //!
-  float RJVars_V1_N              ; //!
-  float RJVars_V2_N              ; //!    
+  // // Gluino Variables
+  // float RJVars_MG      ; //!
+  // float RJVars_DeltaBetaGG      ; //!
+  // float RJVars_dphiVG      ; //!
+  // float RJVars_G_0_CosTheta      ; //!
+  // float RJVars_C_0_CosTheta      ; //!
+  // float RJVars_G_0_dPhiGC        ; //!
+  // float RJVars_G_0_MassRatioGC   ; //!
+  // float RJVars_G_0_Jet1_pT       ; //!
+  // float RJVars_G_0_Jet2_pT       ; //!
+  // float RJVars_G_1_CosTheta      ; //!
+  // float RJVars_C_1_CosTheta      ; //!
+  // float RJVars_G_1_dPhiGC        ; //!
+  // float RJVars_G_1_MassRatioGC   ; //!
+  // float RJVars_G_1_Jet1_pT       ; //!
+  // float RJVars_G_1_Jet2_pT       ; //!
 
-  // Gluino Variables
-  float RJVars_MG      ; //!      
-  float RJVars_DeltaBetaGG      ; //!      
-  float RJVars_dphiVG      ; //!      
-  float RJVars_G_0_CosTheta      ; //!      
-  float RJVars_C_0_CosTheta      ; //!      
-  float RJVars_G_0_dPhiGC        ; //!    
-  float RJVars_G_0_MassRatioGC   ; //!  
-  float RJVars_G_0_Jet1_pT       ; //!
-  float RJVars_G_0_Jet2_pT       ; //!       
-  float RJVars_G_1_CosTheta      ; //!      
-  float RJVars_C_1_CosTheta      ; //!      
-  float RJVars_G_1_dPhiGC        ; //!    
-  float RJVars_G_1_MassRatioGC   ; //!     
-  float RJVars_G_1_Jet1_pT       ; //!
-  float RJVars_G_1_Jet2_pT       ; //!
+  // //QCD Variables
+  // float RJVars_QCD_dPhiR         ; //!
+  // float RJVars_QCD_Rpt           ; //!
+  // float RJVars_QCD_Rmsib         ; //!
+  // float RJVars_QCD_Rpsib         ; //!
+  // float RJVars_QCD_Delta1         ; //!
+  // float RJVars_QCD_Delta2         ; //!
 
-  //QCD Variables
-  float RJVars_QCD_dPhiR         ; //! 
-  float RJVars_QCD_Rpt           ; //! 
-  float RJVars_QCD_Rmsib         ; //! 
-  float RJVars_QCD_Rpsib         ; //! 
-  float RJVars_QCD_Delta1         ; //! 
-  float RJVars_QCD_Delta2         ; //! 
+  std::vector<float> * L1_Jet_pT;    //!
+  std::vector<float> * L1_Jet_eta;   //!
+  std::vector<float> * L1_Jet_phi;   //!
+  std::vector<float> * L1_Jet_E;     //!
+  std::vector<float> * L1_Jet_m;     //!
+
+  std::vector<float> * L1_Jet_MV1;     //!
+
+  std::vector<float> * L1_Muon_pT;    //!
+  std::vector<float> * L1_Muon_eta;   //!
+  std::vector<float> * L1_Muon_phi;   //!
+  std::vector<float> * L1_Muon_E;     //!
+  std::vector<float> * L1_Muon_m;     //!
+
+  std::vector<float> * L1_Electron_pT;    //!
+  std::vector<float> * L1_Electron_eta;   //!
+  std::vector<float> * L1_Electron_phi;   //!
+  std::vector<float> * L1_Electron_E;     //!
+  std::vector<float> * L1_Electron_m;     //!
+
+
+  std::vector<float> * HLT_Jet_pT;    //!
+  std::vector<float> * HLT_Jet_eta;   //!
+  std::vector<float> * HLT_Jet_phi;   //!
+  std::vector<float> * HLT_Jet_E;     //!
+  std::vector<float> * HLT_Jet_m;     //!
+  std::vector<float> * HLT_Jet_MV1;     //!
+
+  std::vector<float> * HLT_Muon_pT;    //!
+  std::vector<float> * HLT_Muon_eta;   //!
+  std::vector<float> * HLT_Muon_phi;   //!
+  std::vector<float> * HLT_Muon_E;     //!
+  std::vector<float> * HLT_Muon_m;     //!
+
+  std::vector<float> * HLT_Electron_pT;    //!
+  std::vector<float> * HLT_Electron_eta;   //!
+  std::vector<float> * HLT_Electron_phi;   //!
+  std::vector<float> * HLT_Electron_E;     //!
+  std::vector<float> * HLT_Electron_m;     //!
 
   std::vector<float> * Jet_pT;    //!
   std::vector<float> * Jet_eta;   //!
@@ -95,6 +134,7 @@ public:
   std::vector<float> * Jet_m;     //!
 
   std::vector<float> * Jet_MV1;     //!
+  std::vector<float> * Jet_goodJet; //!
 
   std::vector<float> * Muon_pT;    //!
   std::vector<float> * Muon_eta;   //!
@@ -111,12 +151,22 @@ public:
   float MET_x; //!
   float MET_y; //!
 
+  float L1_MET_x; //!
+  float L1_MET_y; //!
+
+  float HLT_MET_x; //!
+  float HLT_MET_y; //!
+
   xAOD::TEvent *m_event;  //!
   xAOD::TStore *m_store;  //!
 
 
   // this is a standard constructor
   PlantATree ();
+
+  EL::StatusCode fillL1Variables();
+  EL::StatusCode fillHLTVariables();
+  EL::StatusCode fillRecoVariables();
 
   // these are the functions inherited from Algorithm
   virtual EL::StatusCode setupJob (EL::Job& job);
