@@ -11,7 +11,7 @@
 #include <string>
 
 #include "EventLoop/OutputStream.h"
-
+#include <TSystem.h>
 
 
 
@@ -439,34 +439,34 @@ EL::StatusCode SklimmerAnalysis :: addTrigDecisionInfo ( xAOD::EventInfo * event
   std::bitset<32> triggers;
 
   //todo make this list configurable
-  triggers[0] = m_susy_obj->isTrigPassed("L1_XE50");
-  triggers[1] = m_susy_obj->isTrigPassed("L1_XE70");
-  triggers[2] = m_susy_obj->isTrigPassed("HLT_xe70");
-  triggers[3] = m_susy_obj->isTrigPassed("HLT_xe70_pueta");
-  triggers[4] = m_susy_obj->isTrigPassed("HLT_xe100");
-  triggers[5] = m_susy_obj->isTrigPassed("HLT_xe100_pueta");
-  triggers[6] = m_susy_obj->isTrigPassed("HLT_e28_tight_iloose");
-  triggers[7] = m_susy_obj->isTrigPassed("HLT_e60_medium");
-  triggers[8] = m_susy_obj->isTrigPassed("HLT_mu26_imedium");
-  triggers[9] = m_susy_obj->isTrigPassed("HLT_mu50");
-  triggers[10] = m_susy_obj->isTrigPassed("HLT_j30_xe10_razor170");
-  triggers[11] = m_susy_obj->isTrigPassed("HLT_xe70_tc_em");
-  triggers[12] = m_susy_obj->isTrigPassed("HLT_xe70_tc_lcw");
-  triggers[13] = m_susy_obj->isTrigPassed("HLT_xe70_mht");
-  triggers[14] = m_susy_obj->isTrigPassed("HLT_xe70_pufit");
-  triggers[15] = m_susy_obj->isTrigPassed("HLT_xe100_tc_em");
-  triggers[16] = m_susy_obj->isTrigPassed("HLT_xe100_tc_lcw");
-  triggers[17] = m_susy_obj->isTrigPassed("HLT_xe100_mht");
-  triggers[18] = m_susy_obj->isTrigPassed("HLT_xe100_pufit");
-  triggers[19] = m_susy_obj->isTrigPassed("HLT_3j175");
-  triggers[20] = m_susy_obj->isTrigPassed("HLT_4j85");
-  triggers[21] = m_susy_obj->isTrigPassed("HLT_5j85");
-  triggers[22] = m_susy_obj->isTrigPassed("HLT_6j25");
-  triggers[23] = m_susy_obj->isTrigPassed("HLT_6j45_0eta240");
-  triggers[24] = m_susy_obj->isTrigPassed("HLT_6j55_0eta240_L14J20");
-  triggers[25] = m_susy_obj->isTrigPassed("HLT_7j45");
-  triggers[26] = m_susy_obj->isTrigPassed("L1_2J15");
-  triggers[27] = m_susy_obj->isTrigPassed("HLT_2j55_bloose");
+  triggers[0] = m_susy_obj->IsTrigPassed("L1_XE50");
+  triggers[1] = m_susy_obj->IsTrigPassed("L1_XE70");
+  triggers[2] = m_susy_obj->IsTrigPassed("HLT_xe70");
+  triggers[3] = m_susy_obj->IsTrigPassed("HLT_xe70_pueta");
+  triggers[4] = m_susy_obj->IsTrigPassed("HLT_xe100");
+  triggers[5] = m_susy_obj->IsTrigPassed("HLT_xe100_pueta");
+  triggers[6] = m_susy_obj->IsTrigPassed("HLT_e28_tight_iloose");
+  triggers[7] = m_susy_obj->IsTrigPassed("HLT_e60_medium");
+  triggers[8] = m_susy_obj->IsTrigPassed("HLT_mu26_imedium");
+  triggers[9] = m_susy_obj->IsTrigPassed("HLT_mu50");
+  triggers[10] = m_susy_obj->IsTrigPassed("HLT_j30_xe10_razor170");
+  triggers[11] = m_susy_obj->IsTrigPassed("HLT_xe70_tc_em");
+  triggers[12] = m_susy_obj->IsTrigPassed("HLT_xe70_tc_lcw");
+  triggers[13] = m_susy_obj->IsTrigPassed("HLT_xe70_mht");
+  triggers[14] = m_susy_obj->IsTrigPassed("HLT_xe70_pufit");
+  triggers[15] = m_susy_obj->IsTrigPassed("HLT_xe100_tc_em");
+  triggers[16] = m_susy_obj->IsTrigPassed("HLT_xe100_tc_lcw");
+  triggers[17] = m_susy_obj->IsTrigPassed("HLT_xe100_mht");
+  triggers[18] = m_susy_obj->IsTrigPassed("HLT_xe100_pufit");
+  triggers[19] = m_susy_obj->IsTrigPassed("HLT_3j175");
+  triggers[20] = m_susy_obj->IsTrigPassed("HLT_4j85");
+  triggers[21] = m_susy_obj->IsTrigPassed("HLT_5j85");
+  triggers[22] = m_susy_obj->IsTrigPassed("HLT_6j25");
+  triggers[23] = m_susy_obj->IsTrigPassed("HLT_6j45_0eta240");
+  triggers[24] = m_susy_obj->IsTrigPassed("HLT_6j55_0eta240_L14J20");
+  triggers[25] = m_susy_obj->IsTrigPassed("HLT_7j45");
+  triggers[26] = m_susy_obj->IsTrigPassed("L1_2J15");
+  triggers[27] = m_susy_obj->IsTrigPassed("HLT_2j55_bloose");
 
   int const triggerSet = triggers.to_ulong();
 
@@ -530,7 +530,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::MuonContainer::iterator mu_end  = (muons_copy)->end();
 
 	for( ; mu_itr != mu_end; ++mu_itr ) {
-		m_susy_obj->IsSignalMuonExp( **mu_itr,  ST::SignalIsoExp::TightIso ) ;
+	  m_susy_obj->IsSignalMuon( **mu_itr);//,  ST::SignalIso::TightIso ) ;
 		m_susy_obj->IsCosmicMuon( **mu_itr );
 		//Info(APP_NAME, "  Muon passing IsBaseline? %i",(int) (*mu_itr)->auxdata< char >("baseline") );
 	}
@@ -555,7 +555,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::ElectronContainer::iterator el_end = (electrons_copy)->end();
 
 	for( ; el_itr != el_end; ++el_itr ) {
-		m_susy_obj->IsSignalElectronExp( **el_itr , ST::SignalIsoExp::TightIso);
+	  m_susy_obj->IsSignalElectron( **el_itr );//, ST::SignalIso::TightIso);
 		//Info( APP_NAME, " El passing baseline? %i signal %i",(int) (*el_itr)->auxdata< char >("baseline"), (int) (*el_itr)->auxdata< bool >("signal") );
 	}
 
