@@ -47,6 +47,11 @@ if ".txt" in options.inputDS:
     for line in inputDSs:
       print line[:-1]
       ROOT.SH.scanDQ2 (sh_all, line[:-1])
+elif options.inputDS == "test":
+    list = ROOT.SH.DiskListLocal("/data/users/rsmith/")
+
+#    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.05892381._000002.pool.root.1");
+    ROOT.SH.scanDir(sh_all,list,"data15_13TeV.00270588.physics_Main.merge.AOD.f610_m1458._lb0213._0003.1");
 elif options.inputDS != "none":
   ROOT.SH.scanDQ2 (sh_all, options.inputDS);
 else :
@@ -62,6 +67,8 @@ logging.info("%d different datasets found scanning all directories", len(sh_all)
 
 # set the name of the tree in our files
 sh_all.setMetaString("nc_tree", "CollectionTree")
+sh_all.setMetaString    ("nc_grid_filter", "*");
+sh_all.printContent()
 
 # this is the basic description of our job
 logging.info("creating new job")
@@ -129,12 +136,15 @@ elif (options.driver == "grid"):
     print "grid driver"
     logging.info("running on Grid")
     driver = ROOT.EL.PrunDriver()
-    driver.options().setString("nc_outputSampleName", "user.rsmith.%%in:name[2]%%.%%in:name[3]%%.%%in:name[6]%%.%s"%options.runTag)
-#    driver.options().setString(EL::Job::optGridNfilesPerJob, "1");
-    #driver.options().setDouble("nc_disableAutoRetry", 1)
-    driver.options().setDouble("nc_nFilesPerJob", 1)
+    outSampleName = "user.rsmith.grid.razor_trigger"+ options.inputDS + "%in:name[2]%" + "%in:name[3]%"
+    driver.options().setDouble(ROOT.EL.Job.optGridNFilesPerJob,  1);
+    driver.options().setString("nc_outputSampleName", outSampleName);
+
+    #    driver.options().setString(EL::Job::optGridNfilesPerJob, "1")
+#driver.options().setDouble("nc_disableAutoRetry", 1)
+#    driver.options().setDouble("nc_nFilesPerJob", 1)
     driver.options().setDouble(ROOT.EL.Job.optGridMergeOutput, 1);
 
     logging.info("submit job")
-    driver.submitOnly(job, options.submitDir)
+    driver.submitOnly(job,"submit_dir_grid")
 

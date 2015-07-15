@@ -12,6 +12,8 @@
 
 // Plant a tree and watch it grow
 
+class GoodRunsListSelectionTool;
+
 class PlantATree : public EL::Algorithm
 {
   // put your configuration variables here as public variables.
@@ -28,7 +30,7 @@ public:
   // Tree *myTree; //!
   // TH1 *myHist; //!
 
-
+  GoodRunsListSelectionTool *m_grl; //!
 
   std::string outputName;
   TTree* tree; //!

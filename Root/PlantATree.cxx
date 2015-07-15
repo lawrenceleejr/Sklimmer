@@ -25,8 +25,9 @@
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 //#include "xAODBTagging/BTagging.h"
+#include "GoodRunsLists/GoodRunsListSelectionTool.h"
 
-
+#include <TSystem.h>
 #include <TFile.h>
 
 // this is needed to distribute the algorithm to the workers
@@ -219,6 +220,19 @@ EL::StatusCode PlantATree :: initialize ()
   m_store = wk()->xaodStore();
 
 
+  m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
+  std::vector<std::string> vecStringGRL;
+  vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_DetStatus-v63-pro18-01_DQDefects-00-01-\
+02_PHYS_StandardGRL_All_Good.xml") );
+  CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
+  CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
+  if (!m_grl->initialize().isSuccess()) { // check this isSuccess
+    Error(APP_NAME, "Failed to properly initialize the GRL. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+
+
+
   // as a check, let's see the number of events in our xAOD
   Info("initialize()", "Number of events = %lli", m_event->getEntries() ); // print long long int
 
@@ -237,9 +251,25 @@ EL::StatusCode PlantATree :: execute ()
 
   const char* APP_NAME = "PlantATree";
 
+  const xAOD::EventInfo* quickInfo = 0;
+  if( ! m_event->retrieve( quickInfo, "EventInfo").isSuccess() ){
+    Error(APP_NAME, "Failed to retrieve event info collection. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+
+  if(!m_grl->passRunLB(*quickInfo)){
+    return EL::StatusCode::SUCCESS; // go to next event
+  }
+  if(  (quickInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) ||
+       (quickInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) ||
+       (quickInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
+    {
+      return EL::StatusCode::SUCCESS; // go to the next event
+    } // end if event flags check
+
+
   //  std::cout << "PlantATree :: execute ()" << std::endl;
   // std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
-
   // m_store->print();
 
   xAOD::EventInfo* eventinfo = 0;

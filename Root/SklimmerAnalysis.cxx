@@ -44,6 +44,7 @@
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
 
+
 //Still really need to implement a systematics framework
 
 // this is needed to distribute the algorithm to the workers
@@ -403,7 +404,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
 	std::vector<std::string> vecStringGRL;
-	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/GRL/Summer2013/data12_8TeV.periodAllYear_DetStatus-v61-pro14-02_DQDefects-00-01-00_PHYS_StandardGRL_All_Good.xml"));
+	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_DetStatus-v63-pro18-01_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml") );
 	CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
 	CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
 	if (!m_grl->initialize().isSuccess()) { // check this isSuccess
@@ -767,7 +768,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 	// if data, check if event passes GRL ////////////////////////////////////////////////
-	if(0){
+	//	if(0){
 	if(!isMC){ // it's data!
 		if(!m_grl->passRunLB(*eventInfo)){
 			return EL::StatusCode::SUCCESS; // go to next event
@@ -779,7 +780,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 			return EL::StatusCode::SUCCESS; // go to the next event
 		} // end if event flags check
 	} // end if not MC
-	}
+	//	}
 	if(isMC){
 		// Check if input file is mc14_13TeV to skip pileup reweighting
 		bool mc14_13TeV = false;
