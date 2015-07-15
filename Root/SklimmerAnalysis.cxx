@@ -374,10 +374,13 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	if(m_doSUSYObjDef){
 		m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
 
-		CHECK( m_susy_obj->setProperty("IsData",isData) );
-		CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
-		CHECK( m_susy_obj->setProperty("EleId","TightLLH") );
-		m_susy_obj->msg().setLevel(MSG::FATAL);
+		ST::SettingDataSource datasource = isData ? ST::Data : (isAtlfast ? ST::AtlfastII : ST::FullSim);
+
+		if(m_susy_obj->setProperty("DataSource",datasource).isFailure()){return EL::StatusCode::FAILURE;}
+		if(m_susy_obj->setProperty("PhotonIsoWP" , "Cone20").isFailure()){return EL::StatusCode::FAILURE;};
+		//		CHECK( m_susy_obj->setProperty("IsAtlfast",isAtlfast) );
+		//		CHECK( m_susy_obj->setProperty("EleId","TightLLH") );
+		m_susy_obj->msg().setLevel(MSG::WARNING);
 
 
 		if( m_susy_obj->SUSYToolsInit().isFailure() ) {
@@ -449,7 +452,7 @@ EL::StatusCode SklimmerAnalysis :: addTrigDecisionInfo ( xAOD::EventInfo * event
   triggers[7] = m_susy_obj->IsTrigPassed("HLT_e60_medium");
   triggers[8] = m_susy_obj->IsTrigPassed("HLT_mu26_imedium");
   triggers[9] = m_susy_obj->IsTrigPassed("HLT_mu50");
-  triggers[10] = m_susy_obj->IsTrigPassed("HLT_j30_xe10_razor170");
+  triggers[10] = 0;//m_susy_obj->IsTrigPassed("HLT_j30_xe10_razor170");
   triggers[11] = m_susy_obj->IsTrigPassed("HLT_xe70_tc_em");
   triggers[12] = m_susy_obj->IsTrigPassed("HLT_xe70_tc_lcw");
   triggers[13] = m_susy_obj->IsTrigPassed("HLT_xe70_mht");
@@ -467,6 +470,11 @@ EL::StatusCode SklimmerAnalysis :: addTrigDecisionInfo ( xAOD::EventInfo * event
   triggers[25] = m_susy_obj->IsTrigPassed("HLT_7j45");
   triggers[26] = m_susy_obj->IsTrigPassed("L1_2J15");
   triggers[27] = m_susy_obj->IsTrigPassed("HLT_2j55_bloose");
+
+  triggers[28] = m_susy_obj->IsTrigPassed("HLT_j30_xe10_razor100");
+  triggers[29] = m_susy_obj->IsTrigPassed("HLT_j30_xe10_razor170");
+  triggers[30] = m_susy_obj->IsTrigPassed("HLT_j30_xe10_razor185");
+  triggers[31] = m_susy_obj->IsTrigPassed("HLT_j30_xe10_razor195");
 
   int const triggerSet = triggers.to_ulong();
 
@@ -488,10 +496,10 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 	//CHECK(m_event->copy("TruthParticle"));
 
-	CHECK(m_event->copy("AntiKt4LCTopoJets"));
-	CHECK(m_event->copy("AntiKt4TruthJets"));
+	CHECK(m_event->copy("AntiKt4EMTopoJets"));
+	//	CHECK(m_event->copy("AntiKt4TruthJets"));
 
-	CHECK(m_event->copy("MET_Reference_AntiKt4LCTopo"));
+	//	CHECK(m_event->copy("MET_Reference_AntiKt4LCTopo"));
 	//	CHECK(m_event->copy("MET_Truth"));
 
 	//	CHECK(m_event->copy("TruthVertex"));
@@ -583,8 +591,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	//------------
 
 	const xAOD::JetContainer* jets = 0;
-	if ( !m_event->retrieve( jets, "AntiKt4LCTopoJets" ).isSuccess() ){ // retrieve arguments: container type, container key
-		Error(APP_NAME, "Failed to retrieve AntiKt4LCTopoJets container. Exiting." );
+	if ( !m_event->retrieve( jets, "AntiKt4EMTopoJets" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve AntiKt4EMTopoJets container. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
 
@@ -621,8 +629,8 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 	xAOD::MissingETContainer*    MET = new xAOD::MissingETContainer;
 	xAOD::MissingETAuxContainer* METAux = new xAOD::MissingETAuxContainer;
 	MET->setStore(METAux);
-	CHECK( m_store->record( MET, "CalibMET_Reference_AntiKt4LCTopo" ) );
-	CHECK( m_store->record( METAux, "CalibMET_Reference_AntiKt4LCTopoAux." ) );
+	CHECK( m_store->record( MET, "CalibMET_Reference_AntiKt4EMTopo" ) );
+	CHECK( m_store->record( METAux, "CalibMET_Reference_AntiKt4EMTopoAux." ) );
 
 	///// TEMPORARY CODE ONLY
 	// Protection against bad muons (calo-tagged, si-associated forward)
@@ -729,89 +737,21 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	int EventNumber = eventInfo->eventNumber();
 	int RunNumber = eventInfo->runNumber();
-	float EventWeight = eventInfo->mcEventWeight();
 
-	int MCChannelNumber = eventInfo->mcChannelNumber();
+	float EventWeight = 1.;
+	int MCChannelNumber = -1;
 
+	if( !isData) {
+	  EventWeight = eventInfo->mcEventWeight();
+	  MCChannelNumber = eventInfo->mcChannelNumber();
+	}
 
 
 
 	h_nevents->Fill(0.);
 	h_nevents_weighted->Fill(0.,EventWeight);
 
-	// stupid sherpa stuff...///////////////////////////////////////////////////////////////////
-	if (
-		MCChannelNumber == 167740 ||
-		MCChannelNumber == 167741 ||
-		MCChannelNumber == 167742 ||
-		MCChannelNumber == 167743 ||
-		MCChannelNumber == 167744 ||
-		MCChannelNumber == 167745 ||
-		MCChannelNumber == 167746 ||
-		MCChannelNumber == 167747 ||
-		MCChannelNumber == 167748 ||
-		MCChannelNumber == 167749 ||
-		MCChannelNumber == 167750 ||
-		MCChannelNumber == 167751 ||
-		MCChannelNumber == 167752 ||
-		MCChannelNumber == 167753 ||
-		MCChannelNumber == 167754 ||
-		MCChannelNumber == 167755 ||
-		MCChannelNumber == 167756 ||
-		MCChannelNumber == 167757 ||
-		MCChannelNumber == 167758 ||
-		MCChannelNumber == 167759 ||
-		MCChannelNumber == 167760 ){
 
-
-
-		// const xAOD::TruthParticleContainer* truthParticles = 0;
-		// if ( !m_event->retrieve( truthParticles, "TruthParticle"  ).isSuccess() ){ // retrieve arguments: container type, container key
-		// 	Error(APP_NAME, "Failed to retrieve truth container. Exiting." );
-		// 	return EL::StatusCode::FAILURE;
-		// }
-
-
-		TLorentzVector V;
-		TLorentzVector l1;
-		TLorentzVector l2;
-
-		bool foundFirst  = false;
-		bool foundSecond = false;
-		bool foundMore   = false;
-
-
-
-	// 	for (xAOD::TruthParticleContainer::const_iterator tpi = truthParticles->begin(); tpi != truthParticles->end(); ++tpi) {
-	// 	  // const TruthParticle* p = *tpi;
-	// 	  // In general for Sherpa,  you have to select particles with status==3 and barcode<100,000 to get get the Matrix element in and out
-	// 	  if ( ((*tpi)->status() == 3) && (fabs( (*tpi)->pdgId() ) >= 11) && (fabs( (*tpi)->pdgId() ) <= 16) && ((*tpi)->barcode() < 100000) ) {
-	// 	    if ( !foundFirst ) {
-	// 	      l1.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
-	// 	      foundFirst = true;
-	// 	    } else if ( !foundSecond ) {
-	// 	      l2.SetPtEtaPhiM( (*tpi)->pt(), (*tpi)->eta(), (*tpi)->phi(), (*tpi)->m() );
-	// 	      foundSecond = true;
-	// 	    } else {
-	// 	      foundMore = true;
-	// 	      break;
-	// 	    }
-	// 	  }
-	// 	}
-
-	// 	if ( !foundSecond )
-	// 	  std::cout << "doSherpaPtFilterCheck: Unable to find 2 leptons" << std::endl;
-	// 	else if ( foundMore )
-	// 	  std::cout << "doSherpaPtFilterCheck: Found more than 2 leptons" << std::endl;
-	// 	else {
-	// 	  V = l1 + l2;
-	// 	  // m_h_sherpaPt->Fill( V.Pt() / GeV, m_eventWeight );
-
-	//   		if(V.Pt()>70000.) return EL::StatusCode::SUCCESS;
-
-	// 	}
-
-        }
 	// // stupid sherpa stuff...///////////////////////////////////////////////////////////////////
 
 
@@ -827,7 +767,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 	// if data, check if event passes GRL ////////////////////////////////////////////////
-
+	if(0){
 	if(!isMC){ // it's data!
 		if(!m_grl->passRunLB(*eventInfo)){
 			return EL::StatusCode::SUCCESS; // go to next event
@@ -839,7 +779,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 			return EL::StatusCode::SUCCESS; // go to the next event
 		} // end if event flags check
 	} // end if not MC
-
+	}
 	if(isMC){
 		// Check if input file is mc14_13TeV to skip pileup reweighting
 		bool mc14_13TeV = false;
@@ -1120,7 +1060,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 	// Get MET Collection to hand to Rest Frames////////////////////////////////////////////////////
 
 	xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-	CHECK( m_store->retrieve( MET, "CalibMET_Reference_AntiKt4LCTopo" ) );
+	CHECK( m_store->retrieve( MET, "CalibMET_Reference_AntiKt4EMTopo" ) );
 
 	TVector3 MET_TV3;
 

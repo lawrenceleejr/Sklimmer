@@ -103,9 +103,9 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("EventNumber"                   , &EventNumber                    );
   tree->Branch("LumiBlock"                     , &LumiBlock                      );
   tree->Branch("BCID"                          , &BCID                           );
-  tree->Branch("MCChannelNumber"               , &MCChannelNumber                );
-  tree->Branch("MCEventNumber"                 , &MCEventNumber                  );
-  tree->Branch("MCEventWeight"                 , &MCEventWeight                  );
+  // tree->Branch("MCChannelNumber"               , &MCChannelNumber                );
+  // tree->Branch("MCEventNumber"                 , &MCEventNumber                  );
+  // tree->Branch("MCEventWeight"                 , &MCEventWeight                  );
   tree->Branch("ActualInteractionsPerCrossing" , &ActualInteractionsPerCrossing  );
   tree->Branch("AverageInteractionsPerCrossing", &AverageInteractionsPerCrossing );
 
@@ -254,9 +254,10 @@ EL::StatusCode PlantATree :: execute ()
   EventNumber                     = eventinfo->eventNumber();
   LumiBlock                       = eventinfo->lumiBlock();
   BCID                            = eventinfo->bcid();
-  MCChannelNumber                 = eventinfo->mcChannelNumber();
-  MCEventNumber                   = eventinfo->mcEventNumber();
-  MCEventWeight                   = eventinfo->mcEventWeight();
+  // MCChannelNumber                 = eventinfo->mcChannelNumber();
+  // MCEventNumber                   = eventinfo->mcEventNumber();
+  // MCEventWeight                   = eventinfo->mcEvent
+  //    Weight();
   ActualInteractionsPerCrossing   = eventinfo->actualInteractionsPerCrossing();
   AverageInteractionsPerCrossing  = eventinfo->averageInteractionsPerCrossing();
 
@@ -395,7 +396,7 @@ EL::StatusCode PlantATree :: execute ()
 
 
   xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
-  CHECK( m_store->retrieve( MET, "CalibMET_Reference_AntiKt4LCTopo" ) );
+  CHECK( m_store->retrieve( MET, "CalibMET_Reference_AntiKt4EMTopo" ) );
 
     xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
   if (met_it == MET->end()) {
