@@ -453,7 +453,7 @@ EL::StatusCode SklimmerAnalysis :: addTrigDecisionInfo ( xAOD::EventInfo * event
   triggers[7] = m_susy_obj->IsTrigPassed("HLT_e60_medium");
   triggers[8] = m_susy_obj->IsTrigPassed("HLT_mu26_imedium");
   triggers[9] = m_susy_obj->IsTrigPassed("HLT_mu50");
-  triggers[10] = 0;//m_susy_obj->IsTrigPassed("HLT_j30_xe10_razor170");
+  triggers[10] = m_susy_obj->IsTrigPassed("L1_2J15_XE55");//m_susy_obj->IsTrigPassed("HLT_j30_xe10_razor170");
   triggers[11] = m_susy_obj->IsTrigPassed("HLT_xe70_tc_em");
   triggers[12] = m_susy_obj->IsTrigPassed("HLT_xe70_tc_lcw");
   triggers[13] = m_susy_obj->IsTrigPassed("HLT_xe70_mht");
