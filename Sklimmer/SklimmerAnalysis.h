@@ -84,16 +84,15 @@ public:
 
 private:
 	TString eventSelectionBBMet();
+	TString eventSelectionHLT_BBMet();
 
 	int copyFullxAODContainers ();
 	int applySUSYObjectDefinitions ();
 	int putStuffInStore ();
+  EL::StatusCode getHLTTriggerObjs ();
   EL::StatusCode addTrigDecisionInfo ( xAOD::EventInfo * eventInfo);
 
 public:
-
-
-
 
 	RestFrames::RLabFrame * LAB_alt; //!
 	RestFrames::RSelfAssemblingFrame * S_alt; //!

@@ -30,6 +30,7 @@
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthEvent.h"
 #include "xAODCore/ShallowCopy.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
@@ -515,7 +516,193 @@ int SklimmerAnalysis :: copyFullxAODContainers ()
 
 }
 
+EL::StatusCode SklimmerAnalysis :: getHLTTriggerObjs (){
+	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+	const char* APP_NAME = "SklimmerAnalysis";
 
+	const xAOD::MuonContainer* muons = 0;
+	if ( !m_event->retrieve( muons, "HLT_xAOD__MuonContainer_MuTagIMO_EF" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve Muons container. Exiting." );
+		return EL::StatusCode::FAILURE;
+
+	}
+	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+	std::pair<xAOD::MuonContainer*, xAOD::ShallowAuxContainer*> shallowcopymuon = xAOD::shallowCopyContainer(*muons);
+	xAOD::MuonContainer* muons_copy = shallowcopymuon.first;
+      	xAOD::ShallowAuxContainer* muons_copyaux = shallowcopymuon.second;
+
+	//------------
+	// ELECTRONS
+	//------------
+
+	const xAOD::ElectronContainer* electrons = 0;
+	if ( !m_event->retrieve( electrons, "HLT_xAOD__ElectronContainer_egamma_Electrons" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve Electrons container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+	std::pair<xAOD::ElectronContainer*, xAOD::ShallowAuxContainer*> shallowcopyelectron = xAOD::shallowCopyContainer(*electrons);
+	xAOD::ElectronContainer* electrons_copy = shallowcopyelectron.first;
+      	xAOD::ShallowAuxContainer* electrons_copyaux = shallowcopyelectron.second;
+	// }
+	//------------
+	// PHOTONS
+	//------------
+
+	const xAOD::PhotonContainer* photons = 0;
+	if ( !m_event->retrieve( photons, "HLT_xAOD__PhotonContainer_egamma_Photons" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve Photons container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+	std::pair<xAOD::PhotonContainer*, xAOD::ShallowAuxContainer*> shallowcopyphoton = xAOD::shallowCopyContainer(*photons);
+	xAOD::PhotonContainer* photons_copy = shallowcopyphoton.first;
+      	xAOD::ShallowAuxContainer* photons_copyaux = shallowcopyphoton.second;
+	//------------
+	// JETS
+	//------------
+
+	const xAOD::JetContainer* jets = 0;
+	if ( !m_event->retrieve( jets, "HLT_xAOD__JetContainer_EFJet" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve AntiKt4LCTopoJets container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+	std::pair<xAOD::JetContainer*, xAOD::ShallowAuxContainer*> shallowcopyjet = xAOD::shallowCopyContainer(*jets);
+	xAOD::JetContainer* jets_copy = shallowcopyjet.first;
+      	xAOD::ShallowAuxContainer* jets_copyaux = shallowcopyjet.second;
+	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+	// xAOD::JetContainer* jets_copy(0);
+	// xAOD::ShallowAuxContainer* jets_copyaux(0);
+	// CHECK( m_susy_obj->GetJets(jets_copy,jets_copyaux, true, 20000. , 10. ) ); //EMULATING ZEROLEPTON COLLECTION
+
+	//------------
+	// TAUS
+	//------------
+	const xAOD::TauJetContainer* taus = 0;
+	if ( !m_event->retrieve( taus, "HLT_xAOD__TauJetContainer_TrigTauRecMerged" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error(APP_NAME, "Failed to retrieve Taus container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+	std::pair<xAOD::TauJetContainer*, xAOD::ShallowAuxContainer*> shallowcopyTauJet = xAOD::shallowCopyContainer(*taus);
+	xAOD::TauJetContainer* taus_copy        = shallowcopyTauJet.first;
+      	xAOD::ShallowAuxContainer* taus_copyaux = shallowcopyTauJet.second;
+	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+
+	// xAOD::TauJetContainer* taus_copy(0);
+	// xAOD::ShallowAuxContainer* taus_copyaux(0);
+	// CHECK( m_susy_obj->GetTaus(taus_copy,taus_copyaux) );
+
+	// //------------
+	// // OVERLAP REMOVAL (as in susytools tester)
+	// //------------
+
+	// CHECK( m_susy_obj->OverlapRemoval(electrons_copy, muons_copy, jets_copy, false, 0.2, 0.4, 0.4) );
+
+
+	//------------
+	// GET REBUILT MET
+	//------------
+	const	xAOD::TrigMissingETContainer * trigmet = 0;
+	  //	const	DataVector<xAOD::TrigMissingET_v1> * trigmet = 0
+	  //	const xAOD::MissingETContainer* met = 0;
+	if ( !m_event->retrieve(trigmet, "HLT_xAOD__TrigMissingETContainer_EFJetEtSum" ).isSuccess() ){ // retrieve arguments: container type, container key
+	  Error(APP_NAME, "Failed to retrieve Met container. Exiting." );
+	  return EL::StatusCode::FAILURE;
+	}
+	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+	xAOD::MissingETContainer * met = new xAOD::MissingETContainer;
+	xAOD::MissingETAuxContainer * metaux = new xAOD::MissingETAuxContainer;
+	met->setStore(metaux);
+
+	xAOD::TrigMissingETContainer::const_iterator met_itr = trigmet->begin();
+        xAOD::TrigMissingETContainer::const_iterator met_end = trigmet->end();
+
+
+	xAOD::MissingET * finalMet = new xAOD::MissingET(0.,
+							 0.,
+							 0.,
+							 "HLT_MET_Final",
+							 MissingETBase::Source::total()
+							 );
+
+	for( ; met_itr != met_end; ++met_itr ) {
+	  xAOD::MissingET * newMet = new xAOD::MissingET((*met_itr)->ex(),
+							 (*met_itr)->ey(),
+							 (*met_itr)->sumEt()
+							 );
+	  newMet->makePrivateStore( **met_itr );
+	  met->push_back(newMet);
+
+	  //std::cout << "px " << finalMet->mpx() << std::endl;
+	  //std::cout << "py " << finalMet->mpy() << std::endl;
+	  //std::cout << "sumet " << finalMet->sumet() << std::endl;
+
+	  finalMet->setMpx  ( finalMet->mpx() + newMet->mpx()    );
+	  finalMet->setMpy  ( finalMet->mpy() + newMet->mpy()    );
+	  finalMet->setSumet( finalMet->sumet() + newMet->sumet());
+
+	}
+	met->push_back(finalMet);
+
+	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+	// std::pair<xAOD::MissingETContainer*, xAOD::ShallowAuxContainer*> shallowcopyMissingETContainer = xAOD::shallowCopyContainer(*met);
+	// xAOD::MissingETContainer * met_copy    = shallowcopyMissingETContainer.first;
+      	// xAOD::ShallowAuxContainer* met_copyaux = shallowcopyMissingETContainer.second;
+
+	//////////////////////////////////////////////////////
+
+	if(m_writeFullCollectionsToxAOD){
+
+	muons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	if( !m_event->record( muons_copy ,   "HLT_Muons" )){return EL::StatusCode::FAILURE;}
+	if( !m_event->record( muons_copyaux, "HLT_MuonsAux." )) {return EL::StatusCode::FAILURE;}
+
+
+	electrons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	if( !m_event->record( electrons_copy ,   "HLT_Electrons" )){return EL::StatusCode::FAILURE;}
+	if( !m_event->record( electrons_copyaux, "HLT_ElectronsAux." )) {return EL::StatusCode::FAILURE;}
+
+	// photons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	// if( !m_event->record( photons_copy ,   "HLT_Photons" )){return EL::StatusCode::FAILURE;}
+	// if( !m_event->record( photons_copyaux, "HLT_PhotonsAux." )) {return EL::StatusCode::FAILURE;}
+
+	jets_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	   // if true should have something like this line somewhere:
+	   // m_event->copy("AntiKt4LCTopoJets");
+	if( !m_event->record( jets_copy , "HLT_Jets" )){return EL::StatusCode::FAILURE;}
+	if( !m_event->record( jets_copyaux, "HLT_JetsAux." )) {return EL::StatusCode::FAILURE;}
+
+	if( !m_event->record( met,    "HLT_MET" )){return EL::StatusCode::FAILURE;}
+	if( !m_event->record( metaux, "HLT_METAux." )) {return EL::StatusCode::FAILURE;}
+
+	}
+	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+	muons_copy->setStore(muons_copyaux);
+	if( ! m_store->record( muons_copy, "HLT_Muons" ) ){return EL::StatusCode::FAILURE;};
+	if( ! m_store->record( muons_copyaux, "HLT_MuonsAux." ) ){return EL::StatusCode::FAILURE;};
+
+	electrons_copy->setStore(electrons_copyaux);
+	if( ! m_store->record( electrons_copy, "HLT_Electrons" ) ){return EL::StatusCode::FAILURE;};
+	if( ! m_store->record( electrons_copyaux, "HLT_ElectronsAux." ) ){return EL::StatusCode::FAILURE;};
+
+	taus_copy->setStore(taus_copyaux);
+	if( ! m_store->record( taus_copy, "HLT_Taus" ) ){return EL::StatusCode::FAILURE;};
+	if( ! m_store->record( taus_copyaux, "HLT_TausAux." ) ){return EL::StatusCode::FAILURE;};
+
+	photons_copy->setStore(photons_copyaux);
+	if( ! m_store->record( photons_copy, "HLT_Photons" ) ){return EL::StatusCode::FAILURE;};
+	if( ! m_store->record( photons_copyaux, "HLT_PhotonsAux." ) ){return EL::StatusCode::FAILURE;};
+
+	jets_copy->setStore(jets_copyaux);
+	if( ! m_store->record( jets_copy, "HLT_Jets" ) )       {return EL::StatusCode::FAILURE;}
+	if( ! m_store->record( jets_copyaux, "HLT_JetsAux." ) ){return EL::StatusCode::FAILURE;}
+
+	met->setStore(metaux);
+	if( ! m_store->record( met,    "HLT_MET_RefFinalCont"     ) ){return EL::StatusCode::FAILURE;};
+	if( ! m_store->record( metaux, "HLT_MET_RefFinalContAux." ) ){return EL::StatusCode::FAILURE;};
+	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+	////////////////////////////////////////////////////////
+
+  return EL::StatusCode::SUCCESS;
+}
 
 int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 
@@ -799,7 +986,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
 	else putStuffInStore();
 
-
+	if( getHLTTriggerObjs() == EL::StatusCode::FAILURE ){return EL::StatusCode::FAILURE;}
 
 	std::pair< xAOD::EventInfo*, xAOD::ShallowAuxInfo* > eventInfo_shallowCopy = xAOD::shallowCopyObject( *eventInfo );
 	if( !m_store->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
@@ -967,7 +1154,292 @@ EL::StatusCode SklimmerAnalysis :: histFinalize ()
 	return EL::StatusCode::SUCCESS;
 }
 
+TString SklimmerAnalysis :: eventSelectionHLT_BBMet()
+{
 
+  xAOD::MuonContainer* muons_copy = nullptr;
+  xAOD::ElectronContainer* electrons_copy = nullptr;
+  xAOD::PhotonContainer* photons_copy = nullptr;
+  xAOD::JetContainer* jets_copy = nullptr;
+  xAOD::TauJetContainer* taujets_copy = nullptr;
+  xAOD::MissingETContainer* MET = nullptr;
+
+
+	const char* APP_NAME = "SklimmerAnalysis";
+
+	// Inspired by https://cds.cern.ch/record/1508045/files/ATL-COM-PHYS-2013-072.pdf
+	if(  m_store->retrieve( muons_copy, "HLT_Muons" ).isFailure()  ){return EL::StatusCode::FAILURE;};
+	if(  m_store->retrieve( electrons_copy, "HLT_Electrons" ).isFailure()  ){return EL::StatusCode::FAILURE;};
+	if(  m_store->retrieve( photons_copy, "HLT_Photons" ).isFailure()  ){return EL::StatusCode::FAILURE;};
+	if(  m_store->retrieve( jets_copy, "HLT_Jets" ).isFailure()  )       {return EL::StatusCode::FAILURE;}
+	if(  m_store->retrieve( taujets_copy, "HLT_Taus" ).isFailure()  )       {return EL::StatusCode::FAILURE;}
+	if(  m_store->retrieve( MET,    "HLT_MET_RefFinalCont"     ).isFailure()  ){return EL::StatusCode::FAILURE;};
+
+	xAOD::EventInfo* eventInfo = 0;
+	if(  m_store->retrieve(eventInfo, "myEventInfo"));
+
+	/////////////// Lepton Veto //////////////////////////////
+
+	// int Nel=0;
+	// xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
+	// xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
+	// for( ; el_itr != el_end; ++el_itr ) {
+	// 	// if( ( *el_itr )->auxdata<char>("passOR") )
+	// 	  Nel++;
+	// }
+
+	// int Nmu=0;
+	// xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
+	// xAOD::MuonContainer::iterator mu_end = muons_copy->end();
+	// for( ; mu_itr != mu_end; ++mu_itr ) {
+	// 	// if( ( *mu_itr )->auxdata<char>("passOR") )
+	// 	  Nmu++;
+	// }
+
+	///////////////////////////////////////////////////////////
+
+	  xAOD::JetContainer* goodJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
+	  // CHECK( m_store->record(goodJets, "MySelJets") );
+
+	  xAOD::JetContainer::iterator jet_itr = (jets_copy)->begin();
+	  xAOD::JetContainer::iterator jet_end = (jets_copy)->end();
+
+	  for( ; jet_itr != jet_end; ++jet_itr ) {
+
+	    if( // (*jet_itr)->auxdata< char >("baseline")==1  &&
+		// (*jet_itr)->auxdata< char >("passOR")==1  &&
+		(*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
+	      goodJets->push_back (*jet_itr);
+	    }
+
+	    (*jet_itr)->auxdecor<float>("MV1") =  ((*jet_itr)->btagging())->MV1_discriminant() ;
+
+	  }
+
+
+	if(jets_copy->size() < 2){
+		return "";
+	}
+
+
+	std::sort(jets_copy->begin(), jets_copy->end(),
+    [](xAOD::Jet  *a, xAOD::Jet  *b){return a->pt() > b->pt();});
+
+
+	LAB->ClearEvent();
+	LAB_R->ClearEvent();
+	LAB_alt->ClearEvent();
+
+    vector<RestFrames::GroupElementID> jetID_R;                    // ID for tracking jets in tree
+
+    jet_itr = (jets_copy)->begin();
+
+    for( ; jet_itr != jet_end; ++jet_itr ) {
+
+      if( // (*jet_itr)->auxdata< char >("baseline")==1  &&
+	  // (*jet_itr)->auxdata< char >("passOR")==1  &&
+	  (*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8) ) {
+	VIS->AddLabFrameFourVector( (*jet_itr)->p4()  );
+	jetID_R.push_back( VIS_R->AddLabFrameFourVector( (*jet_itr)->p4()  )  );
+	VIS_alt->AddLabFrameFourVector( (*jet_itr)->p4()   );
+      }
+
+    }
+
+	TVector3 MET_TV3;
+
+    xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
+	if (met_it == MET->end()) {
+		Error( APP_NAME, "No RefFinal inside MET container" );
+	} else {
+		MET_TV3.SetZ(0.);
+		MET_TV3.SetX((*met_it)->mpx() );
+		MET_TV3.SetY((*met_it)->mpy() );
+	}
+
+	INV->SetLabFrameThreeVector(MET_TV3);
+	LAB->AnalyzeEvent();
+
+    INV_alt->SetLabFrameThreeVector(MET_TV3);
+    LAB_alt->AnalyzeEvent();
+
+
+    if(jets_copy->size()>3){
+    	INV_R->SetLabFrameThreeVector(MET_TV3);
+    	LAB_R->AnalyzeEvent();
+
+
+		RestFrames::RDecayFrame* G[2];
+		RestFrames::RDecayFrame* C[2];
+		RestFrames::RVisibleFrame* VS[2];
+		RestFrames::RVisibleFrame* VC[2];
+		RestFrames::RInvisibleFrame* X[2];
+		// Randomize the two hemispheres
+		int flip = (gRandom->Rndm() > 0.5);
+		G[flip] = Ga_R;
+		G[(flip+1)%2] = Gb_R;
+		C[flip] = Ca_R;
+		C[(flip+1)%2] = Cb_R;
+		VS[flip] = V1a_R;
+		VS[(flip+1)%2] = V1b_R;
+		VC[flip] = V2a_R;
+		VC[(flip+1)%2] = V2b_R;
+		X[flip] = Xa_R;
+		X[(flip+1)%2] = Xb_R;
+
+
+		double NV[2];
+		double jet1PT[2];
+		double jet2PT[2];
+
+
+		for(int i = 0; i < 2; i++){
+
+			NV[i] =  VIS_R->GetNElementsInFrame(VS[i]);
+			NV[i] += VIS_R->GetNElementsInFrame(VC[i]);
+
+			int N = jetID_R.size();
+			double pTmax[2]; pTmax[0] = -1.; pTmax[1] = -1.;
+			for(int j = 0; j < N; j++){
+				const RestFrames::RestFrame* frame = VIS_R->GetFrame(jetID_R[j]);
+				if(VS[i]->IsSame(frame) || VC[i]->IsSame(frame)){
+					double pT = frame->GetFourVector(LAB_R).Pt();
+					if(pT > pTmax[0]){
+						pTmax[1] = pTmax[0];
+						pTmax[0] = pT;
+					} else {
+						if(pT > pTmax[1]) pTmax[1] = pT;
+					}
+				}
+			}
+			jet1PT[i] = pTmax[0];
+			jet2PT[i] = pTmax[1];
+
+
+			if(NV[i] > 1){
+				eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = C[i]->GetCosDecayAngle();
+				eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = G[i]->GetDeltaPhiDecayPlanes(C[i]);
+				eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = (C[i]->GetMass()-X[i]->GetMass())/(G[i]->GetMass()-X[i]->GetMass());
+			} else {
+				eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = -10.;
+				eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = -10.;
+				eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = -10.;
+			}
+
+			eventInfo->auxdecor<float>(Form("G_%d_CosTheta",i)     ) = G[i]->GetCosDecayAngle();
+
+			eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = jet1PT[i];
+			eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = jet2PT[i];
+
+			// std::cout << "In SklimmerAnalysis: " << jet2PT[i] << std::endl;
+
+		}
+
+    } else {
+
+		for(int i = 0; i < 2; i++){
+			eventInfo->auxdecor<float>(Form("C_%d_CosTheta",i)     ) = -10.;
+			eventInfo->auxdecor<float>(Form("G_%d_dPhiGC",i)     ) = -10.;
+			eventInfo->auxdecor<float>(Form("G_%d_MassRatioGC",i)     ) = -10.;
+			eventInfo->auxdecor<float>(Form("G_%d_CosTheta",i)     ) = -10.;
+			eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = -10.;
+			eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = -10.;
+		}
+
+    }
+
+	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
+
+	eventInfo->auxdecor<float>("SS_Mass"           ) = SS->GetMass();
+	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS->GetGammaInParentFrame();
+	eventInfo->auxdecor<float>("SS_dPhiBetaR"      ) = SS->GetDeltaPhiBoostVisible();
+	eventInfo->auxdecor<float>("SS_dPhiVis"        ) = SS->GetDeltaPhiVisible();
+	eventInfo->auxdecor<float>("SS_CosTheta"       ) = SS->GetCosDecayAngle();
+	eventInfo->auxdecor<float>("SS_dPhiDecayAngle" ) = SS->GetDeltaPhiDecayAngle();
+	eventInfo->auxdecor<float>("SS_VisShape"       ) = SS->GetVisibleShape();
+	eventInfo->auxdecor<float>("SS_MDeltaR"        ) = SS->GetVisibleShape() * SS->GetMass() ;
+	eventInfo->auxdecor<float>("S1_Mass"           ) = S1->GetMass();
+	eventInfo->auxdecor<float>("S1_CosTheta"       ) = S1->GetCosDecayAngle();
+	eventInfo->auxdecor<float>("S2_Mass"           ) = S2->GetMass();
+	eventInfo->auxdecor<float>("S2_CosTheta"       ) = S2->GetCosDecayAngle();
+	eventInfo->auxdecor<float>("I1_Depth"          ) = S1->GetFrameDepth(I1);
+	eventInfo->auxdecor<float>("I2_Depth"          ) = S2->GetFrameDepth(I2);
+	eventInfo->auxdecor<float>("V1_N"              ) = VIS->GetNElementsInFrame(V1);
+	eventInfo->auxdecor<float>("V2_N"              ) = VIS->GetNElementsInFrame(V2);
+
+
+
+    // dphiR and Rptshat (formerly cosPT)
+    // for QCD rejection
+    double dphiR = SS->GetDeltaPhiBoostVisible();
+    double PTCM = SS->GetFourVector(LAB).Pt();
+    double Rptshat = PTCM / (PTCM + SS->GetMass()/4.);
+
+    // QCD rejection using the 'background tree'
+    // MET 'sibling' in background tree auxillary calculations
+    TLorentzVector Psib = I_alt->GetSiblingFrame()->GetFourVector(LAB_alt);
+    TLorentzVector Pmet = I_alt->GetFourVector(LAB_alt);
+    double Psib_dot_METhat = max(0., Psib.Vect().Dot(MET_TV3.Unit()));
+    double Mpar2 = Psib.E()*Psib.E()-Psib.Vect().Dot(MET_TV3.Unit())*Psib.Vect().Dot(MET_TV3.Unit());
+    double Msib2 = Psib.M2();
+    double MB2 = 2.*(Pmet.E()*Psib.E()-MET_TV3.Dot(Psib.Vect()));
+    TVector3 boostPsibM = (Pmet+Psib).BoostVector();
+
+
+    // QCD rejection variables from 'background tree'
+    double DepthBKG = S_alt->GetFrameDepth(I_alt);
+    int Nsib = I_alt->GetSiblingFrame()->GetNDescendants();
+    double cosBKG = I_alt->GetParentFrame()->GetCosDecayAngle();
+    double dphiMsib = fabs(MET_TV3.DeltaPhi(Psib.Vect()));
+    double RpsibM = Psib_dot_METhat / (Psib_dot_METhat + MET_TV3.Mag());
+    double RmsibM = 1. / ( MB2/(Mpar2-Msib2) + 1.);
+    Psib.Boost(-boostPsibM);
+    double cosPsibM = -1.*Psib.Vect().Unit().Dot(boostPsibM.Unit());
+    cosPsibM = (1.-cosPsibM)/2.;
+    double DeltaQCD1 = (cosPsibM-RpsibM)/(cosPsibM+RpsibM);
+    double DeltaQCD2 = (cosPsibM-RmsibM)/(cosPsibM+RmsibM);
+
+    eventInfo->auxdecor<float>("QCD_dPhiR"              ) = dphiR;
+    eventInfo->auxdecor<float>("QCD_Rpt"                ) = Rptshat;
+    eventInfo->auxdecor<float>("QCD_Rmsib"              ) = RmsibM;
+    eventInfo->auxdecor<float>("QCD_Delta2"              ) = DeltaQCD2;
+    eventInfo->auxdecor<float>("QCD_Rpsib"              ) = RpsibM;
+    eventInfo->auxdecor<float>("QCD_Delta1"              ) = DeltaQCD1;
+
+	// Info( APP_NAME,"RJigsaw Variables from RestFrames: sHatR %f gammainv_Rp1 %f",
+	// 	eventInfo->auxdata< float >("sHatR"), eventInfo->auxdata< float >("gammainv_Rp1") );
+
+
+
+	/////////////////////////////////////////////////////////////////
+    //    if(Nel || Nmu) return "";
+
+
+    if(jets_copy->at(0)->pt() >  20000 &&
+       jets_copy->at(1)->pt() > 20000
+       // (jets_copy->at(0)->btagging())->MV1_discriminant() > 0.98 &&
+       // (jets_copy->at(1)->btagging())->MV1_discriminant() > 0.98
+		)
+      {
+	return "SRA";
+
+      }
+
+
+	// if(jets_copy->size() > 2){
+	// 	if(jets_copy->at(0)->pt() > 150000 &&
+	// 		jets_copy->at(1)->pt() > 30000 &&
+	// 		jets_copy->at(2)->pt() > 30000 &&
+	// 		(jets_copy->at(1)->btagging())->MV1_discriminant() > 0.98 &&
+	// 		(jets_copy->at(2)->btagging())->MV1_discriminant() > 0.98 ){
+	// 		return "SRB";
+	// 	}
+	// }
+
+
+	return "";
+
+}
 
 TString SklimmerAnalysis :: eventSelectionBBMet()
 {
@@ -992,19 +1464,19 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 	/////////////// Lepton Veto //////////////////////////////
 
-	int Nel=0;
-	xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
-	xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
-	for( ; el_itr != el_end; ++el_itr ) {
-		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
-	}
+	// int Nel=0;
+	// xAOD::ElectronContainer::iterator el_itr = electrons_copy->begin();
+	// xAOD::ElectronContainer::iterator el_end = electrons_copy->end();
+	// for( ; el_itr != el_end; ++el_itr ) {
+	//   //		if( ( *el_itr )->auxdata<char>("passOR") ) Nel++;
+	// }
 
-	int Nmu=0;
-	xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
-	xAOD::MuonContainer::iterator mu_end = muons_copy->end();
-	for( ; mu_itr != mu_end; ++mu_itr ) {
-		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
-	}
+	// int Nmu=0;
+	// xAOD::MuonContainer::iterator mu_itr = muons_copy->begin();
+	// xAOD::MuonContainer::iterator mu_end = muons_copy->end();
+	// for( ; mu_itr != mu_end; ++mu_itr ) {
+	//   //		if( ( *mu_itr )->auxdata<char>("passOR") ) Nmu++;
+	// }
 
 
 
@@ -1229,7 +1701,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 
 	/////////////////////////////////////////////////////////////////
-    if(Nel || Nmu) return "";
+    //    if(Nel || Nmu) return "";
 
 
     if(goodJets->at(0)->pt() >  20000 &&
