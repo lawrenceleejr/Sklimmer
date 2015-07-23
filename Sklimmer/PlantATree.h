@@ -47,7 +47,6 @@ public:
   float ActualInteractionsPerCrossing; //!
   float AverageInteractionsPerCrossing; //!
 
-
   float RJVars_SS_Mass           ; //!
   float RJVars_SS_InvGamma       ; //!
   float RJVars_SS_dPhiBetaR      ; //!
@@ -87,6 +86,46 @@ public:
   float RJVars_QCD_Delta1         ; //!
   float RJVars_QCD_Delta2         ; //!
 
+
+  float RJVars_HLT_SS_Mass           ; //!
+  float RJVars_HLT_SS_InvGamma       ; //!
+  float RJVars_HLT_SS_dPhiBetaR      ; //!
+  float RJVars_HLT_SS_dPhiVis        ; //!
+  float RJVars_HLT_SS_CosTheta       ; //!
+  float RJVars_HLT_SS_dPhiDecayAngle ; //!
+  float RJVars_HLT_SS_VisShape       ; //!
+  float RJVars_HLT_SS_MDeltaR        ; //!
+  float RJVars_HLT_S1_Mass           ; //!
+  float RJVars_HLT_S1_CosTheta       ; //!
+  float RJVars_HLT_S2_Mass           ; //!
+  float RJVars_HLT_S2_CosTheta       ; //!
+  float RJVars_HLT_I1_Depth          ; //!
+  float RJVars_HLT_I2_Depth          ; //!
+  float RJVars_HLT_V1_N              ; //!
+  float RJVars_HLT_V2_N              ; //!
+
+  // Gluino Variables
+  float RJVars_HLT_G_0_CosTheta      ; //!
+  float RJVars_HLT_C_0_CosTheta      ; //!
+  float RJVars_HLT_G_0_dPhiGC        ; //!
+  float RJVars_HLT_G_0_MassRatioGC   ; //!
+  float RJVars_HLT_G_0_Jet1_pT       ; //!
+  float RJVars_HLT_G_0_Jet2_pT       ; //!
+  float RJVars_HLT_G_1_CosTheta      ; //!
+  float RJVars_HLT_C_1_CosTheta      ; //!
+  float RJVars_HLT_G_1_dPhiGC        ; //!
+  float RJVars_HLT_G_1_MassRatioGC   ; //!
+  float RJVars_HLT_G_1_Jet1_pT       ; //!
+  float RJVars_HLT_G_1_Jet2_pT       ; //!
+
+  //QCD Variables
+  float RJVars_HLT_QCD_dPhiR         ; //!
+  float RJVars_HLT_QCD_Rpt           ; //!
+  float RJVars_HLT_QCD_Rmsib         ; //!
+  float RJVars_HLT_QCD_Rpsib         ; //!
+  float RJVars_HLT_QCD_Delta1         ; //!
+  float RJVars_HLT_QCD_Delta2         ; //!
+
   int RJVars_TriggerBits          ; //!
 
 
@@ -113,12 +152,38 @@ public:
   float MET_x; //!
   float MET_y; //!
 
+  std::vector<float> * HLT_Jet_pT;    //!
+  std::vector<float> * HLT_Jet_eta;   //!
+  std::vector<float> * HLT_Jet_phi;   //!
+  std::vector<float> * HLT_Jet_E;     //!
+  std::vector<float> * HLT_Jet_m;     //!
+  std::vector<float> * HLT_Jet_MV1;     //!
+
+  std::vector<float> * HLT_Muon_pT;    //!
+  std::vector<float> * HLT_Muon_eta;   //!
+  std::vector<float> * HLT_Muon_phi;   //!
+  std::vector<float> * HLT_Muon_E;     //!
+  std::vector<float> * HLT_Muon_m;     //!
+
+  std::vector<float> * HLT_Electron_pT;    //!
+  std::vector<float> * HLT_Electron_eta;   //!
+  std::vector<float> * HLT_Electron_phi;   //!
+  std::vector<float> * HLT_Electron_E;     //!
+  std::vector<float> * HLT_Electron_m;     //!
+
+  float HLT_MET_x; //!
+  float HLT_MET_y; //!
+
+
   xAOD::TEvent *m_event;  //!
   xAOD::TStore *m_store;  //!
 
 
   // this is a standard constructor
   PlantATree ();
+
+  EL::StatusCode  fillRecoVariables() ;
+  EL::StatusCode  fillHLTVariables() ;
 
   // these are the functions inherited from Algorithm
   virtual EL::StatusCode setupJob (EL::Job& job);

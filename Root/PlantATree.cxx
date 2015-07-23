@@ -97,6 +97,25 @@ EL::StatusCode PlantATree :: histInitialize ()
   Electron_m = new std::vector<float>       ;
 
 
+  HLT_Jet_pT = new std::vector<float>       ;
+  HLT_Jet_eta = new std::vector<float>       ;
+  HLT_Jet_phi = new std::vector<float>       ;
+  HLT_Jet_E = new std::vector<float>       ;
+  HLT_Jet_m = new std::vector<float>       ;
+  HLT_Jet_MV1 = new std::vector<float>       ;
+  //  HLT_Jet_goodJet = new std::vector<float>       ;
+  HLT_Muon_pT = new std::vector<float>       ;
+  HLT_Muon_eta = new std::vector<float>       ;
+  HLT_Muon_phi = new std::vector<float>       ;
+  HLT_Muon_E = new std::vector<float>       ;
+  HLT_Muon_m = new std::vector<float>       ;
+  HLT_Electron_pT = new std::vector<float>       ;
+  HLT_Electron_eta = new std::vector<float>       ;
+  HLT_Electron_phi = new std::vector<float>       ;
+  HLT_Electron_E = new std::vector<float>       ;
+  HLT_Electron_m = new std::vector<float>       ;
+
+
   //Set up branches here
 
 
@@ -127,8 +146,6 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_I2_Depth"          , &RJVars_I2_Depth          );
   tree->Branch("RJVars_V1_N"              , &RJVars_V1_N              );
   tree->Branch("RJVars_V2_N"              , &RJVars_V2_N              );
-
-
   tree->Branch("RJVars_G_0_CosTheta"    , &RJVars_G_0_CosTheta    );
   tree->Branch("RJVars_C_0_CosTheta"    , &RJVars_C_0_CosTheta    );
   tree->Branch("RJVars_G_0_dPhiGC"      , &RJVars_G_0_dPhiGC      );
@@ -141,10 +158,6 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_G_1_MassRatioGC" , &RJVars_G_1_MassRatioGC );
   tree->Branch("RJVars_G_1_Jet1_pT"     , &RJVars_G_1_Jet1_pT     );
   tree->Branch("RJVars_G_1_Jet2_pT"     , &RJVars_G_1_Jet2_pT     );
-
-
-  //QCD Variables
-
   tree->Branch("RJVars_QCD_dPhiR" ,  &RJVars_QCD_dPhiR  );
   tree->Branch("RJVars_QCD_Rpt"   ,  &RJVars_QCD_Rpt    );
   tree->Branch("RJVars_QCD_Rmsib" ,  &RJVars_QCD_Rmsib  );
@@ -152,8 +165,44 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_QCD_Delta1" ,  &RJVars_QCD_Delta1  );
   tree->Branch("RJVars_QCD_Delta2" ,  &RJVars_QCD_Delta2  );
 
+  tree->Branch("RJVars_HLT_SS_Mass"           , &RJVars_HLT_SS_Mass           );
+  tree->Branch("RJVars_HLT_SS_InvGamma"       , &RJVars_HLT_SS_InvGamma       );
+  tree->Branch("RJVars_HLT_SS_dPhiBetaR"      , &RJVars_HLT_SS_dPhiBetaR      );
+  tree->Branch("RJVars_HLT_SS_dPhiVis"        , &RJVars_HLT_SS_dPhiVis        );
+  tree->Branch("RJVars_HLT_SS_CosTheta"       , &RJVars_HLT_SS_CosTheta       );
+  tree->Branch("RJVars_HLT_SS_dPhiDecayAngle" , &RJVars_HLT_SS_dPhiDecayAngle );
+  tree->Branch("RJVars_HLT_SS_VisShape"       , &RJVars_HLT_SS_VisShape       );
+  tree->Branch("RJVars_HLT_SS_MDeltaR"        , &RJVars_HLT_SS_MDeltaR        );
+  tree->Branch("RJVars_HLT_S1_Mass"           , &RJVars_HLT_S1_Mass           );
+  tree->Branch("RJVars_HLT_S1_CosTheta"       , &RJVars_HLT_S1_CosTheta       );
+  tree->Branch("RJVars_HLT_S2_Mass"           , &RJVars_HLT_S2_Mass           );
+  tree->Branch("RJVars_HLT_S2_CosTheta"       , &RJVars_HLT_S2_CosTheta       );
+  tree->Branch("RJVars_HLT_I1_Depth"          , &RJVars_HLT_I1_Depth          );
+  tree->Branch("RJVars_HLT_I2_Depth"          , &RJVars_HLT_I2_Depth          );
+  tree->Branch("RJVars_HLT_V1_N"              , &RJVars_HLT_V1_N              );
+  tree->Branch("RJVars_HLT_V2_N"              , &RJVars_HLT_V2_N              );
+  tree->Branch("RJVars_HLT_G_0_CosTheta"    , &RJVars_HLT_G_0_CosTheta    );
+  tree->Branch("RJVars_HLT_C_0_CosTheta"    , &RJVars_HLT_C_0_CosTheta    );
+  tree->Branch("RJVars_HLT_G_0_dPhiGC"      , &RJVars_HLT_G_0_dPhiGC      );
+  tree->Branch("RJVars_HLT_G_0_MassRatioGC" , &RJVars_HLT_G_0_MassRatioGC );
+  tree->Branch("RJVars_HLT_G_0_Jet1_pT"     , &RJVars_HLT_G_0_Jet1_pT     );
+  tree->Branch("RJVars_HLT_G_0_Jet2_pT"     , &RJVars_HLT_G_0_Jet2_pT     );
+  tree->Branch("RJVars_HLT_G_1_CosTheta"    , &RJVars_HLT_G_1_CosTheta    );
+  tree->Branch("RJVars_HLT_C_1_CosTheta"    , &RJVars_HLT_C_1_CosTheta    );
+  tree->Branch("RJVars_HLT_G_1_dPhiGC"      , &RJVars_HLT_G_1_dPhiGC      );
+  tree->Branch("RJVars_HLT_G_1_MassRatioGC" , &RJVars_HLT_G_1_MassRatioGC );
+  tree->Branch("RJVars_HLT_G_1_Jet1_pT"     , &RJVars_HLT_G_1_Jet1_pT     );
+  tree->Branch("RJVars_HLT_G_1_Jet2_pT"     , &RJVars_HLT_G_1_Jet2_pT     );
+  tree->Branch("RJVars_HLT_QCD_dPhiR" ,  &RJVars_HLT_QCD_dPhiR  );
+  tree->Branch("RJVars_HLT_QCD_Rpt"   ,  &RJVars_HLT_QCD_Rpt    );
+  tree->Branch("RJVars_HLT_QCD_Rmsib" ,  &RJVars_HLT_QCD_Rmsib  );
+  tree->Branch("RJVars_HLT_QCD_Rpsib" ,  &RJVars_HLT_QCD_Rpsib  );
+  tree->Branch("RJVars_HLT_QCD_Delta1" ,  &RJVars_HLT_QCD_Delta1  );
+  tree->Branch("RJVars_HLT_QCD_Delta2" ,  &RJVars_HLT_QCD_Delta2  );
+
+
   //trigger
-  tree->Branch("RJVars_TriggerBits" ,  &RJVars_TriggerBits  );
+  tree->Branch("RJVars_HLT_TriggerBits" ,  &RJVars_TriggerBits  );
 
 
   tree->Branch("Jet_pT"       , &Jet_pT        );
@@ -172,9 +221,28 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("Electron_phi" , &Electron_phi  );
   tree->Branch("Electron_E"   , &Electron_E    );
   tree->Branch("Electron_m"   , &Electron_m    );
-
   tree->Branch("MET_x"   , &MET_x    );
   tree->Branch("MET_y"   , &MET_y    );
+
+  tree->Branch("HLT_Jet_pT"       , &HLT_Jet_pT        );
+  tree->Branch("HLT_Jet_eta"      , &HLT_Jet_eta       );
+  tree->Branch("HLT_Jet_phi"      , &HLT_Jet_phi       );
+  tree->Branch("HLT_Jet_E"        , &HLT_Jet_E         );
+  tree->Branch("HLT_Jet_m"        , &HLT_Jet_m         );
+  tree->Branch("HLT_Jet_MV1"      , &HLT_Jet_MV1       );
+  tree->Branch("HLT_Muon_pT"      , &HLT_Muon_pT       );
+  tree->Branch("HLT_Muon_eta"     , &HLT_Muon_eta      );
+  tree->Branch("HLT_Muon_phi"     , &HLT_Muon_phi      );
+  tree->Branch("HLT_Muon_E"       , &HLT_Muon_E        );
+  tree->Branch("HLT_Muon_m"       , &HLT_Muon_m        );
+  tree->Branch("HLT_Electron_pT"  , &HLT_Electron_pT   );
+  tree->Branch("HLT_Electron_eta" , &HLT_Electron_eta  );
+  tree->Branch("HLT_Electron_phi" , &HLT_Electron_phi  );
+  tree->Branch("HLT_Electron_E"   , &HLT_Electron_E    );
+  tree->Branch("HLT_Electron_m"   , &HLT_Electron_m    );
+  tree->Branch("HLT_MET_x"   , &HLT_MET_x    );
+  tree->Branch("HLT_MET_y"   , &HLT_MET_y    );
+
 
 
   return EL::StatusCode::SUCCESS;
@@ -212,9 +280,7 @@ EL::StatusCode PlantATree :: initialize ()
   // you create here won't be available in the output if you have no
   // input events.
 
-  const char* APP_NAME = "PlantATree";
-
-
+  const char * APP_NAME = "SklimmerAnalysis";
 
   m_event = wk()->xaodEvent();
   m_store = wk()->xaodStore();
@@ -227,7 +293,6 @@ EL::StatusCode PlantATree :: initialize ()
   CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
   CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
   if (!m_grl->initialize().isSuccess()) { // check this isSuccess
-    Error(APP_NAME, "Failed to properly initialize the GRL. Exiting." );
     return EL::StatusCode::FAILURE;
   }
 
@@ -249,96 +314,6 @@ EL::StatusCode PlantATree :: execute ()
   // histograms and trees.  This is where most of your actual analysis
   // code will go.
 
-  const char* APP_NAME = "PlantATree";
-
-  const xAOD::EventInfo* quickInfo = 0;
-  if( ! m_event->retrieve( quickInfo, "EventInfo").isSuccess() ){
-    Error(APP_NAME, "Failed to retrieve event info collection. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
-
-  if(!m_grl->passRunLB(*quickInfo)){
-    return EL::StatusCode::SUCCESS; // go to next event
-  }
-  if(  (quickInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) ||
-       (quickInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) ||
-       (quickInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
-    {
-      return EL::StatusCode::SUCCESS; // go to the next event
-    } // end if event flags check
-
-
-  //  std::cout << "PlantATree :: execute ()" << std::endl;
-  // std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
-  // m_store->print();
-
-  xAOD::EventInfo* eventinfo = 0;
-  CHECK( m_store->retrieve(eventinfo, "myEventInfo") );
-
-  // if( eventinfo->auxdata<char>("selection") == (char) 0 ){
-    //     m_store->clear();
-    //     return EL::StatusCode::SUCCESS;
-    // }
-
-  RunNumber                       = eventinfo->runNumber();
-  EventNumber                     = eventinfo->eventNumber();
-  LumiBlock                       = eventinfo->lumiBlock();
-  BCID                            = eventinfo->bcid();
-  // MCChannelNumber                 = eventinfo->mcChannelNumber();
-  // MCEventNumber                   = eventinfo->mcEventNumber();
-  // MCEventWeight                   = eventinfo->mcEvent
-  //    Weight();
-  ActualInteractionsPerCrossing   = eventinfo->actualInteractionsPerCrossing();
-  AverageInteractionsPerCrossing  = eventinfo->averageInteractionsPerCrossing();
-
-
-  RJVars_SS_Mass            = eventinfo->auxdata<float>("SS_Mass");
-  RJVars_SS_InvGamma        = eventinfo->auxdata<float>("SS_InvGamma");
-  RJVars_SS_dPhiBetaR       = eventinfo->auxdata<float>("SS_dPhiBetaR");
-  RJVars_SS_dPhiVis         = eventinfo->auxdata<float>("SS_dPhiVis");
-  RJVars_SS_CosTheta        = eventinfo->auxdata<float>("SS_CosTheta");
-  RJVars_SS_dPhiDecayAngle  = eventinfo->auxdata<float>("SS_dPhiDecayAngle");
-  RJVars_SS_VisShape        = eventinfo->auxdata<float>("SS_VisShape");
-  RJVars_SS_MDeltaR         = eventinfo->auxdata<float>("SS_MDeltaR");
-  RJVars_S1_Mass            = eventinfo->auxdata<float>("S1_Mass");
-  RJVars_S1_CosTheta        = eventinfo->auxdata<float>("S1_CosTheta");
-  RJVars_S2_Mass            = eventinfo->auxdata<float>("S2_Mass");
-  RJVars_S2_CosTheta        = eventinfo->auxdata<float>("S2_CosTheta");
-  RJVars_I1_Depth           = eventinfo->auxdata<float>("I1_Depth");
-  RJVars_I2_Depth           = eventinfo->auxdata<float>("I2_Depth");
-  RJVars_V1_N               = eventinfo->auxdata<float>("V1_N");
-  RJVars_V2_N               = eventinfo->auxdata<float>("V2_N");
-
-
-  RJVars_G_0_CosTheta       = eventinfo->auxdata<float>("G_0_CosTheta");
-  RJVars_C_0_CosTheta       = eventinfo->auxdata<float>("C_0_CosTheta");
-  RJVars_G_0_dPhiGC         = eventinfo->auxdata<float>("G_0_dPhiGC");
-  RJVars_G_0_MassRatioGC    = eventinfo->auxdata<float>("G_0_MassRatioGC");
-  RJVars_G_1_CosTheta       = eventinfo->auxdata<float>("G_1_CosTheta");
-  RJVars_C_1_CosTheta       = eventinfo->auxdata<float>("C_1_CosTheta");
-  RJVars_G_1_dPhiGC         = eventinfo->auxdata<float>("G_1_dPhiGC");
-  RJVars_G_1_MassRatioGC    = eventinfo->auxdata<float>("G_1_MassRatioGC");
-
-  RJVars_G_0_Jet1_pT        = eventinfo->auxdata<float>("G_0_Jet1_pT");
-  RJVars_G_0_Jet2_pT        = eventinfo->auxdata<float>("G_0_Jet2_pT");
-
-  RJVars_G_1_Jet1_pT        = eventinfo->auxdata<float>("G_1_Jet1_pT");
-  RJVars_G_1_Jet2_pT        = eventinfo->auxdata<float>("G_1_Jet2_pT");
-
-  //  std::cout << "In PlantATree: " << eventinfo->auxdata<float>("G_1_Jet2_pT") << std::endl;
-
-
-  RJVars_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_dPhiR");
-  RJVars_QCD_Rpt            = eventinfo->auxdata<float>("QCD_Rpt"  );
-  RJVars_QCD_Rmsib          = eventinfo->auxdata<float>("QCD_Rmsib");
-  RJVars_QCD_Rpsib          = eventinfo->auxdata<float>("QCD_Rpsib");
-  RJVars_QCD_Delta1          = eventinfo->auxdata<float>("QCD_Delta1");
-  RJVars_QCD_Delta2          = eventinfo->auxdata<float>("QCD_Delta2");
-
-  //trig
-  RJVars_TriggerBits = eventinfo->auxdecor<int>("triggerBitset");
-
-
   //////////////////////////////////////////////////////////////////////////////////////////
 
   Jet_pT        ->clear();
@@ -358,27 +333,253 @@ EL::StatusCode PlantATree :: execute ()
   Electron_E    ->clear();
   Electron_m    ->clear();
 
+  const xAOD::EventInfo* quickInfo = 0;
+  if( ! m_event->retrieve( quickInfo, "EventInfo").isSuccess() ){
+    return EL::StatusCode::FAILURE;
+  }
+
+  if(!m_grl->passRunLB(*quickInfo)){
+    return EL::StatusCode::SUCCESS; // go to next event
+  }
+  if(  (quickInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) ||
+       (quickInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) ||
+       (quickInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
+    {
+      return EL::StatusCode::SUCCESS; // go to the next event
+    } // end if event flags check
+
+
+  //  std::cout << "PlantATree :: execute ()" << std::endl;
+  // std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
+  // m_store->print();
+
+  xAOD::EventInfo* eventinfo = 0;
+  m_store->retrieve(eventinfo, "myEventInfo") ;
+
+  if( fillHLTVariables() != EL::StatusCode::SUCCESS){
+    return EL::StatusCode::FAILURE;
+  }
+  if( fillRecoVariables() != EL::StatusCode::SUCCESS){
+    return EL::StatusCode::FAILURE;
+  }
+
+
+
+  // if( eventinfo->auxdata<char>("selection") == (char) 0 ){
+    //     m_store->clear();
+    //     return EL::StatusCode::SUCCESS;
+    // }
+
+  RunNumber                       = eventinfo->runNumber();
+  EventNumber                     = eventinfo->eventNumber();
+  LumiBlock                       = eventinfo->lumiBlock();
+  BCID                            = eventinfo->bcid();
+  // MCChannelNumber                 = eventinfo->mcChannelNumber();
+  // MCEventNumber                   = eventinfo->mcEventNumber();
+  // MCEventWeight                   = eventinfo->mcEvent
+  //    Weight();
+  ActualInteractionsPerCrossing   = eventinfo->actualInteractionsPerCrossing();
+  AverageInteractionsPerCrossing  = eventinfo->averageInteractionsPerCrossing();
+
+  RJVars_SS_Mass            = eventinfo->auxdata<float>("SS_Mass");
+  RJVars_SS_InvGamma        = eventinfo->auxdata<float>("SS_InvGamma");
+  RJVars_SS_dPhiBetaR       = eventinfo->auxdata<float>("SS_dPhiBetaR");
+  RJVars_SS_dPhiVis         = eventinfo->auxdata<float>("SS_dPhiVis");
+  RJVars_SS_CosTheta        = eventinfo->auxdata<float>("SS_CosTheta");
+  RJVars_SS_dPhiDecayAngle  = eventinfo->auxdata<float>("SS_dPhiDecayAngle");
+  RJVars_SS_VisShape        = eventinfo->auxdata<float>("SS_VisShape");
+  RJVars_SS_MDeltaR         = eventinfo->auxdata<float>("SS_MDeltaR");
+  RJVars_S1_Mass            = eventinfo->auxdata<float>("S1_Mass");
+  RJVars_S1_CosTheta        = eventinfo->auxdata<float>("S1_CosTheta");
+  RJVars_S2_Mass            = eventinfo->auxdata<float>("S2_Mass");
+  RJVars_S2_CosTheta        = eventinfo->auxdata<float>("S2_CosTheta");
+  RJVars_I1_Depth           = eventinfo->auxdata<float>("I1_Depth");
+  RJVars_I2_Depth           = eventinfo->auxdata<float>("I2_Depth");
+  RJVars_V1_N               = eventinfo->auxdata<float>("V1_N");
+  RJVars_V2_N               = eventinfo->auxdata<float>("V2_N");
+  RJVars_G_0_CosTheta       = eventinfo->auxdata<float>("G_0_CosTheta");
+  RJVars_C_0_CosTheta       = eventinfo->auxdata<float>("C_0_CosTheta");
+  RJVars_G_0_dPhiGC         = eventinfo->auxdata<float>("G_0_dPhiGC");
+  RJVars_G_0_MassRatioGC    = eventinfo->auxdata<float>("G_0_MassRatioGC");
+  RJVars_G_1_CosTheta       = eventinfo->auxdata<float>("G_1_CosTheta");
+  RJVars_C_1_CosTheta       = eventinfo->auxdata<float>("C_1_CosTheta");
+  RJVars_G_1_dPhiGC         = eventinfo->auxdata<float>("G_1_dPhiGC");
+  RJVars_G_1_MassRatioGC    = eventinfo->auxdata<float>("G_1_MassRatioGC");
+  RJVars_G_0_Jet1_pT        = eventinfo->auxdata<float>("G_0_Jet1_pT");
+  RJVars_G_0_Jet2_pT        = eventinfo->auxdata<float>("G_0_Jet2_pT");
+  RJVars_G_1_Jet1_pT        = eventinfo->auxdata<float>("G_1_Jet1_pT");
+  RJVars_G_1_Jet2_pT        = eventinfo->auxdata<float>("G_1_Jet2_pT");
+  RJVars_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_dPhiR");
+  RJVars_QCD_Rpt            = eventinfo->auxdata<float>("QCD_Rpt"  );
+  RJVars_QCD_Rmsib          = eventinfo->auxdata<float>("QCD_Rmsib");
+  RJVars_QCD_Rpsib          = eventinfo->auxdata<float>("QCD_Rpsib");
+  RJVars_QCD_Delta1          = eventinfo->auxdata<float>("QCD_Delta1");
+  RJVars_QCD_Delta2          = eventinfo->auxdata<float>("QCD_Delta2");
+
+  RJVars_HLT_SS_Mass            = eventinfo->auxdata<float>("SS_HLT_Mass");
+  RJVars_HLT_SS_InvGamma        = eventinfo->auxdata<float>("SS_HLT_InvGamma");
+  RJVars_HLT_SS_dPhiBetaR       = eventinfo->auxdata<float>("SS_HLT_dPhiBetaR");
+  RJVars_HLT_SS_dPhiVis         = eventinfo->auxdata<float>("SS_HLT_dPhiVis");
+  RJVars_HLT_SS_CosTheta        = eventinfo->auxdata<float>("SS_HLT_CosTheta");
+  RJVars_HLT_SS_dPhiDecayAngle  = eventinfo->auxdata<float>("SS_HLT_dPhiDecayAngle");
+  RJVars_HLT_SS_VisShape        = eventinfo->auxdata<float>("SS_HLT_VisShape");
+  RJVars_HLT_SS_MDeltaR         = eventinfo->auxdata<float>("SS_HLT_MDeltaR");
+  RJVars_HLT_S1_Mass            = eventinfo->auxdata<float>("S1_HLT_Mass");
+  RJVars_HLT_S1_CosTheta        = eventinfo->auxdata<float>("S1_HLT_CosTheta");
+  RJVars_HLT_S2_Mass            = eventinfo->auxdata<float>("S2_HLT_Mass");
+  RJVars_HLT_S2_CosTheta        = eventinfo->auxdata<float>("S2_HLT_CosTheta");
+  RJVars_HLT_I1_Depth           = eventinfo->auxdata<float>("I1_HLT_Depth");
+  RJVars_HLT_I2_Depth           = eventinfo->auxdata<float>("I2_HLT_Depth");
+  RJVars_HLT_V1_N               = eventinfo->auxdata<float>("V1_HLT_N");
+  RJVars_HLT_V2_N               = eventinfo->auxdata<float>("V2_HLT_N");
+  RJVars_HLT_G_0_CosTheta       = eventinfo->auxdata<float>("G_0_HLT_CosTheta");
+  RJVars_HLT_C_0_CosTheta       = eventinfo->auxdata<float>("C_0_HLT_CosTheta");
+  RJVars_HLT_G_0_dPhiGC         = eventinfo->auxdata<float>("G_0_HLT_dPhiGC");
+  RJVars_HLT_G_0_MassRatioGC    = eventinfo->auxdata<float>("G_0_HLT_MassRatioGC");
+  RJVars_HLT_G_1_CosTheta       = eventinfo->auxdata<float>("G_1_HLT_CosTheta");
+  RJVars_HLT_C_1_CosTheta       = eventinfo->auxdata<float>("C_1_HLT_CosTheta");
+  RJVars_HLT_G_1_dPhiGC         = eventinfo->auxdata<float>("G_1_HLT_dPhiGC");
+  RJVars_HLT_G_1_MassRatioGC    = eventinfo->auxdata<float>("G_1_HLT_MassRatioGC");
+  RJVars_HLT_G_0_Jet1_pT        = eventinfo->auxdata<float>("G_0_HLT_Jet1_pT");
+  RJVars_HLT_G_0_Jet2_pT        = eventinfo->auxdata<float>("G_0_HLT_Jet2_pT");
+  RJVars_HLT_G_1_Jet1_pT        = eventinfo->auxdata<float>("G_1_HLT_Jet1_pT");
+  RJVars_HLT_G_1_Jet2_pT        = eventinfo->auxdata<float>("G_1_HLT_Jet2_pT");
+  RJVars_HLT_QCD_dPhiR          = eventinfo->auxdata<float>("QCD_HLT_dPhiR");
+  RJVars_HLT_QCD_Rpt            = eventinfo->auxdata<float>("QCD_HLT_Rpt"  );
+  RJVars_HLT_QCD_Rmsib          = eventinfo->auxdata<float>("QCD_HLT_Rmsib");
+  RJVars_HLT_QCD_Rpsib          = eventinfo->auxdata<float>("QCD_HLT_Rpsib");
+  RJVars_HLT_QCD_Delta1          = eventinfo->auxdata<float>("QCD_HLT_Delta1");
+  RJVars_HLT_QCD_Delta2          = eventinfo->auxdata<float>("QCD_HLT_Delta2");
+
+
+  //trig
+  RJVars_TriggerBits = eventinfo->auxdecor<int>("triggerBitset");
+
+
+
+  /////////////////////////////////////////////////////////////////////////////////////
+ // EventNumber = 111;
+
+  tree->Fill();
+  m_store->clear();
+
+
+  return EL::StatusCode::SUCCESS;
+}
+
+
+EL::StatusCode PlantATree :: fillHLTVariables() {
+  const char* APP_NAME = "PlantATree";
+  const  xAOD::JetContainer* jets = 0;
+  CHECK( m_store->retrieve( jets, "HLT_Jets" ) );
+
+  xAOD::JetContainer::const_iterator jet_itr = (jets)->begin();
+  xAOD::JetContainer::const_iterator jet_end = (jets)->end();
+ for( ; jet_itr != jet_end; ++jet_itr ) {
+   // if( (*jet_itr)->auxdata< char >("baseline")==1  &&
+   //     (*jet_itr)->auxdata< char >("passOR")==1  &&
+   //     (*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8)  ) {
+   //   Jet_goodJet ->push_back( 1.);
+   // }
+   // else{
+   //   Jet_goodJet ->push_back( 0.);
+   // }
+
+  HLT_Jet_pT  ->push_back( (*jet_itr)->pt()  );
+  HLT_Jet_eta ->push_back( (*jet_itr)->eta()  );
+  HLT_Jet_phi ->push_back( (*jet_itr)->phi()  );
+  HLT_Jet_E   ->push_back( (*jet_itr)->e()  );
+  HLT_Jet_m   ->push_back( (*jet_itr)->m()  );
+  //   HLT_Jet_MV1 ->push_back( (*jet_itr)->auxdata< float >("MV1")   );
+ }
+  //   }
+  // }
+
   /////////////////////////////////////////////////////////////////////////////////////
 
-  xAOD::JetContainer* jets = 0;
+
+  xAOD::MuonContainer* muons = 0;
+  CHECK( m_store->retrieve( muons, "HLT_Muons" ) );
+
+  xAOD::MuonContainer::iterator muon_itr = (muons)->begin();
+  xAOD::MuonContainer::iterator muon_end = (muons)->end();
+  for( ; muon_itr != muon_end; ++muon_itr ) {
+    // if( (*muon_itr)->auxdata< char >("baseline")==1  &&
+    //     (*muon_itr)->auxdata< char >("passOR")==1   ) {
+
+        HLT_Muon_pT  ->push_back( (*muon_itr)->pt()  );
+        HLT_Muon_eta ->push_back( (*muon_itr)->eta()  );
+        HLT_Muon_phi ->push_back( (*muon_itr)->phi()  );
+        HLT_Muon_E   ->push_back( (*muon_itr)->e()  );
+        HLT_Muon_m   ->push_back( (*muon_itr)->m()  );
+
+	//    }
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////
+
+  xAOD::ElectronContainer* electrons = 0;
+  CHECK( m_store->retrieve( electrons, "HLT_Electrons" ) );
+
+  xAOD::ElectronContainer::iterator electron_itr = (electrons)->begin();
+  xAOD::ElectronContainer::iterator electron_end = (electrons)->end();
+  for( ; electron_itr != electron_end; ++electron_itr ) {
+    // if( (*electron_itr)->auxdata< char >("baseline")==1  &&
+    //     (*electron_itr)->auxdata< char >("passOR")==1   ) {
+
+        HLT_Electron_pT  ->push_back( (*electron_itr)->pt()  );
+        HLT_Electron_eta ->push_back( (*electron_itr)->eta()  );
+        HLT_Electron_phi ->push_back( (*electron_itr)->phi()  );
+        HLT_Electron_E   ->push_back( (*electron_itr)->e()  );
+        HLT_Electron_m   ->push_back( (*electron_itr)->m()  );
+
+	//    }
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////
+
+
+
+  xAOD::MissingETContainer* MET = nullptr;//new xAOD::MissingETContainer;
+  CHECK( m_store->retrieve( MET, "HLT_MET_RefFinalCont" ) );
+
+    xAOD::MissingETContainer::const_iterator met_it = MET->find("HLT_MET_Final");
+  if (met_it == MET->end()) {
+  } else {
+    HLT_MET_x = (*met_it)->mpx();
+    HLT_MET_y = (*met_it)->mpy();
+  }
+
+  return EL::StatusCode::SUCCESS;
+}
+
+
+
+EL::StatusCode PlantATree :: fillRecoVariables() {
+  const char* APP_NAME = "PlantATree";
+  const   xAOD::JetContainer* jets = 0;
   CHECK( m_store->retrieve( jets, "CalibJets" ) );
 
-  xAOD::JetContainer::iterator jet_itr = (jets)->begin();
-  xAOD::JetContainer::iterator jet_end = (jets)->end();
-  for( ; jet_itr != jet_end; ++jet_itr ) {
-    if( (*jet_itr)->auxdata< char >("baseline")==1  &&
-        (*jet_itr)->auxdata< char >("passOR")==1  &&
-        (*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8)  ) {
+  xAOD::JetContainer::const_iterator jet_itr = (jets)->begin();
+  xAOD::JetContainer::const_iterator jet_end = (jets)->end();
+ for( ; jet_itr != jet_end; ++jet_itr ) {
+   // if( (*jet_itr)->auxdata< char >("baseline")==1  &&
+   //     //       (*jet_itr)->auxdata< char >("passOR")==1  &&
+   //     (*jet_itr)->pt() > 30000.  && ( fabs( (*jet_itr)->eta()) < 2.8)  ) {
+   //   //     Jet_goodJet ->push_back( 1.);
+   // }
+   // else{
+   //   Jet_goodJet ->push_back( 0.);
+   // }
 
-        Jet_pT  ->push_back( (*jet_itr)->pt()  );
-        Jet_eta ->push_back( (*jet_itr)->eta()  );
-        Jet_phi ->push_back( (*jet_itr)->phi()  );
-        Jet_E   ->push_back( (*jet_itr)->e()  );
-        Jet_m   ->push_back( (*jet_itr)->m()  );
-        Jet_MV1 ->push_back( (*jet_itr)->auxdata< float >("MV1")   );
-
-    }
-  }
+  Jet_pT  ->push_back( (*jet_itr)->pt()  );
+  Jet_eta ->push_back( (*jet_itr)->eta()  );
+  Jet_phi ->push_back( (*jet_itr)->phi()  );
+  Jet_E   ->push_back( (*jet_itr)->e()  );
+  Jet_m   ->push_back( (*jet_itr)->m()  );
+  //  Jet_MV1 ->push_back( (*jet_itr)->auxdata< float >("MV1")   );
+ }
+  // }
 
   /////////////////////////////////////////////////////////////////////////////////////
 
@@ -389,8 +590,8 @@ EL::StatusCode PlantATree :: execute ()
   xAOD::MuonContainer::iterator muon_itr = (muons)->begin();
   xAOD::MuonContainer::iterator muon_end = (muons)->end();
   for( ; muon_itr != muon_end; ++muon_itr ) {
-    if( (*muon_itr)->auxdata< char >("baseline")==1  &&
-        (*muon_itr)->auxdata< char >("passOR")==1   ) {
+    // if( (*muon_itr)->auxdata< char >("baseline")==1  &&
+    //     (*muon_itr)->auxdata< char >("passOR")==1   ) {
 
         Muon_pT  ->push_back( (*muon_itr)->pt()  );
         Muon_eta ->push_back( (*muon_itr)->eta()  );
@@ -398,7 +599,7 @@ EL::StatusCode PlantATree :: execute ()
         Muon_E   ->push_back( (*muon_itr)->e()  );
         Muon_m   ->push_back( (*muon_itr)->m()  );
 
-    }
+	//    }
   }
 
   /////////////////////////////////////////////////////////////////////////////////////
@@ -409,8 +610,8 @@ EL::StatusCode PlantATree :: execute ()
   xAOD::ElectronContainer::iterator electron_itr = (electrons)->begin();
   xAOD::ElectronContainer::iterator electron_end = (electrons)->end();
   for( ; electron_itr != electron_end; ++electron_itr ) {
-    if( (*electron_itr)->auxdata< char >("baseline")==1  &&
-        (*electron_itr)->auxdata< char >("passOR")==1   ) {
+    // if( (*electron_itr)->auxdata< char >("baseline")==1  &&
+    //     (*electron_itr)->auxdata< char >("passOR")==1   ) {
 
         Electron_pT  ->push_back( (*electron_itr)->pt()  );
         Electron_eta ->push_back( (*electron_itr)->eta()  );
@@ -418,41 +619,26 @@ EL::StatusCode PlantATree :: execute ()
         Electron_E   ->push_back( (*electron_itr)->e()  );
         Electron_m   ->push_back( (*electron_itr)->m()  );
 
-    }
+	//    }
   }
 
   /////////////////////////////////////////////////////////////////////////////////////
 
 
 
-  xAOD::MissingETContainer* MET = new xAOD::MissingETContainer;
+  xAOD::MissingETContainer* MET = nullptr;//new xAOD::MissingETContainer;
   CHECK( m_store->retrieve( MET, "CalibMET_Reference_AntiKt4EMTopo" ) );
 
     xAOD::MissingETContainer::const_iterator met_it = MET->find("Final");
   if (met_it == MET->end()) {
-    Error( APP_NAME, "No RefFinal inside MET container" );
+    //    Error( APP_NAME, "No RefFinal inside MET container" );
   } else {
     MET_x = (*met_it)->mpx();
     MET_y = (*met_it)->mpy();
   }
 
-
-
-// fill the branches of our trees
-  // EventNumber = 111;
-
-
-
-
-  tree->Fill();
-
-  m_store->clear();
-
-
   return EL::StatusCode::SUCCESS;
 }
-
-
 
 EL::StatusCode PlantATree :: postExecute ()
 {
@@ -466,6 +652,12 @@ EL::StatusCode PlantATree :: postExecute ()
 
 EL::StatusCode PlantATree :: finalize ()
 {
+
+		if( m_grl ) {
+			delete m_grl;
+			m_grl = 0;
+		}
+
   // This method is the mirror image of initialize(), meaning it gets
   // called after the last event has been processed on the worker node
   // and allows you to finish up any objects you created in
@@ -476,7 +668,7 @@ EL::StatusCode PlantATree :: finalize ()
   // merged.  This is different from histFinalize() in that it only
   // gets called on worker nodes that processed input events.
 
-  const char* APP_NAME = "PlantATree";
+
 
   return EL::StatusCode::SUCCESS;
 }
@@ -495,5 +687,23 @@ EL::StatusCode PlantATree :: histFinalize ()
   // outputs have been merged.  This is different from finalize() in
   // that it gets called on all worker nodes regardless of whether
   // they processed input events.
+
+  // HLT_Jet_pT        ->clear();
+  // HLT_Jet_eta       ->clear();
+  // HLT_Jet_phi       ->clear();
+  // HLT_Jet_E         ->clear();
+  // HLT_Jet_m         ->clear();
+  // HLT_Jet_MV1       ->clear();
+  // HLT_Muon_pT       ->clear();
+  // HLT_Muon_eta      ->clear();
+  // HLT_Muon_phi      ->clear();
+  // HLT_Muon_E        ->clear();
+  // HLT_Muon_m        ->clear();
+  // HLT_Electron_pT   ->clear();
+  // HLT_Electron_eta  ->clear();
+  // HLT_Electron_phi  ->clear();
+  // HLT_Electron_E    ->clear();
+  // HLT_Electron_m    ->clear();
+
   return EL::StatusCode::SUCCESS;
 }
