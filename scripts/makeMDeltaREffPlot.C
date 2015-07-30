@@ -9,39 +9,19 @@ int makeMDeltaREffPlot(){
 
   //  map<TString, TEfficiency*> effPlots;
   std::vector<std::string> sampleName = {
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00271044physics_Main_treeOutput.root/user.rsmith.5973107._000001.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270588physics_Main_treeOutput.root/user.rsmith.5973111._000002.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270588physics_Main_treeOutput.root/user.rsmith.5973111._000003.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270588physics_Main_treeOutput.root/user.rsmith.5973111._000001.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270448physics_Main_treeOutput.root/user.rsmith.5973146._000003.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270448physics_Main_treeOutput.root/user.rsmith.5973146._000002.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270448physics_Main_treeOutput.root/user.rsmith.5973146._000001.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270448physics_Main_treeOutput.root/user.rsmith.5973146._000004.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270448physics_Main_treeOutput.root/user.rsmith.5973146._000007.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270448physics_Main_treeOutput.root/user.rsmith.5973146._000006.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270448physics_Main_treeOutput.root/user.rsmith.5973146._000005.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00271388physics_Main_treeOutput.root/user.rsmith.5973158._000001.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00271388physics_Main_treeOutput.root/user.rsmith.5973158._000002.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270441physics_Main_treeOutput.root/user.rsmith.5973133._000001.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270441physics_Main_treeOutput.root/user.rsmith.5973133._000002.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270949physics_Main_treeOutput.root/user.rsmith.5973150._000001.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270949physics_Main_treeOutput.root/user.rsmith.5973150._000002.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270816physics_Main_treeOutput.root/user.rsmith.5973139._000001.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270816physics_Main_treeOutput.root/user.rsmith.5973139._000002.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270806physics_Main_treeOutput.root/user.rsmith.5973120._000001.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270806physics_Main_treeOutput.root/user.rsmith.5973120._000003.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270806physics_Main_treeOutput.root/user.rsmith.5973120._000002.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270806physics_Main_treeOutput.root/user.rsmith.5973120._000004.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.5973125._000001.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.5973125._000004.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.5973125._000005.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.5973125._000003.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.5973125._000002.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.5973125._000009.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.5973125._000006.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.5973125._000007.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.5973125._000008.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid.v2.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.5973125._000010.treeOutput.root"
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000005.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000003.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000006.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000002.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000001.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000004.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000007.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000008.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000009.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000010.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000025.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000035.treeOutput.root",
+"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000028.treeOutput.root"
 };
 
 
@@ -97,7 +77,7 @@ int makeMDeltaREffPlot(){
 
       TBranch *b_trigger;
       Int_t trigger;
-      fChain.SetBranchAddress("RJVars_TriggerBits", &trigger, &b_trigger);
+      fChain.SetBranchAddress("RJVars_HLT_TriggerBits", &trigger, &b_trigger);
 
       std::bitset<32> bset(trigger);
 
@@ -110,18 +90,19 @@ int makeMDeltaREffPlot(){
       const Bool_t was_triggered_xe100    = (bset[4]  == 1);//from this line in SklimmerAnalysis:
       const Bool_t was_triggered_L1_xe70  = (bset[1]  == 1);
 
+
       if(was_triggered_L1seed){
 	const float met = TMath::Sqrt( met_x*met_x  + met_y * met_y ) ;
 
-	effPlots_xe100->Fill(was_triggered_xe100, met/1000.);
+	effPlots_xe100->Fill(was_triggered_xe100, rj_mdeltaR/1000.);
 
-	effPlots170->Fill(was_triggered_razor170 , met/1000.);
-	effPlots185->Fill(was_triggered_razor185 , met/1000.);
-	effPlots195->Fill(was_triggered_razor195 , met/1000.);
+	effPlots170->Fill(was_triggered_razor170 , rj_mdeltaR/1000.);
+	effPlots185->Fill(was_triggered_razor185 , rj_mdeltaR/1000.);
+	effPlots195->Fill(was_triggered_razor195 , rj_mdeltaR/1000.);
 
-	effPlots170_xe100->Fill(was_triggered_razor170  , met/1000.);
-	effPlots185_xe100->Fill(was_triggered_razor185  , met/1000.);
-	effPlots195_xe100->Fill(was_triggered_razor195  , met/1000.);
+	effPlots170_xe100->Fill(was_triggered_razor170  , rj_mdeltaR/1000.);
+	effPlots185_xe100->Fill(was_triggered_razor185  , rj_mdeltaR/1000.);
+	effPlots195_xe100->Fill(was_triggered_razor195  , rj_mdeltaR/1000.);
 
 	// effPlots170->Fill(was_triggered_razor170 , rj_mdeltaR/1000.);
 	// effPlots185->Fill(was_triggered_razor185 , rj_mdeltaR/1000.);
@@ -133,7 +114,7 @@ int makeMDeltaREffPlot(){
       }
       // if(was_triggered_L1_xe70){
 
-      // 	effPlots_xe100->Fill(was_triggered_xe100, met/1000.);
+      // 	effPlots_xe100->Fill(was_triggered_xe100, rj_mdeltaR);
       // }
     }
 

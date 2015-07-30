@@ -35,7 +35,8 @@ ClassImp(PlantATree)
 
 
 
-PlantATree :: PlantATree ()
+PlantATree :: PlantATree () :
+writeHLTObjects(false)
 {
   // Here you put any code for the base initialization of variables,
   // e.g. initialize all pointers to 0.  Note that you should only put
@@ -74,6 +75,7 @@ EL::StatusCode PlantATree :: histInitialize ()
 
 // get the output file, create a new TTree and connect it to that output
   // define what braches will go in that tree
+
   TFile *outputFile = wk()->getOutputFile (outputName);
   tree = new TTree ("tree", "tree");
   tree->SetDirectory (outputFile);
@@ -96,25 +98,25 @@ EL::StatusCode PlantATree :: histInitialize ()
   Electron_E = new std::vector<float>       ;
   Electron_m = new std::vector<float>       ;
 
-
-  HLT_Jet_pT = new std::vector<float>       ;
-  HLT_Jet_eta = new std::vector<float>       ;
-  HLT_Jet_phi = new std::vector<float>       ;
-  HLT_Jet_E = new std::vector<float>       ;
-  HLT_Jet_m = new std::vector<float>       ;
-  HLT_Jet_MV1 = new std::vector<float>       ;
-  //  HLT_Jet_goodJet = new std::vector<float>       ;
-  HLT_Muon_pT = new std::vector<float>       ;
-  HLT_Muon_eta = new std::vector<float>       ;
-  HLT_Muon_phi = new std::vector<float>       ;
-  HLT_Muon_E = new std::vector<float>       ;
-  HLT_Muon_m = new std::vector<float>       ;
-  HLT_Electron_pT = new std::vector<float>       ;
-  HLT_Electron_eta = new std::vector<float>       ;
-  HLT_Electron_phi = new std::vector<float>       ;
-  HLT_Electron_E = new std::vector<float>       ;
-  HLT_Electron_m = new std::vector<float>       ;
-
+  if(writeHLTObjects){
+    HLT_Jet_pT = new std::vector<float>       ;
+    HLT_Jet_eta = new std::vector<float>       ;
+    HLT_Jet_phi = new std::vector<float>       ;
+    HLT_Jet_E = new std::vector<float>       ;
+    HLT_Jet_m = new std::vector<float>       ;
+    HLT_Jet_MV1 = new std::vector<float>       ;
+    //  HLT_Jet_goodJet = new std::vector<float>       ;
+    HLT_Muon_pT = new std::vector<float>       ;
+    HLT_Muon_eta = new std::vector<float>       ;
+    HLT_Muon_phi = new std::vector<float>       ;
+    HLT_Muon_E = new std::vector<float>       ;
+    HLT_Muon_m = new std::vector<float>       ;
+    HLT_Electron_pT = new std::vector<float>       ;
+    HLT_Electron_eta = new std::vector<float>       ;
+    HLT_Electron_phi = new std::vector<float>       ;
+    HLT_Electron_E = new std::vector<float>       ;
+    HLT_Electron_m = new std::vector<float>       ;
+  }
 
   //Set up branches here
 
@@ -165,6 +167,7 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_QCD_Delta1" ,  &RJVars_QCD_Delta1  );
   tree->Branch("RJVars_QCD_Delta2" ,  &RJVars_QCD_Delta2  );
 
+  if(writeHLTObjects){
   tree->Branch("RJVars_HLT_SS_Mass"           , &RJVars_HLT_SS_Mass           );
   tree->Branch("RJVars_HLT_SS_InvGamma"       , &RJVars_HLT_SS_InvGamma       );
   tree->Branch("RJVars_HLT_SS_dPhiBetaR"      , &RJVars_HLT_SS_dPhiBetaR      );
@@ -199,7 +202,7 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("RJVars_HLT_QCD_Rpsib" ,  &RJVars_HLT_QCD_Rpsib  );
   tree->Branch("RJVars_HLT_QCD_Delta1" ,  &RJVars_HLT_QCD_Delta1  );
   tree->Branch("RJVars_HLT_QCD_Delta2" ,  &RJVars_HLT_QCD_Delta2  );
-
+  }
 
   //trigger
   tree->Branch("RJVars_HLT_TriggerBits" ,  &RJVars_TriggerBits  );
@@ -223,7 +226,7 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("Electron_m"   , &Electron_m    );
   tree->Branch("MET_x"   , &MET_x    );
   tree->Branch("MET_y"   , &MET_y    );
-
+  if(writeHLTObjects){
   tree->Branch("HLT_Jet_pT"       , &HLT_Jet_pT        );
   tree->Branch("HLT_Jet_eta"      , &HLT_Jet_eta       );
   tree->Branch("HLT_Jet_phi"      , &HLT_Jet_phi       );
@@ -242,7 +245,7 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("HLT_Electron_m"   , &HLT_Electron_m    );
   tree->Branch("HLT_MET_x"   , &HLT_MET_x    );
   tree->Branch("HLT_MET_y"   , &HLT_MET_y    );
-
+  }
 
 
   return EL::StatusCode::SUCCESS;
@@ -356,7 +359,8 @@ EL::StatusCode PlantATree :: execute ()
   xAOD::EventInfo* eventinfo = 0;
   m_store->retrieve(eventinfo, "myEventInfo") ;
 
-  if( fillHLTVariables() != EL::StatusCode::SUCCESS){
+  if(writeHLTObjects &&
+     fillHLTVariables() != EL::StatusCode::SUCCESS){
     return EL::StatusCode::FAILURE;
   }
   if( fillRecoVariables() != EL::StatusCode::SUCCESS){
@@ -416,6 +420,7 @@ EL::StatusCode PlantATree :: execute ()
   RJVars_QCD_Delta1          = eventinfo->auxdata<float>("QCD_Delta1");
   RJVars_QCD_Delta2          = eventinfo->auxdata<float>("QCD_Delta2");
 
+  if(writeHLTObjects){
   RJVars_HLT_SS_Mass            = eventinfo->auxdata<float>("SS_HLT_Mass");
   RJVars_HLT_SS_InvGamma        = eventinfo->auxdata<float>("SS_HLT_InvGamma");
   RJVars_HLT_SS_dPhiBetaR       = eventinfo->auxdata<float>("SS_HLT_dPhiBetaR");
@@ -450,7 +455,7 @@ EL::StatusCode PlantATree :: execute ()
   RJVars_HLT_QCD_Rpsib          = eventinfo->auxdata<float>("QCD_HLT_Rpsib");
   RJVars_HLT_QCD_Delta1          = eventinfo->auxdata<float>("QCD_HLT_Delta1");
   RJVars_HLT_QCD_Delta2          = eventinfo->auxdata<float>("QCD_HLT_Delta2");
-
+  }
 
   //trig
   RJVars_TriggerBits = eventinfo->auxdecor<int>("triggerBitset");

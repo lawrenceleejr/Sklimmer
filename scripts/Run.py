@@ -131,12 +131,12 @@ elif (options.driver == "prooflite"):
     logging.info("running on prooflite")
     driver = ROOT.EL.ProofDriver()
     logging.info("submit job")
-    driver.submit(job, options.submitDir)
+    driver.submit(job, "submit_dir_prooflite")
 elif (options.driver == "grid"):
     print "grid driver"
     logging.info("running on Grid")
     driver = ROOT.EL.PrunDriver()
-    outSampleName = "user.rsmith.grid.v2.razor_trigger"+ options.inputDS + "%in:name[2]%" + "%in:name[3]%"
+    outSampleName = "user.rsmith.grid.NOHLT.v3.razor_trigger"+ options.inputDS + "%in:name[2]%" + "%in:name[3]%"
 #    driver.options().setDouble(ROOT.EL.Job.optGridNFilesPerJob,  1);
     driver.options().setString("nc_outputSampleName", outSampleName);
 
