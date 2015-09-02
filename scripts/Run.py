@@ -51,7 +51,7 @@ elif options.inputDS == "test":
     list = ROOT.SH.DiskListLocal("/data/users/rsmith/")
 
 #    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.05892381._000002.pool.root.1");
-    ROOT.SH.scanDir(sh_all,list,"data15_13TeV.00270953.physics_Main.merge.AOD.f611_m1463._lb0197._0001.1");
+    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.05970104._000001.pool.root.1");
 elif options.inputDS != "none":
   ROOT.SH.scanDQ2 (sh_all, options.inputDS);
 else :
@@ -136,7 +136,7 @@ elif (options.driver == "grid"):
     print "grid driver"
     logging.info("running on Grid")
     driver = ROOT.EL.PrunDriver()
-    outSampleName = "user.rsmith.grid.NOHLT.v3.razor_trigger"+ options.inputDS + "%in:name[2]%" + "%in:name[3]%"
+    outSampleName = "user.rsmith.grid.NOHLT.v4.includeNewRazorTriggers."+ options.inputDS + "%in:name[2]%" + "%in:name[3]%"
 #    driver.options().setDouble(ROOT.EL.Job.optGridNFilesPerJob,  1);
     driver.options().setString("nc_outputSampleName", outSampleName);
 

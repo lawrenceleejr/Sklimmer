@@ -416,7 +416,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 	// Pile Up Reweighting ///////////////////////////////////////////////////////////////////
 
 	m_pileupReweightingTool= new PileupReweightingTool("PileupReweightingTool");
-	CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );
+	//	CHECK( m_pileupReweightingTool->setProperty("Input","EventInfo") );
 	std::vector<std::string> prwFiles;
 	prwFiles.push_back("PileupReweighting/mc14v1_defaults.prw.root");
 	CHECK( m_pileupReweightingTool->setProperty("ConfigFiles",prwFiles) );
@@ -459,10 +459,12 @@ EL::StatusCode SklimmerAnalysis :: addTrigDecisionInfo ( xAOD::EventInfo * event
   triggers[12] = m_susy_obj->IsTrigPassed("HLT_xe70_tc_lcw");
   triggers[13] = m_susy_obj->IsTrigPassed("HLT_xe70_mht");
   triggers[14] = m_susy_obj->IsTrigPassed("HLT_xe70_pufit");
-  triggers[15] = m_susy_obj->IsTrigPassed("HLT_xe100_tc_em");
-  triggers[16] = m_susy_obj->IsTrigPassed("HLT_xe100_tc_lcw");
-  triggers[17] = m_susy_obj->IsTrigPassed("HLT_xe100_mht");
-  triggers[18] = m_susy_obj->IsTrigPassed("HLT_xe100_pufit");
+
+  triggers[15] = m_susy_obj->IsTrigPassed("HLT_j30_xe60_razor100");
+  triggers[16] = m_susy_obj->IsTrigPassed("HLT_j30_xe60_razor170");
+  triggers[17] = m_susy_obj->IsTrigPassed("HLT_j30_xe60_razor185");
+  triggers[18] = m_susy_obj->IsTrigPassed("HLT_j30_xe60_razor195");
+
   triggers[19] = m_susy_obj->IsTrigPassed("HLT_3j175");
   triggers[20] = m_susy_obj->IsTrigPassed("HLT_4j85");
   triggers[21] = m_susy_obj->IsTrigPassed("HLT_5j85");
@@ -993,7 +995,8 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
 	else putStuffInStore();
 
-	if( getHLTTriggerObjs() == EL::StatusCode::FAILURE ){return EL::StatusCode::FAILURE;}
+	if( false &&
+	    getHLTTriggerObjs() == EL::StatusCode::FAILURE ){return EL::StatusCode::FAILURE;}
 
 	std::pair< xAOD::EventInfo*, xAOD::ShallowAuxInfo* > eventInfo_shallowCopy = xAOD::shallowCopyObject( *eventInfo );
 	if( !m_store->record( eventInfo_shallowCopy.first , "myEventInfo" )){return EL::StatusCode::FAILURE;}
@@ -1014,7 +1017,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	if( m_doEventSelection && m_Analysis=="bbmet" ){
 
 	  TString result = eventSelectionBBMet();
-	  result += eventSelectionHLT_BBMet();
+	  //	  result += eventSelectionHLT_BBMet();
 	  (eventInfo_shallowCopy.first)->auxdecor< char >("selection") = *result.Data();
 	  addTrigDecisionInfo(eventInfo_shallowCopy.first );
 		//if(result=="") return EL::StatusCode::SUCCESS;
