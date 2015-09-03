@@ -136,13 +136,13 @@ elif (options.driver == "grid"):
     print "grid driver"
     logging.info("running on Grid")
     driver = ROOT.EL.PrunDriver()
-    outSampleName = "user.rsmith.grid.NOHLT.v4.includeNewRazorTriggers."+ options.inputDS + "%in:name[2]%" + "%in:name[3]%"
+#    outSampleName = "user.rsmith.grid.v8."+ options.inputDS + "%in:name[2]%" + "%in:name[3]%"
 #    driver.options().setDouble(ROOT.EL.Job.optGridNFilesPerJob,  1);
-    driver.options().setString("nc_outputSampleName", outSampleName);
+#    driver.options().setString("nc_outputSampleName", outSampleName.replace("mc15_13TeV:","mc15_13TeV"));
+    driver.options().setString("nc_outputSampleName", "user.rsmith.v12.razorTID.%in:name[2]%.%in:name[3]%.end")
 
-    #    driver.options().setString(EL::Job::optGridNfilesPerJob, "1")
-#driver.options().setDouble("nc_disableAutoRetry", 1)
-#    driver.options().setDouble("nc_nFilesPerJob", 1)
+#    driver.options().setString("nc_outputSampleName", "user.rsmith.testoutput.withslash")
+
     driver.options().setDouble(ROOT.EL.Job.optGridMergeOutput, 1);
 
     logging.info("submit job")
