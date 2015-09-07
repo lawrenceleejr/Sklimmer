@@ -37,7 +37,7 @@ public:
   std::string outputName;
   TTree* tree; //!
 
-
+  int isMC;
   // Setup variables for branches
   int RunNumber; //!
   int EventNumber; //!

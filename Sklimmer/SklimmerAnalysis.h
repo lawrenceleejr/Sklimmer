@@ -34,7 +34,9 @@
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 #endif
 
-
+namespace TauAnalysisTools {
+  class TauTruthMatchingTool;
+}
 // GRL
 class GoodRunsListSelectionTool;
 namespace CP{
@@ -153,11 +155,16 @@ public:
 	// xAOD::MissingETContainer* m_MET; //!
 	// xAOD::MissingETAuxContainer* m_METAux; //!
 
+  TauAnalysisTools::TauTruthMatchingTool * T2MT; //!
+
 	#ifndef __CINT__
+
 		GoodRunsListSelectionTool *m_grl; //!
 		PileupReweightingTool *m_pileupReweightingTool; //!
 		SUSYObjDef_xAOD *m_susy_obj; //!
+
 	#endif // not __CINT__
+
 
 
 	// this is a standard constructor
@@ -182,7 +189,8 @@ public:
 	// TString whichsystname; //!
 
 
-	int isData;
+  //	int isData;
+  int isMC;
 	int isAtlfast;
 	int mc12b;
 	int useLeptonTrigger;
