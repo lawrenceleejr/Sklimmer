@@ -9,19 +9,7 @@ int makeMDeltaREffPlot(){
 
   //  map<TString, TEfficiency*> effPlots;
   std::vector<std::string> sampleName = {
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000005.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000003.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000006.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000002.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000001.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000004.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000007.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000008.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000009.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000010.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000025.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000035.treeOutput.root",
-"/data/users/rsmith/user.rsmith.grid_withHLT.v3.razor_triggerinputDS_razor_trig.txt00270953physics_Main_treeOutput.root/user.rsmith.6061898._000028.treeOutput.root"
+"/data/users/rsmith/user.rsmith.v2.fixBits.371666.MGPy8EG_A14N_GG_onestepCC_1200_660_60.end_treeOutput.root/user.rsmith.6426897._000001.treeOutput.root"
 };
 
 

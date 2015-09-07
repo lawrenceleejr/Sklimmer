@@ -11,7 +11,7 @@ parser.add_option("--driver", help="select where to run", choices=("direct", "pr
 parser.add_option("--nevents", type=int, help="number of events to process for all the datasets")
 parser.add_option("--skip-events", type=int, help="skip the first n events")
 parser.add_option("-w", "--overwrite", action='store_true', default=True, help="overwrite previous submitDir")
-parser.add_option("--isData", help="Data flag [0/1]", default=0)
+parser.add_option("--isMC", help="Data flag [0/1]", default=0)
 parser.add_option("--isAtlfast", help="ATLFAST flag [0/1]", default=0)
 parser.add_option("--mc12b", help="mc12b flag [0/1]", default=1)
 parser.add_option("--useLeptonTrigger", help="Lepton Trigger flag [0/1]", default=0)
@@ -49,9 +49,8 @@ if ".txt" in options.inputDS:
       ROOT.SH.scanDQ2 (sh_all, line[:-1])
 elif options.inputDS == "test":
     list = ROOT.SH.DiskListLocal("/data/users/rsmith/")
-
-#    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.05892381._000002.pool.root.1");
     ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.05970104._000001.pool.root.1");
+#    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.06381986._000008.pool.root.1");
 elif options.inputDS != "none":
   ROOT.SH.scanDQ2 (sh_all, options.inputDS);
 else :
@@ -99,6 +98,13 @@ alg.m_doEventSelection = True;
 alg.m_writexAOD = True;
 alg.m_writeFullCollectionsToxAOD = True;
 
+print "isMC : " + options.isMC
+
+if(options.isMC) :
+    alg.isMC = 1
+else :
+    alg.isMC = 0
+
 alg.m_Analysis = "bbmet";
 
 output = ROOT.EL.OutputStream("treeOutput")
@@ -106,6 +112,11 @@ job.outputAdd(output)
 ntuple = ROOT.EL.NTupleSvc("treeOutput")
 
 treeWriter = ROOT.PlantATree();
+if(options.isMC) :
+    treeWriter.isMC = 1
+else :
+    treeWriter.isMC = 0
+
 treeWriter.outputName = "treeOutput";
 
 logging.info("adding algorithms")
@@ -113,7 +124,6 @@ logging.info("adding algorithms")
 job.algsAdd(ntuple)
 job.algsAdd(alg)
 job.algsAdd(treeWriter)
-
 
 
 # make the driver we want to use:
@@ -139,7 +149,7 @@ elif (options.driver == "grid"):
 #    outSampleName = "user.rsmith.grid.v8."+ options.inputDS + "%in:name[2]%" + "%in:name[3]%"
 #    driver.options().setDouble(ROOT.EL.Job.optGridNFilesPerJob,  1);
 #    driver.options().setString("nc_outputSampleName", outSampleName.replace("mc15_13TeV:","mc15_13TeV"));
-    driver.options().setString("nc_outputSampleName", "user.rsmith.v12.razorTID.%in:name[2]%.%in:name[3]%.end")
+    driver.options().setString("nc_outputSampleName", "user.rsmith.v2.fixBits.%in:name[2]%.%in:name[3]%.end")
 
 #    driver.options().setString("nc_outputSampleName", "user.rsmith.testoutput.withslash")
 
