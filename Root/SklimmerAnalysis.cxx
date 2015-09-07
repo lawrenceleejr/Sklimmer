@@ -412,7 +412,11 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
 	std::vector<std::string> vecStringGRL;
-	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_HEAD_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"));
+	//	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_HEAD_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"));
+
+	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_DetStatus-v63-pro18-01_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"));//50ns grl as of sept 9 2012
+	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_DetStatus-v64-pro19_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"));//25ns grl as of sept 9 2012
+
 	CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
 	CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
 	if (!m_grl->initialize().isSuccess()) { // check this isSuccess
@@ -997,7 +1001,6 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		}
 	}// end if IS MC
 
-	//	std::cout << "passed grl" << std::endl;
 
 	//	std::cout << __PRETTY_FUNCTION__ << " at line : " << __LINE__ << std::endl;
 

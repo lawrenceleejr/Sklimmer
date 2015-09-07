@@ -289,22 +289,23 @@ EL::StatusCode PlantATree :: initialize ()
   m_event = wk()->xaodEvent();
   m_store = wk()->xaodStore();
 
+	m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
+	std::vector<std::string> vecStringGRL;
+	//	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_HEAD_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"));
 
-  m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
-  std::vector<std::string> vecStringGRL;
-  //  vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/user.rsmith:
-  //02_PHYS_StandardGRL_All_Good.xml") );
-  vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_HEAD_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"));
-  CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
-  CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
-  if (!m_grl->initialize().isSuccess()) { // check this isSuccess
-    return EL::StatusCode::FAILURE;
-  }
+	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_DetStatus-v63-pro18-01_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"));//50ns grl as of sept 9 2012
+	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_DetStatus-v64-pro19_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"));//25ns grl as of sept 9 2012
 
-
+	CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
+	CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
+	if (!m_grl->initialize().isSuccess()) { // check this isSuccess
+		Error(APP_NAME, "Failed to properly initialize the GRL. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
 
   // as a check, let's see the number of events in our xAOD
   Info("initialize()", "Number of events = %lli", m_event->getEntries() ); // print long long int
+
 
 
   return EL::StatusCode::SUCCESS;
@@ -361,7 +362,7 @@ EL::StatusCode PlantATree :: execute ()
      } // end if event flags check
  } // end if not MC
  //      }
-
+	std::cout << "passed grl" << std::endl;
 
   //  std::cout << "PlantATree :: execute ()" << std::endl;
   // std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
