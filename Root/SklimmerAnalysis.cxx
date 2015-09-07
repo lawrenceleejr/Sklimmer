@@ -915,6 +915,7 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 }
 
 
+
 EL::StatusCode SklimmerAnalysis :: execute ()
 {
 	// Here you do everything that needs to be done on every single
@@ -929,6 +930,8 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	int passEvent = 1;
 
 
+	//	std::cout << __PRETTY_FUNCTION__ << " at line : " << __LINE__ << std::endl;
+	//	std::cout << "isMC : " <<  isMC << std::endl;
 	//if(m_doSklimming) copyFullxAODContainers();
         // LH update, should the above instead be this:
         if(m_writeFullCollectionsToxAOD) copyFullxAODContainers();
@@ -999,6 +1002,10 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		}
 	}// end if IS MC
 
+
+
+	//	std::cout << __PRETTY_FUNCTION__ << " at line : " << __LINE__ << std::endl;
+
 	// Let's calibrate
 
 	if(m_doSUSYObjDef) applySUSYObjectDefinitions();
@@ -1020,7 +1027,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 
 	// m_store->print();
-
+	//	std::cout << __PRETTY_FUNCTION__ << " at line : " << __LINE__ << std::endl;
 
 
 	if( m_doEventSelection && m_Analysis=="bbmet" ){
@@ -1031,6 +1038,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	  addTrigDecisionInfo(eventInfo_shallowCopy.first );
 		//if(result=="") return EL::StatusCode::SUCCESS;
 	}
+	//	std::cout << __PRETTY_FUNCTION__ << " at line : " << __LINE__ << std::endl;
 
 	//Info( APP_NAME,"About to access eventInfo "  );
 

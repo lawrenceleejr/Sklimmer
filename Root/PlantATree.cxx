@@ -292,8 +292,9 @@ EL::StatusCode PlantATree :: initialize ()
 
   m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
   std::vector<std::string> vecStringGRL;
-  vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_DetStatus-v63-pro18-01_DQDefects-00-01-\
-02_PHYS_StandardGRL_All_Good.xml") );
+  //  vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/user.rsmith:
+  //02_PHYS_StandardGRL_All_Good.xml") );
+  vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_HEAD_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"));
   CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
   CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
   if (!m_grl->initialize().isSuccess()) { // check this isSuccess
@@ -319,6 +320,8 @@ EL::StatusCode PlantATree :: execute ()
   // code will go.
 
   //////////////////////////////////////////////////////////////////////////////////////////
+
+  //std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
 
   Jet_pT        ->clear();
   Jet_eta       ->clear();
@@ -363,7 +366,7 @@ EL::StatusCode PlantATree :: execute ()
   //  std::cout << "PlantATree :: execute ()" << std::endl;
   // std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();
   // m_store->print();
-
+ //std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
   xAOD::EventInfo* eventinfo = 0;
   m_store->retrieve(eventinfo, "myEventInfo") ;
 
@@ -374,6 +377,7 @@ EL::StatusCode PlantATree :: execute ()
   if( fillRecoVariables() != EL::StatusCode::SUCCESS){
     return EL::StatusCode::FAILURE;
   }
+
 
 
 
@@ -468,14 +472,13 @@ EL::StatusCode PlantATree :: execute ()
   //trig
   RJVars_TriggerBits = eventinfo->auxdecor<int>("triggerBitset");
 
-
-
   /////////////////////////////////////////////////////////////////////////////////////
  // EventNumber = 111;
 
+  //  tree->Print();
   tree->Fill();
   m_store->clear();
-
+  // assert(0&&"we passed");
 
   return EL::StatusCode::SUCCESS;
 }
