@@ -36,7 +36,8 @@ ClassImp(PlantATree)
 
 
 PlantATree :: PlantATree () :
-writeHLTObjects(false)
+writeHLTObjects(false),
+  isMC(0)
 {
   // Here you put any code for the base initialization of variables,
   // e.g. initialize all pointers to 0.  Note that you should only put
@@ -341,15 +342,22 @@ EL::StatusCode PlantATree :: execute ()
     return EL::StatusCode::FAILURE;
   }
 
-  if(!m_grl->passRunLB(*quickInfo)){
-    return EL::StatusCode::SUCCESS; // go to next event
-  }
-  if(  (quickInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) ||
-       (quickInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) ||
-       (quickInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
-    {
-      return EL::StatusCode::SUCCESS; // go to the next event
-    } // end if event flags check
+  //std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+  //   std::cout << "isMC ? : " << isMC << std::endl;
+
+ //      if(0){
+ if(!isMC){ // it's data!
+   if(!m_grl->passRunLB(*quickInfo)){
+     return EL::StatusCode::SUCCESS; // go to next event
+   }
+   if(  (quickInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) ||
+	(quickInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) ||
+	(quickInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
+     {
+       return EL::StatusCode::SUCCESS; // go to the next event
+     } // end if event flags check
+ } // end if not MC
+ //      }
 
 
   //  std::cout << "PlantATree :: execute ()" << std::endl;

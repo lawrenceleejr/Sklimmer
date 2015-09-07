@@ -43,7 +43,7 @@
 
 #include "CPAnalysisExamples/errorcheck.h"
 #include "SUSYTools/SUSYObjDef_xAOD.h"
-
+#include "TauAnalysisTools/TauTruthMatchingTool.h"
 
 
 //Still really need to implement a systematics framework
@@ -53,7 +53,10 @@ ClassImp(SklimmerAnalysis)
 
 
 
-SklimmerAnalysis :: SklimmerAnalysis()
+SklimmerAnalysis :: SklimmerAnalysis() :
+isMC(0),
+  T2MT(nullptr)
+
 {
 	// Here you put any code for the base initialization of variables,
 	// e.g. initialize all pointers to 0.  Note that you should only put
@@ -61,7 +64,6 @@ SklimmerAnalysis :: SklimmerAnalysis()
 	// called on both the submission and the worker node.  Most of your
 	// initialization code will go into histInitialize() and
 	// initialize().
-
 }
 
 
@@ -371,12 +373,17 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		CHECK(m_event->writeTo(file));
 	}
 
+	T2MT = new TauAnalysisTools::TauTruthMatchingTool("T2MT");
+	T2MT->setProperty("WriteTruthTaus", true);
+	T2MT->initialize();
+
+
 	// SUSYTools ///////////////////////////////////////////////////////////////////
 
 	if(m_doSUSYObjDef){
 		m_susy_obj = new ST::SUSYObjDef_xAOD( "SUSYObjDef_xAOD" );
 
-		ST::SettingDataSource datasource = isData ? ST::Data : (isAtlfast ? ST::AtlfastII : ST::FullSim);
+		ST::SettingDataSource datasource = (!isMC) ? ST::Data : (isAtlfast ? ST::AtlfastII : ST::FullSim);
 
 		if(m_susy_obj->setProperty("DataSource",datasource).isFailure()){return EL::StatusCode::FAILURE;}
 		if(m_susy_obj->setProperty("PhotonIsoWP" , "Cone20").isFailure()){return EL::StatusCode::FAILURE;};
@@ -405,7 +412,7 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 
 	m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
 	std::vector<std::string> vecStringGRL;
-	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_DetStatus-v63-pro18-01_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml") );
+	vecStringGRL.push_back(gSystem->ExpandPathName("$ROOTCOREBIN/data/Sklimmer/data15_13TeV.periodAllYear_HEAD_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml"));
 	CHECK( m_grl->setProperty( "GoodRunsListVec", vecStringGRL) );
 	CHECK( m_grl->setProperty("PassThrough", false) ); // if true (default) will ignore result of GRL and will just pass all events
 	if (!m_grl->initialize().isSuccess()) { // check this isSuccess
@@ -800,9 +807,13 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 		return EL::StatusCode::FAILURE;
 	}
 
-	xAOD::TauJetContainer* taus_copy(0);
-	xAOD::ShallowAuxContainer* taus_copyaux(0);
-	CHECK( m_susy_obj->GetTaus(taus_copy,taus_copyaux) );
+	for ( auto xTau : *taus ){
+	  xAOD::TruthParticle const * truthTau = T2MT->getTruth(*xTau);
+	}
+
+	// xAOD::TauJetContainer* taus_copy(0);
+	// xAOD::ShallowAuxContainer* taus_copyaux(0);
+	// CHECK( m_susy_obj->GetTaus(taus_copy,taus_copyaux) );
 
 
 	//------------
@@ -913,7 +924,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	const char* APP_NAME = "SklimmerAnalysis";
 
-
+	T2MT->initializeEvent();
 
 	int passEvent = 1;
 
@@ -932,22 +943,13 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	}
 
 
+	//	std::cout << __PRETTY_FUNCTION__ << " at line : " << __LINE__ << std::endl;
+
 	int EventNumber = eventInfo->eventNumber();
 	int RunNumber = eventInfo->runNumber();
 
 	float EventWeight = 1.;
 	int MCChannelNumber = -1;
-
-	if( !isData) {
-	  EventWeight = eventInfo->mcEventWeight();
-	  MCChannelNumber = eventInfo->mcChannelNumber();
-	}
-
-
-
-	h_nevents->Fill(0.);
-	h_nevents_weighted->Fill(0.,EventWeight);
-
 
 	// // stupid sherpa stuff...///////////////////////////////////////////////////////////////////
 
@@ -956,12 +958,19 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	// check if the event is data or MC
 	// (many tools are applied either to data or MC)
-	bool isMC = false;
+	//bool isMC = false;
 	// check if the event is MC
-	if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
-	   isMC = true; // can do something with this later
+	// if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
+	//    isMC = true; // can do something with this later
+	// }
+
+	if( isMC) {
+	  EventWeight = eventInfo->mcEventWeight();
+	  MCChannelNumber = eventInfo->mcChannelNumber();
 	}
 
+	h_nevents->Fill(0.);
+	h_nevents_weighted->Fill(0.,EventWeight);
 
 	// if data, check if event passes GRL ////////////////////////////////////////////////
 	//	if(0){
@@ -1040,7 +1049,6 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	}
 
 	//Info( APP_NAME,"leaving execute "  );
-
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -1343,7 +1351,7 @@ TString SklimmerAnalysis :: eventSelectionHLT_BBMet()
 			eventInfo->auxdecor<float>(Form("G_%d_HLT_Jet1_pT",i)     ) = jet1PT[i];
 			eventInfo->auxdecor<float>(Form("G_%d_HLT_Jet2_pT",i)     ) = jet2PT[i];
 
-			// std::cout << "In SklimmerAnalysis: " << jet2PT[i] << std::endl;
+			// std::cout << "In SklimmerAnalysis: " << __LINE__ << jet2PT[i] << std::endl;
 
 		}
 
@@ -1360,7 +1368,7 @@ TString SklimmerAnalysis :: eventSelectionHLT_BBMet()
 
     }
 
-	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
+	//std::cout << "RestFrames shatR is: " << __LINE__ << SS.GetMass() << std::endl;
 
 	eventInfo->auxdecor<float>("SS_HLT_Mass"           ) = SS->GetMass();
 	eventInfo->auxdecor<float>("SS_HLT_InvGamma"       ) = 1./SS->GetGammaInParentFrame();
@@ -1633,7 +1641,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 			eventInfo->auxdecor<float>(Form("G_%d_Jet1_pT",i)     ) = jet1PT[i];
 			eventInfo->auxdecor<float>(Form("G_%d_Jet2_pT",i)     ) = jet2PT[i];
 
-			// std::cout << "In SklimmerAnalysis: " << jet2PT[i] << std::endl;
+			// std::cout << "In SklimmerAnalysis: " << __LINE__ << jet2PT[i] << std::endl;
 
 		}
 
@@ -1650,7 +1658,7 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
     }
 
-	//std::cout << "RestFrames shatR is: " << SS.GetMass() << std::endl;
+	//std::cout << "RestFrames shatR is: " << __LINE__ y<< SS.GetMass() << std::endl;
 
 	eventInfo->auxdecor<float>("SS_Mass"           ) = SS->GetMass();
 	eventInfo->auxdecor<float>("SS_InvGamma"       ) = 1./SS->GetGammaInParentFrame();
@@ -1752,3 +1760,5 @@ TString SklimmerAnalysis :: eventSelectionBBMet()
 
 
 
+
+//  LocalWords:  passEvent
