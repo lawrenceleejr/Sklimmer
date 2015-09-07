@@ -373,9 +373,9 @@ EL::StatusCode SklimmerAnalysis :: initialize ()
 		CHECK(m_event->writeTo(file));
 	}
 
-	T2MT = new TauAnalysisTools::TauTruthMatchingTool("T2MT");
-	T2MT->setProperty("WriteTruthTaus", true);
-	T2MT->initialize();
+	// T2MT = new TauAnalysisTools::TauTruthMatchingTool("T2MT");
+	// T2MT->setProperty("WriteTruthTaus", true);
+	// T2MT->initialize();
 
 
 	// SUSYTools ///////////////////////////////////////////////////////////////////
@@ -464,8 +464,8 @@ EL::StatusCode SklimmerAnalysis :: addTrigDecisionInfo ( xAOD::EventInfo * event
   triggers[10] = m_susy_obj->IsTrigPassed("L1_2J15_XE55");//m_susy_obj->IsTrigPassed("HLT_j30_xe10_razor170");
   triggers[11] = m_susy_obj->IsTrigPassed("HLT_xe70_tc_em");
   triggers[12] = m_susy_obj->IsTrigPassed("HLT_xe70_tc_lcw");
-  triggers[13] = m_susy_obj->IsTrigPassed("HLT_xe70_mht");
-  triggers[14] = m_susy_obj->IsTrigPassed("HLT_xe70_pufit");
+  triggers[13] = m_susy_obj->IsTrigPassed("HLT_j80_xe80" );//xe70_mht");
+  triggers[14] = m_susy_obj->IsTrigPassed("HLT_j100_xe80");
 
   triggers[15] = m_susy_obj->IsTrigPassed("HLT_j30_xe60_razor100");
   triggers[16] = m_susy_obj->IsTrigPassed("HLT_j30_xe60_razor170");
@@ -807,9 +807,9 @@ int SklimmerAnalysis :: applySUSYObjectDefinitions (){
 		return EL::StatusCode::FAILURE;
 	}
 
-	for ( auto xTau : *taus ){
-	  xAOD::TruthParticle const * truthTau = T2MT->getTruth(*xTau);
-	}
+	// for ( auto xTau : *taus ){
+	//   xAOD::TruthParticle const * truthTau = T2MT->getTruth(*xTau);
+	// }
 
 	// xAOD::TauJetContainer* taus_copy(0);
 	// xAOD::ShallowAuxContainer* taus_copyaux(0);
@@ -925,7 +925,7 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 
 	const char* APP_NAME = "SklimmerAnalysis";
 
-	T2MT->initializeEvent();
+	//	T2MT->initializeEvent();
 
 	int passEvent = 1;
 
@@ -994,15 +994,10 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 		bool mc14_13TeV = false;
 		if( RunNumber == 222222) mc14_13TeV = true;
 		if (!mc14_13TeV){ // Only reweight 8 TeV MC
-		  //todo reincludE!!!!!!
-		  //			CHECK( m_pileupReweightingTool->execute() );
-
-
-			//Info( APP_NAME,"PileupReweightingTool: PileupWeight %f RandomRunNumber %i RandomLumiBlockNumber %i",eventInfo->auxdata< double >("PileupWeight"), eventInfo->auxdata< unsigned int >("RandomRunNumber"),  eventInfo->auxdata< unsigned int >("RandomLumiBlockNumber") );
 		}
 	}// end if IS MC
 
-
+	//	std::cout << "passed grl" << std::endl;
 
 	//	std::cout << __PRETTY_FUNCTION__ << " at line : " << __LINE__ << std::endl;
 
