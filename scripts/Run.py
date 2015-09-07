@@ -49,7 +49,9 @@ if ".txt" in options.inputDS:
       ROOT.SH.scanDQ2 (sh_all, line[:-1])
 elif options.inputDS == "testdata":
     list = ROOT.SH.DiskListLocal("/data/users/rsmith/")
-    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.06362618._000074.pool.root.1");
+#test both!
+#    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.06362618._000074.pool.root.1");#25ns
+    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.06307276._000019.pool.root.1");#50ns
 elif options.inputDS == "testmc":
     list = ROOT.SH.DiskListLocal("/data/users/rsmith/")
     ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.05970104._000001.pool.root.1");
