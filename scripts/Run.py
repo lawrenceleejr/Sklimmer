@@ -47,7 +47,10 @@ if ".txt" in options.inputDS:
     for line in inputDSs:
       print line[:-1]
       ROOT.SH.scanDQ2 (sh_all, line[:-1])
-elif options.inputDS == "test":
+elif options.inputDS == "testdata":
+    list = ROOT.SH.DiskListLocal("/data/users/rsmith/")
+    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.06362618._000074.pool.root.1");
+elif options.inputDS == "testmc":
     list = ROOT.SH.DiskListLocal("/data/users/rsmith/")
     ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.05970104._000001.pool.root.1");
 #    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.06381986._000008.pool.root.1");
@@ -98,7 +101,7 @@ alg.m_doEventSelection = True;
 alg.m_writexAOD = True;
 alg.m_writeFullCollectionsToxAOD = True;
 
-print "isMC : " + options.isMC
+print "isMC : " + str(options.isMC)
 
 if(options.isMC) :
     alg.isMC = 1
@@ -151,7 +154,7 @@ elif (options.driver == "grid"):
 #    driver.options().setString("nc_outputSampleName", outSampleName.replace("mc15_13TeV:","mc15_13TeV"));
     driver.options().setString("nc_outputSampleName", "user.rsmith.v2.fixBits.%in:name[2]%.%in:name[3]%.end")
 
-#    driver.options().setString("nc_outputSampleName", "user.rsmith.testoutput.withslash")
+#   driver.options().setString("nc_outputSampleName", "user.rsmith.testoutput.withslash")
 
     driver.options().setDouble(ROOT.EL.Job.optGridMergeOutput, 1);
 
