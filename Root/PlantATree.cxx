@@ -37,7 +37,7 @@ ClassImp(PlantATree)
 
 PlantATree :: PlantATree () :
 writeHLTObjects(false),
-  isMC(0)
+  isMC(1)
 {
   // Here you put any code for the base initialization of variables,
   // e.g. initialize all pointers to 0.  Note that you should only put
@@ -362,7 +362,6 @@ EL::StatusCode PlantATree :: execute ()
      } // end if event flags check
  } // end if not MC
  //      }
-	std::cout << "passed grl" << std::endl;
 
   //  std::cout << "PlantATree :: execute ()" << std::endl;
   // std::cout << "PlantATree - Contains event info? " <<std::endl; m_store->print();

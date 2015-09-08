@@ -54,7 +54,7 @@ ClassImp(SklimmerAnalysis)
 
 
 SklimmerAnalysis :: SklimmerAnalysis() :
-isMC(0),
+isMC(1),
   T2MT(nullptr)
 
 {
