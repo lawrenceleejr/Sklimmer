@@ -24,6 +24,8 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
+#include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
 //#include "xAODBTagging/BTagging.h"
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
 
@@ -36,6 +38,7 @@ ClassImp(PlantATree)
 
 
 PlantATree :: PlantATree () :
+writeHLTmet(true),
 writeHLTObjects(false),
   isMC(1)
 {
@@ -227,25 +230,30 @@ EL::StatusCode PlantATree :: histInitialize ()
   tree->Branch("Electron_m"   , &Electron_m    );
   tree->Branch("MET_x"   , &MET_x    );
   tree->Branch("MET_y"   , &MET_y    );
+  if(writeHLTmet){
+    tree->Branch("HLT_MET_x"   , &HLT_MET_x    );
+    tree->Branch("HLT_MET_y"   , &HLT_MET_y    );
+  }
+
   if(writeHLTObjects){
-  tree->Branch("HLT_Jet_pT"       , &HLT_Jet_pT        );
-  tree->Branch("HLT_Jet_eta"      , &HLT_Jet_eta       );
-  tree->Branch("HLT_Jet_phi"      , &HLT_Jet_phi       );
-  tree->Branch("HLT_Jet_E"        , &HLT_Jet_E         );
-  tree->Branch("HLT_Jet_m"        , &HLT_Jet_m         );
-  tree->Branch("HLT_Jet_MV1"      , &HLT_Jet_MV1       );
-  tree->Branch("HLT_Muon_pT"      , &HLT_Muon_pT       );
-  tree->Branch("HLT_Muon_eta"     , &HLT_Muon_eta      );
-  tree->Branch("HLT_Muon_phi"     , &HLT_Muon_phi      );
-  tree->Branch("HLT_Muon_E"       , &HLT_Muon_E        );
-  tree->Branch("HLT_Muon_m"       , &HLT_Muon_m        );
-  tree->Branch("HLT_Electron_pT"  , &HLT_Electron_pT   );
-  tree->Branch("HLT_Electron_eta" , &HLT_Electron_eta  );
-  tree->Branch("HLT_Electron_phi" , &HLT_Electron_phi  );
-  tree->Branch("HLT_Electron_E"   , &HLT_Electron_E    );
-  tree->Branch("HLT_Electron_m"   , &HLT_Electron_m    );
-  tree->Branch("HLT_MET_x"   , &HLT_MET_x    );
-  tree->Branch("HLT_MET_y"   , &HLT_MET_y    );
+    tree->Branch("HLT_Jet_pT"       , &HLT_Jet_pT        );
+    tree->Branch("HLT_Jet_eta"      , &HLT_Jet_eta       );
+    tree->Branch("HLT_Jet_phi"      , &HLT_Jet_phi       );
+    tree->Branch("HLT_Jet_E"        , &HLT_Jet_E         );
+    tree->Branch("HLT_Jet_m"        , &HLT_Jet_m         );
+    tree->Branch("HLT_Jet_MV1"      , &HLT_Jet_MV1       );
+    tree->Branch("HLT_Muon_pT"      , &HLT_Muon_pT       );
+    tree->Branch("HLT_Muon_eta"     , &HLT_Muon_eta      );
+    tree->Branch("HLT_Muon_phi"     , &HLT_Muon_phi      );
+    tree->Branch("HLT_Muon_E"       , &HLT_Muon_E        );
+    tree->Branch("HLT_Muon_m"       , &HLT_Muon_m        );
+    tree->Branch("HLT_Electron_pT"  , &HLT_Electron_pT   );
+    tree->Branch("HLT_Electron_eta" , &HLT_Electron_eta  );
+    tree->Branch("HLT_Electron_phi" , &HLT_Electron_phi  );
+    tree->Branch("HLT_Electron_E"   , &HLT_Electron_E    );
+    tree->Branch("HLT_Electron_m"   , &HLT_Electron_m    );
+    //    tree->Branch("HLT_MET_x"   , &HLT_MET_x    );
+    //tree->Branch("HLT_MET_y"   , &HLT_MET_y    );
   }
 
 
@@ -470,15 +478,21 @@ EL::StatusCode PlantATree :: execute ()
   }
 
   //trig
+
   RJVars_TriggerBits = eventinfo->auxdecor<int>("triggerBitset");
 
-  /////////////////////////////////////////////////////////////////////////////////////
- // EventNumber = 111;
 
-  //  tree->Print();
+  const xAOD::TrigMissingETContainer* trigmet = 0;
+  if ( !m_store->retrieve( trigmet, "HLT_MET" ).isSuccess() ){ // retrieve arguments: contain key
+    Error(__PRETTY_FUNCTION__, "Failed to retrieve Trigmet container. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+
+  HLT_MET_x = trigmet->at(0)->ex();
+  HLT_MET_y = trigmet->at(0)->ey();
+
   tree->Fill();
   m_store->clear();
-  // assert(0&&"we passed");
 
   return EL::StatusCode::SUCCESS;
 }
@@ -556,15 +570,6 @@ EL::StatusCode PlantATree :: fillHLTVariables() {
 
 
 
-  xAOD::MissingETContainer* MET = nullptr;//new xAOD::MissingETContainer;
-  CHECK( m_store->retrieve( MET, "HLT_MET_RefFinalCont" ) );
-
-    xAOD::MissingETContainer::const_iterator met_it = MET->find("HLT_MET_Final");
-  if (met_it == MET->end()) {
-  } else {
-    HLT_MET_x = (*met_it)->mpx();
-    HLT_MET_y = (*met_it)->mpy();
-  }
 
   return EL::StatusCode::SUCCESS;
 }

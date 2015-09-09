@@ -613,47 +613,48 @@ EL::StatusCode SklimmerAnalysis :: getHLTTriggerObjs (){
 	//------------
 	// GET REBUILT MET
 	//------------
-	const	xAOD::TrigMissingETContainer * trigmet = 0;
-	  //	const	DataVector<xAOD::TrigMissingET_v1> * trigmet = 0
-	  //	const xAOD::MissingETContainer* met = 0;
-	if ( !m_event->retrieve(trigmet, "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET" ).isSuccess() ){ // retrieve arguments: container type, container key
-	  Error(APP_NAME, "Failed to retrieve Met container. Exiting." );
-	  return EL::StatusCode::FAILURE;
-	}
-	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
-	xAOD::MissingETContainer * met = new xAOD::MissingETContainer;
-	xAOD::MissingETAuxContainer * metaux = new xAOD::MissingETAuxContainer;
-	met->setStore(metaux);
-
-	xAOD::TrigMissingETContainer::const_iterator met_itr = trigmet->begin();
-        xAOD::TrigMissingETContainer::const_iterator met_end = trigmet->end();
 
 
-	xAOD::MissingET * finalMet = new xAOD::MissingET(0.,
-							 0.,
-							 0.,
-							 "HLT_MET_Final",
-							 MissingETBase::Source::total()
-							 );
+        ////------------
+	// std::pair<xAOD::TrigMissingETContainer*, xAOD::ShallowAuxContainer*> shallowcopyTrigMissingET = xAOD::shallowCopyContainer(*trigmet);
+	//xAOD::TrigMissingETContainer* trigmet_copy = shallowcopyTrigMissingET.first;
+	// xAOD::ShallowAuxContainer* trigmet_copyaux = shallowcopyTrigMissingET.second;
 
-	for( ; met_itr != met_end; ++met_itr ) {
-	  xAOD::MissingET * newMet = new xAOD::MissingET((*met_itr)->ex(),
-							 (*met_itr)->ey(),
-							 (*met_itr)->sumEt()
-							 );
-	  //	  newMet->makePrivateStore( **met_itr );
-	  met->push_back(newMet);
+	// ////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
+	// xAOD::MissingETContainer * met = new xAOD::MissingETContainer;
+	// xAOD::MissingETAuxContainer * metaux = new xAOD::MissingETAuxContainer;
+	// met->setStore(metaux);
 
-	  //std::cout << "px " << finalMet->mpx() << std::endl;
-	  //std::cout << "py " << finalMet->mpy() << std::endl;
-	  //std::cout << "sumet " << finalMet->sumet() << std::endl;
+	// xAOD::TrigMissingETContainer::const_iterator met_itr = trigmet->begin();
+        // xAOD::TrigMissingETContainer::const_iterator met_end = trigmet->end();
 
-	  finalMet->setMpx  ( finalMet->mpx() + newMet->mpx()    );
-	  finalMet->setMpy  ( finalMet->mpy() + newMet->mpy()    );
-	  finalMet->setSumet( finalMet->sumet() + newMet->sumet());
 
-	}
-	met->push_back(finalMet);
+	// xAOD::MissingET * finalMet = new xAOD::MissingET(0.,
+	// 						 0.,
+	// 						 0.,
+	// 						 "HLT_MET_Final",
+	// 						 MissingETBase::Source::total()
+	// 						 );
+
+	// for( ; met_itr != met_end; ++met_itr ) {
+	//   xAOD::MissingET * newMet = new xAOD::MissingET((*met_itr)->ex(),
+	// 						 (*met_itr)->ey(),
+	// 						 (*met_itr)->sumEt()
+	// 						 );
+	//   //	  newMet->makePrivateStore( **met_itr );
+	//   met->push_back(newMet);
+
+	//   //std::cout << "px " << finalMet->mpx() << std::endl;
+	//   //std::cout << "py " << finalMet->mpy() << std::endl;
+
+	//   //std::cout << "sumet " << finalMet->sumet() << std::endl;
+
+	//   finalMet->setMpx  ( finalMet->mpx() + newMet->mpx()    );
+	//   finalMet->setMpy  ( finalMet->mpy() + newMet->mpy()    );
+	//   finalMet->setSumet( finalMet->sumet() + newMet->sumet());
+
+	// }
+	// met->push_back(finalMet);
 
 	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
 	// std::pair<xAOD::MissingETContainer*, xAOD::ShallowAuxContainer*> shallowcopyMissingETContainer = xAOD::shallowCopyContainer(*met);
@@ -664,28 +665,27 @@ EL::StatusCode SklimmerAnalysis :: getHLTTriggerObjs (){
 
 	if(m_writeFullCollectionsToxAOD){
 
-	muons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
-	if( !m_event->record( muons_copy ,   "HLT_Muons" )){return EL::StatusCode::FAILURE;}
-	if( !m_event->record( muons_copyaux, "HLT_MuonsAux." )) {return EL::StatusCode::FAILURE;}
+	  muons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	  if( !m_event->record( muons_copy ,   "HLT_Muons" )){return EL::StatusCode::FAILURE;}
+	  if( !m_event->record( muons_copyaux, "HLT_MuonsAux." )) {return EL::StatusCode::FAILURE;}
 
 
-	electrons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
-	if( !m_event->record( electrons_copy ,   "HLT_Electrons" )){return EL::StatusCode::FAILURE;}
-	if( !m_event->record( electrons_copyaux, "HLT_ElectronsAux." )) {return EL::StatusCode::FAILURE;}
+	  electrons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	  if( !m_event->record( electrons_copy ,   "HLT_Electrons" )){return EL::StatusCode::FAILURE;}
+	  if( !m_event->record( electrons_copyaux, "HLT_ElectronsAux." )) {return EL::StatusCode::FAILURE;}
 
-	// photons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
-	// if( !m_event->record( photons_copy ,   "HLT_Photons" )){return EL::StatusCode::FAILURE;}
-	// if( !m_event->record( photons_copyaux, "HLT_PhotonsAux." )) {return EL::StatusCode::FAILURE;}
+	  // photons_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	  // if( !m_event->record( photons_copy ,   "HLT_Photons" )){return EL::StatusCode::FAILURE;}
+	  // if( !m_event->record( photons_copyaux, "HLT_PhotonsAux." )) {return EL::StatusCode::FAILURE;}
 
-	jets_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
-	   // if true should have something like this line somewhere:
-	   // m_event->copy("AntiKt4LCTopoJets");
-	if( !m_event->record( jets_copy , "HLT_Jets" )){return EL::StatusCode::FAILURE;}
-	if( !m_event->record( jets_copyaux, "HLT_JetsAux." )) {return EL::StatusCode::FAILURE;}
+	  jets_copyaux->setShallowIO( true ); // true = shallow copy, false = deep copy
+	  // if true should have something like this line somewhere:
+	  // m_event->copy("AntiKt4LCTopoJets");
+	  if( !m_event->record( jets_copy , "HLT_Jets" )){return EL::StatusCode::FAILURE;}
+	  if( !m_event->record( jets_copyaux, "HLT_JetsAux." )) {return EL::StatusCode::FAILURE;}
 
-	if( !m_event->record( met,    "HLT_MET" )){return EL::StatusCode::FAILURE;}
-	if( !m_event->record( metaux, "HLT_METAux." )) {return EL::StatusCode::FAILURE;}
-
+	  // if( !m_event->record( trigmet,    "HLT_MET" )){return EL::StatusCode::FAILURE;}
+	  // if( !m_event->record( trigmetaux, "HLT_METAux." )) {return EL::StatusCode::FAILURE;}
 	}
 	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
 	muons_copy->setStore(muons_copyaux);
@@ -708,9 +708,11 @@ EL::StatusCode SklimmerAnalysis :: getHLTTriggerObjs (){
 	if( ! m_store->record( jets_copy, "HLT_Jets" ) )       {return EL::StatusCode::FAILURE;}
 	if( ! m_store->record( jets_copyaux, "HLT_JetsAux." ) ){return EL::StatusCode::FAILURE;}
 
-	met->setStore(metaux);
-	if( ! m_store->record( met,    "HLT_MET_RefFinalCont"     ) ){return EL::StatusCode::FAILURE;};
-	if( ! m_store->record( metaux, "HLT_MET_RefFinalContAux." ) ){return EL::StatusCode::FAILURE;};
+
+
+	// trigmet_copy->setStore(trigmet_copyaux);
+	// if( ! m_store->record( trigmet,         "HLT_MET_RefFinalCont"     ) ){return EL::StatusCode::FAILURE;};
+	// if( ! m_store->record( trigmet_copyaux, "HLT_MET_RefFinalContAux." ) ){return EL::StatusCode::FAILURE;};
 	////std::cout << __PRETTY_FUNCTION__ << " at line: " << __LINE__ << std::endl;
 	////////////////////////////////////////////////////////
 
@@ -1023,7 +1025,18 @@ EL::StatusCode SklimmerAnalysis :: execute ()
 	    if( !m_event->record( eventInfo_shallowCopy.second, "myEventInfoAux." )) {return EL::StatusCode::FAILURE;}
         }
 
+	const xAOD::TrigMissingETContainer* trigmet = 0;
+	if ( !m_event->retrieve( trigmet, "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET" ).isSuccess() ){ // retrieve arguments: contain key
+     	  Error(__PRETTY_FUNCTION__, "Failed to retrieve Trigmet container. Exiting." );
+	  return EL::StatusCode::FAILURE;
+	}
 
+        std::pair<xAOD::TrigMissingETContainer* , xAOD::ShallowAuxContainer*> shallowcopyTrigMet = xAOD::shallowCopyContainer(*trigmet);
+	xAOD::TrigMissingETContainer * trigmet_copy    = shallowcopyTrigMet.first;
+        xAOD::ShallowAuxContainer    * trigmet_copyaux = shallowcopyTrigMet.second;
+
+	if( ! m_store->record( trigmet_copy, "HLT_MET")){return EL::StatusCode::FAILURE;}
+	if( ! m_store->record( trigmet_copyaux, "HLT_MET_Aux.")){return EL::StatusCode::FAILURE;}
 	// m_store->print();
 	//	std::cout << __PRETTY_FUNCTION__ << " at line : " << __LINE__ << std::endl;
 

@@ -30,6 +30,7 @@ public:
   // Tree *myTree; //!
   // TH1 *myHist; //!
 
+  bool writeHLTmet    ; //tends to be pretty big with HLT objects
   bool writeHLTObjects; //tends to be pretty big with HLT objects
 
   GoodRunsListSelectionTool *m_grl; //!
