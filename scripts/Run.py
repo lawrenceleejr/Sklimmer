@@ -54,7 +54,8 @@ elif options.inputDS == "testdata":
     ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.06307276._000019.pool.root.1");#50ns
 elif options.inputDS == "testmc":
     list = ROOT.SH.DiskListLocal("/data/users/rsmith/")
-    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.05970104._000001.pool.root.1");
+    ROOT.SH.scanDir(sh_all,list,"AOD.05834871._000002.pool.root.1")
+#    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.05970104._000001.pool.root.1");
 #    ROOT.SH.scanDir(sh_all,list,"DAOD_SUSY1.06381986._000008.pool.root.1");
 elif options.inputDS != "none":
   ROOT.SH.scanDQ2 (sh_all, options.inputDS);
@@ -105,10 +106,10 @@ alg.m_writeFullCollectionsToxAOD = True;
 
 print "isMC : " + str(options.isMC)
 
-if(options.isMC) :
-    alg.isMC = 1
-else :
-    alg.isMC = 0
+# if(options.isMC) :
+#     alg.isMC = 1
+# else :
+#     alg.isMC = 0
 
 alg.m_Analysis = "bbmet";
 
@@ -117,10 +118,10 @@ job.outputAdd(output)
 ntuple = ROOT.EL.NTupleSvc("treeOutput")
 
 treeWriter = ROOT.PlantATree();
-if(options.isMC) :
-    treeWriter.isMC = 1
-else :
-    treeWriter.isMC = 0
+# if(options.isMC) :
+#     treeWriter.isMC = 1
+# else :
+#     treeWriter.isMC = 0
 
 treeWriter.outputName = "treeOutput";
 
@@ -154,7 +155,7 @@ elif (options.driver == "grid"):
 #    outSampleName = "user.rsmith.grid.v8."+ options.inputDS + "%in:name[2]%" + "%in:name[3]%"
 #    driver.options().setDouble(ROOT.EL.Job.optGridNFilesPerJob,  1);
 #    driver.options().setString("nc_outputSampleName", outSampleName.replace("mc15_13TeV:","mc15_13TeV"));
-    driver.options().setString("nc_outputSampleName", "user.rsmith.v2.fixBits.%in:name[2]%.%in:name[3]%.end")
+    driver.options().setString("nc_outputSampleName", "user.rsmith.v2.ptag.%in:name[2]%.%in:name[3]%.end")
 
 #   driver.options().setString("nc_outputSampleName", "user.rsmith.testoutput.withslash")
 
