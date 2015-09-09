@@ -4,8 +4,8 @@ import os
 import subprocess
 from optparse import OptionParser
 
-inputfile = open("inputDS_25ns_signal.txt" , "r" )
-outfile = open("inputDS_25ns_signalTIDONLY.txt", "w")
+inputfile = open("inputDS_25ns_full_xAOD_signal.txt" , "r" )
+outfile = open("inputDS_25ns_full_xAOD_signalTIDONLY.txt", "w")
 
 subresult = []
 for line in inputfile :
